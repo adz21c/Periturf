@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Periturf.Components;
 using Periturf.Configuration;
 using Periturf.Setup;
+using Periturf.Verify;
 
 namespace Periturf
 {
@@ -287,6 +288,23 @@ namespace Periturf
             }
 
             public Dictionary<string, IComponentConfigurator> GetConfigurators() => _configurators;
+        }
+
+        #endregion
+
+        #region Verify
+
+        /// <summary>
+        /// Registers listeners for conditions and returns a <see cref="IVerifier" /> to evaluate if the condition has happened since creation.
+        /// </summary>
+        /// <param name="condition">The condition.</param>
+        /// <param name="ct">The ct.</param>
+        /// <returns>
+        ///   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
+        /// </returns>
+        public IVerifier Verify(Func<IConditionContext, IConditionSpecification> condition, CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
