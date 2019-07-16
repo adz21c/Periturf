@@ -37,19 +37,20 @@ namespace Periturf
                 conditions.Select(x => x(context)).ToList());
         }
 
-        ///// <summary>
-        ///// At least one condition must evaluate to true.
-        ///// </summary>
-        ///// <remarks>
-        ///// Once one condition evaluates to true, the rest are not checked.
-        ///// </remarks>
-        ///// <param name="context">The condition context.</param>
-        ///// <param name="conditions">The conditions configuration.</param>
-        ///// <returns>An "Or" condition evaluator</returns>
-        //public static IConditionSpecification Or(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// At least one condition must evaluate to true.
+        /// </summary>
+        /// <remarks>
+        /// Once one condition evaluates to true, the rest are not checked.
+        /// </remarks>
+        /// <param name="context">The condition context.</param>
+        /// <param name="conditions">The conditions configuration.</param>
+        /// <returns>An "Or" condition evaluator</returns>
+        public static IConditionSpecification Or(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        {
+            return new OrConditionSpecification(
+                conditions.Select(x => x(context)).ToList());
+        }
 
         ///// <summary>
         ///// Only one condition can evaluate to true.
