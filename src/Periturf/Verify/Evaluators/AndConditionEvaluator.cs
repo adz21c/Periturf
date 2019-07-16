@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Verify
+namespace Periturf.Verify.Evaluators
 {
-    /// <summary>
-    /// Defines a condition, and for components can register a condition for verification with a component.
-    /// </summary>
-    public interface IConditionSpecification
+    class AndConditionEvaluator : IConditionEvaluator
     {
-        /// <summary>
-        /// Returns an evaluator for the specified condition.
-        /// </summary>
-        /// <param name="verifierId">The verifier identifier to associate listeners with.</param>
-        /// <param name="ct">The ct.</param>
-        /// <returns>An evaluator for the specified conditon</returns>
-        Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, CancellationToken ct = default);
+        private List<IConditionEvaluator> _evaluators;
+
+        public AndConditionEvaluator(IEnumerable<IConditionEvaluator> evaluators)
+        {
+            _evaluators = evaluators.ToList();
+        }
+
+        public async Task<bool> EvaluateAsync(CancellationToken ct = default)
+        {
+            var evaluateTasks = _evaluators.Select(x => x.EvaluateAsync(ct)).ToList();
+            await Task.WhenAll(evaluateTasks);
+            return evaluateTasks.All(x => x.Result);
+        }
     }
 }

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 using Periturf.Verify;
+using Periturf.Verify.Evaluators;
 using System;
+using System.Linq;
 
 namespace Periturf
 {
@@ -31,43 +33,44 @@ namespace Periturf
         /// <returns>An "And" condition evaluator</returns>
         public static IConditionSpecification And(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
         {
-            throw new NotImplementedException();
+            return new AndConditionSpecification(
+                conditions.Select(x => x(context)).ToList());
         }
 
-        /// <summary>
-        /// At least one condition must evaluate to true.
-        /// </summary>
-        /// <remarks>
-        /// Once one condition evaluates to true, the rest are not checked.
-        /// </remarks>
-        /// <param name="context">The condition context.</param>
-        /// <param name="conditions">The conditions configuration.</param>
-        /// <returns>An "Or" condition evaluator</returns>
-        public static IConditionSpecification Or(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// At least one condition must evaluate to true.
+        ///// </summary>
+        ///// <remarks>
+        ///// Once one condition evaluates to true, the rest are not checked.
+        ///// </remarks>
+        ///// <param name="context">The condition context.</param>
+        ///// <param name="conditions">The conditions configuration.</param>
+        ///// <returns>An "Or" condition evaluator</returns>
+        //public static IConditionSpecification Or(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <summary>
-        /// Only one condition can evaluate to true.
-        /// </summary>
-        /// <param name="context">The condition context.</param>
-        /// <param name="conditions">The conditions configuration.</param>
-        /// <returns>A "Xor" condition evaluator</returns>
-        public static IConditionSpecification Xor(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// Only one condition can evaluate to true.
+        ///// </summary>
+        ///// <param name="context">The condition context.</param>
+        ///// <param name="conditions">The conditions configuration.</param>
+        ///// <returns>A "Xor" condition evaluator</returns>
+        //public static IConditionSpecification Xor(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <summary>
-        /// Negates the result of the child condition.
-        /// </summary>
-        /// <param name="context">The condition context.</param>
-        /// <param name="condition">The condition configuration.</param>
-        /// <returns>A "Not" condition evaluator</returns>
-        public static IConditionSpecification Not(this IConditionContext context, Func<IConditionContext, IConditionSpecification> condition)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// Negates the result of the child condition.
+        ///// </summary>
+        ///// <param name="context">The condition context.</param>
+        ///// <param name="condition">The condition configuration.</param>
+        ///// <returns>A "Not" condition evaluator</returns>
+        //public static IConditionSpecification Not(this IConditionContext context, Func<IConditionContext, IConditionSpecification> condition)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
