@@ -34,21 +34,14 @@ namespace Periturf.Tests.Verify
             var context = A.Dummy<IConditionContext>();
 
             var spec1 = A.Dummy<IConditionSpecification>();
-            var config1 = A.Dummy<Func<IConditionContext, IConditionSpecification>>();
-            A.CallTo(() => config1.Invoke(context)).Returns(spec1);
-
             var spec2 = A.Dummy<IConditionSpecification>();
-            var config2 = A.Dummy<Func<IConditionContext, IConditionSpecification>>();
-            A.CallTo(() => config2.Invoke(context)).Returns(spec2);
 
             // Act
-            var parentSpec = context.And(config1, config2);
+            var parentSpec = context.And(spec1, spec2);
 
             // Assert
             Assert.IsNotNull(parentSpec);
             Assert.AreEqual(typeof(AndConditionSpecification), parentSpec.GetType());
-            A.CallTo(() => config1.Invoke(context)).MustHaveHappened();
-            A.CallTo(() => config2.Invoke(context)).MustHaveHappened();
         }
 
         [Test]
@@ -58,21 +51,47 @@ namespace Periturf.Tests.Verify
             var context = A.Dummy<IConditionContext>();
 
             var spec1 = A.Dummy<IConditionSpecification>();
-            var config1 = A.Dummy<Func<IConditionContext, IConditionSpecification>>();
-            A.CallTo(() => config1.Invoke(context)).Returns(spec1);
-
             var spec2 = A.Dummy<IConditionSpecification>();
-            var config2 = A.Dummy<Func<IConditionContext, IConditionSpecification>>();
-            A.CallTo(() => config2.Invoke(context)).Returns(spec2);
 
             // Act
-            var parentSpec = context.Or(config1, config2);
+            var parentSpec = context.Or(spec1, spec2);
 
             // Assert
             Assert.IsNotNull(parentSpec);
             Assert.AreEqual(typeof(OrConditionSpecification), parentSpec.GetType());
-            A.CallTo(() => config1.Invoke(context)).MustHaveHappened();
-            A.CallTo(() => config2.Invoke(context)).MustHaveHappened();
+        }
+
+        [Test]
+        public void Given_ChildConditions_When_Xor_Then_OrSpecificationCreated()
+        {
+            // Arrange
+            var context = A.Dummy<IConditionContext>();
+
+            var spec1 = A.Dummy<IConditionSpecification>();
+            var spec2 = A.Dummy<IConditionSpecification>();
+
+            // Act
+            var parentSpec = context.Xor(spec1, spec2);
+
+            // Assert
+            Assert.IsNotNull(parentSpec);
+            Assert.AreEqual(typeof(XorConditionSpecification), parentSpec.GetType());
+        }
+
+        [Test]
+        public void Given_ChildConditions_When_Not_Then_OrSpecificationCreated()
+        {
+            // Arrange
+            var context = A.Dummy<IConditionContext>();
+
+            var spec = A.Dummy<IConditionSpecification>();
+
+            // Act
+            var parentSpec = context.Not(spec);
+
+            // Assert
+            Assert.IsNotNull(parentSpec);
+            Assert.AreEqual(typeof(NotConditionSpecification), parentSpec.GetType());
         }
     }
 }

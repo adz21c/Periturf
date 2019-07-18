@@ -61,15 +61,15 @@ namespace Periturf
             return new XorConditionSpecification(conditions.ToList());
         }
 
-        ///// <summary>
-        ///// Negates the result of the child condition.
-        ///// </summary>
-        ///// <param name="context">The condition context.</param>
-        ///// <param name="condition">The condition configuration.</param>
-        ///// <returns>A "Not" condition evaluator</returns>
-        //public static IConditionSpecification Not(this IConditionContext context, Func<IConditionContext, IConditionSpecification> condition)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// Negates the result of the child condition.
+        /// </summary>
+        /// <param name="context">The condition context.</param>
+        /// <param name="condition">The condition configuration.</param>
+        /// <returns>A "Not" condition evaluator</returns>
+        public static IConditionSpecification Not(this IConditionContext context, IConditionSpecification condition)
+        {
+            return new NotConditionSpecification(condition);
+        }
     }
 }
