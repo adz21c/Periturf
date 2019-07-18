@@ -52,16 +52,17 @@ namespace Periturf
                 conditions.Select(x => x(context)).ToList());
         }
 
-        ///// <summary>
-        ///// Only one condition can evaluate to true.
-        ///// </summary>
-        ///// <param name="context">The condition context.</param>
-        ///// <param name="conditions">The conditions configuration.</param>
-        ///// <returns>A "Xor" condition evaluator</returns>
-        //public static IConditionSpecification Xor(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// Only one condition can evaluate to true.
+        /// </summary>
+        /// <param name="context">The condition context.</param>
+        /// <param name="conditions">The conditions configuration.</param>
+        /// <returns>A "Xor" condition evaluator</returns>
+        public static IConditionSpecification Xor(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        {
+            return new XorConditionSpecification(
+                conditions.Select(x => x(context)).ToList());
+        }
 
         ///// <summary>
         ///// Negates the result of the child condition.
