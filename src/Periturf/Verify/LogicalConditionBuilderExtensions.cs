@@ -31,10 +31,9 @@ namespace Periturf
         /// <param name="context">The condition context.</param>
         /// <param name="conditions">The conditions configuration.</param>
         /// <returns>An "And" condition evaluator</returns>
-        public static IConditionSpecification And(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        public static IConditionSpecification And(this IConditionContext context, params IConditionSpecification[] conditions)
         {
-            return new AndConditionSpecification(
-                conditions.Select(x => x(context)).ToList());
+            return new AndConditionSpecification(conditions.ToList());
         }
 
         /// <summary>
@@ -46,10 +45,9 @@ namespace Periturf
         /// <param name="context">The condition context.</param>
         /// <param name="conditions">The conditions configuration.</param>
         /// <returns>An "Or" condition evaluator</returns>
-        public static IConditionSpecification Or(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        public static IConditionSpecification Or(this IConditionContext context, params IConditionSpecification[] conditions)
         {
-            return new OrConditionSpecification(
-                conditions.Select(x => x(context)).ToList());
+            return new OrConditionSpecification(conditions.ToList());
         }
 
         /// <summary>
@@ -58,10 +56,9 @@ namespace Periturf
         /// <param name="context">The condition context.</param>
         /// <param name="conditions">The conditions configuration.</param>
         /// <returns>A "Xor" condition evaluator</returns>
-        public static IConditionSpecification Xor(this IConditionContext context, params Func<IConditionContext, IConditionSpecification>[] conditions)
+        public static IConditionSpecification Xor(this IConditionContext context, params IConditionSpecification[] conditions)
         {
-            return new XorConditionSpecification(
-                conditions.Select(x => x(context)).ToList());
+            return new XorConditionSpecification(conditions.ToList());
         }
 
         ///// <summary>
