@@ -16,13 +16,9 @@
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Periturf.Verify.Evaluators.Logical;
 
-namespace Periturf.Tests.Verify
+namespace Periturf.Tests.Verify.Evaluators.Logical
 {
     [TestFixture]
     class LogicalConditionBuilderTest

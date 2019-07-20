@@ -16,39 +16,36 @@
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
+using Periturf.Verify.Evaluators.Logical;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Tests.Verify.Evaluators
+namespace Periturf.Tests.Verify.Evaluators.Logical
 {
     [TestFixture]
-    class XorConditionEvaluatorTests
+    class NotConditionSpecificationTests
     {
-        [TestCase(true, true, false)]
-        [TestCase(false, true, true)]
-        [TestCase(true, false, true)]
-        [TestCase(false, false, false)]
-        public async Task Given_ChildConditions_When_Evaluate_Then_ExpectedResult(bool conditionResult, bool condition2Result, bool parentConditionResult)
+        [Test]
+        public async Task Given_ChildConditions_When_BuildEvaluator_Then_CreateChildEvaluatorsAndReturnParent()
         {
             // Arrange
             var id = Guid.NewGuid();
 
             var evaluator = A.Dummy<IConditionEvaluator>();
-            A.CallTo(() => evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(conditionResult);
+            var condition = A.Fake<IConditionSpecification>();
+            A.CallTo(() => condition.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._)).Returns(evaluator);
 
-            var evaluator2 = A.Dummy<IConditionEvaluator>();
-            A.CallTo(() => evaluator2.EvaluateAsync(A<CancellationToken>._)).Returns(condition2Result);
-
-            var spec = new XorConditionEvaluator(new List<IConditionEvaluator> { evaluator, evaluator2 });
+            var spec = new NotConditionSpecification(condition);
 
             // Act
-            var parentResult = await spec.EvaluateAsync();
+            var parentEvaluator = await spec.BuildEvaluatorAsync(id);
 
             // Assert
-            Assert.AreEqual(parentConditionResult, parentResult);
+            Assert.IsNotNull(parentEvaluator);
+            Assert.AreEqual(typeof(NotConditionEvaluator), parentEvaluator.GetType());
+            A.CallTo(() => condition.BuildEvaluatorAsync(id, A<CancellationToken>._)).MustHaveHappened();
         }
     }
 }

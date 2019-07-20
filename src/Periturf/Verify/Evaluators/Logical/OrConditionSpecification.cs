@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Verify.Evaluators
+namespace Periturf.Verify.Evaluators.Logical
 {
-    class NotConditionEvaluator : IConditionEvaluator
+    class OrConditionSpecification : IConditionSpecification
     {
-        private readonly IConditionEvaluator _evaluator;
+        private readonly List<IConditionSpecification> _conditions;
 
-        public NotConditionEvaluator(IConditionEvaluator evaluator)
+        public OrConditionSpecification(List<IConditionSpecification> conditions)
         {
-            _evaluator = evaluator;
+            _conditions = conditions;
         }
 
-        public async Task<bool> EvaluateAsync(CancellationToken ct = default)
+        public async Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, CancellationToken ct = default)
         {
-            return !(await _evaluator.EvaluateAsync(ct));
+            var buildTasks = _conditions.Select(x => x.BuildEvaluatorAsync(verifierId, ct)).ToList();
+            await Task.WhenAll(buildTasks);
+            return new OrConditionEvaluator(buildTasks.Select(x => x.Result));
         }
     }
 }

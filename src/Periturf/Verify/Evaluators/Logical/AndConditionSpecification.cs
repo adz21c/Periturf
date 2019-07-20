@@ -19,13 +19,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Verify.Evaluators
+namespace Periturf.Verify.Evaluators.Logical
 {
-    class OrConditionSpecification : IConditionSpecification
+    class AndConditionSpecification : IConditionSpecification
     {
         private readonly List<IConditionSpecification> _conditions;
 
-        public OrConditionSpecification(List<IConditionSpecification> conditions)
+        public AndConditionSpecification(List<IConditionSpecification> conditions)
         {
             _conditions = conditions;
         }
@@ -34,7 +34,7 @@ namespace Periturf.Verify.Evaluators
         {
             var buildTasks = _conditions.Select(x => x.BuildEvaluatorAsync(verifierId, ct)).ToList();
             await Task.WhenAll(buildTasks);
-            return new OrConditionEvaluator(buildTasks.Select(x => x.Result));
+            return new AndConditionEvaluator(buildTasks.Select(x => x.Result));
         }
     }
 }

@@ -16,18 +16,18 @@
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
+using Periturf.Verify.Evaluators.Logical;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Tests.Verify.Evaluators
+namespace Periturf.Tests.Verify.Evaluators.Logical
 {
     [TestFixture]
-    class OrConditionEvaluatorTests
+    class XorConditionEvaluatorTests
     {
-        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
         [TestCase(false, true, true)]
         [TestCase(true, false, true)]
         [TestCase(false, false, false)]
@@ -42,7 +42,7 @@ namespace Periturf.Tests.Verify.Evaluators
             var evaluator2 = A.Dummy<IConditionEvaluator>();
             A.CallTo(() => evaluator2.EvaluateAsync(A<CancellationToken>._)).Returns(condition2Result);
 
-            var spec = new OrConditionEvaluator(new List<IConditionEvaluator> { evaluator, evaluator2 });
+            var spec = new XorConditionEvaluator(new List<IConditionEvaluator> { evaluator, evaluator2 });
 
             // Act
             var parentResult = await spec.EvaluateAsync();
@@ -50,7 +50,5 @@ namespace Periturf.Tests.Verify.Evaluators
             // Assert
             Assert.AreEqual(parentConditionResult, parentResult);
         }
-
-        // TODO: Test short circuit
     }
 }

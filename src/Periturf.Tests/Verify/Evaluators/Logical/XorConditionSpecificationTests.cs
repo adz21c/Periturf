@@ -16,13 +16,13 @@
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
+using Periturf.Verify.Evaluators.Logical;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Tests.Verify.Evaluators
+namespace Periturf.Tests.Verify.Evaluators.Logical
 {
     [TestFixture]
     class XorConditionSpecificationTests

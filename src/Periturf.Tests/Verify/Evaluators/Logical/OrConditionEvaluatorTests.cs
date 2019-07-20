@@ -16,20 +16,22 @@
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
+using Periturf.Verify.Evaluators.Logical;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Tests.Verify.Evaluators
+namespace Periturf.Tests.Verify.Evaluators.Logical
 {
     [TestFixture]
-    class NotConditionEvaluatorTests
+    class OrConditionEvaluatorTests
     {
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        public async Task Given_ChildConditions_When_Evaluate_Then_ExpectedResult(bool conditionResult, bool parentConditionResult)
+        [TestCase(true, true, true)]
+        [TestCase(false, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, false, false)]
+        public async Task Given_ChildConditions_When_Evaluate_Then_ExpectedResult(bool conditionResult, bool condition2Result, bool parentConditionResult)
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -37,7 +39,10 @@ namespace Periturf.Tests.Verify.Evaluators
             var evaluator = A.Dummy<IConditionEvaluator>();
             A.CallTo(() => evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(conditionResult);
 
-            var spec = new NotConditionEvaluator(evaluator);
+            var evaluator2 = A.Dummy<IConditionEvaluator>();
+            A.CallTo(() => evaluator2.EvaluateAsync(A<CancellationToken>._)).Returns(condition2Result);
+
+            var spec = new OrConditionEvaluator(new List<IConditionEvaluator> { evaluator, evaluator2 });
 
             // Act
             var parentResult = await spec.EvaluateAsync();
@@ -45,5 +50,7 @@ namespace Periturf.Tests.Verify.Evaluators
             // Assert
             Assert.AreEqual(parentConditionResult, parentResult);
         }
+
+        // TODO: Test short circuit
     }
 }

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 using Periturf.Verify;
-using Periturf.Verify.Evaluators;
-using System;
+using Periturf.Verify.Evaluators.Logical;
 using System.Linq;
 
 namespace Periturf
