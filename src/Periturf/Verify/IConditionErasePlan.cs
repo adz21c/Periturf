@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Verifies a condition.
+    /// Builds and executes a plan to erase conditions.
     /// </summary>
-    public interface IConditionEvaluator
+    public interface IConditionErasePlan
     {
         /// <summary>
-        /// Evaluates this instance's condition.
+        /// Adds a step the plan.
         /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns>
-        ///   <c>true</c> if the condition can be varified; else <c>false</c>
-        /// </returns>
-        Task<bool> EvaluateAsync(CancellationToken ct = default);
+        /// <param name="eraser">A step to erase a condition.</param>
+        void AddEraser(IConditionEraser eraser);
     }
 }

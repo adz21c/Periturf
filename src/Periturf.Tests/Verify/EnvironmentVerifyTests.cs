@@ -33,7 +33,6 @@ namespace Periturf.Tests.Verify
         private IConditionSpecification _specification;
         private IComponent _component;
         private Environment _environment;
-        private Guid _verifyId;
         private IVerifier _verifier;
 
         [SetUp]
@@ -43,8 +42,7 @@ namespace Periturf.Tests.Verify
             _evaluator = A.Fake<IConditionEvaluator>();
 
             _specification = A.Fake<IConditionSpecification>();
-            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._))
-                .Invokes((Guid id, CancellationToken ct) => _verifyId = id)
+            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
                 .Returns(_evaluator);
 
             _componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();

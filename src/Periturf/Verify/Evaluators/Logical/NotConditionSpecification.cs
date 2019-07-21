@@ -28,9 +28,9 @@ namespace Periturf.Verify.Evaluators.Logical
             _condition = condition;
         }
 
-        public async Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, CancellationToken ct = default)
+        public async Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct = default)
         {
-            var evaluator = await _condition.BuildEvaluatorAsync(verifierId, ct);
+            var evaluator = await _condition.BuildEvaluatorAsync(verifierId, erasePlan, ct);
             return new NotConditionEvaluator(evaluator);
         }
     }

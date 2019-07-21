@@ -43,8 +43,8 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(true);
 
             _specification = A.Fake<IConditionSpecification>();
-            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._))
-                .Invokes((Guid id, CancellationToken ct) => _verifyId = id)
+            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
+                .Invokes((Guid id, IConditionErasePlan erasePlan, CancellationToken ct) => _verifyId = id)
                 .Returns(_evaluator);
 
             _componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
@@ -72,7 +72,7 @@ namespace Periturf.Tests.Verify
 
             // Assert
             A.CallTo(() => _componentConditionBuilder.CreateSpecification()).MustHaveHappened().Then(
-                A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappened());
+                A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._)).MustHaveHappened());
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Periturf.Tests.Verify
             await verifier.CleanUpAsync();
 
             // Assert
-            A.CallTo(() => _component.UnregisterConditionsAsync(_verifyId, A<CancellationToken>._)).MustHaveHappened();
+            // TODO: Complete
         }
     }
 }

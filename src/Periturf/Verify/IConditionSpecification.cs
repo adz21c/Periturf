@@ -28,8 +28,11 @@ namespace Periturf.Verify
         /// Returns an evaluator for the specified condition.
         /// </summary>
         /// <param name="verifierId">The verifier identifier to associate listeners with.</param>
+        /// <param name="erasePlan">The plan to erase conditions.</param>
         /// <param name="ct">The ct.</param>
-        /// <returns>An evaluator for the specified conditon</returns>
-        Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, CancellationToken ct = default);
+        /// <returns>
+        /// An evaluator for the specified conditon
+        /// </returns>
+        Task<IConditionEvaluator> BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct = default);
     }
 }

@@ -35,22 +35,24 @@ namespace Periturf.Tests.Verify.Evaluators.Logical
 
             var evaluator = A.Dummy<IConditionEvaluator>();
             var condition = A.Fake<IConditionSpecification>();
-            A.CallTo(() => condition.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._)).Returns(evaluator);
+            A.CallTo(() => condition.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._)).Returns(evaluator);
 
             var evaluator2 = A.Dummy<IConditionEvaluator>();
             var condition2 = A.Fake<IConditionSpecification>();
-            A.CallTo(() => condition2.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._)).Returns(evaluator2);
+            A.CallTo(() => condition2.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._)).Returns(evaluator2);
 
             var spec = new AndConditionSpecification(new List<IConditionSpecification> { condition, condition2 });
 
+            var erasePlan = A.Dummy<IConditionErasePlan>();
+            
             // Act
-            var parentEvaluator = await spec.BuildEvaluatorAsync(id);
+            var parentEvaluator = await spec.BuildEvaluatorAsync(id, erasePlan);
 
             // Assert
             Assert.IsNotNull(parentEvaluator);
             Assert.AreEqual(typeof(AndConditionEvaluator), parentEvaluator.GetType());
-            A.CallTo(() => condition.BuildEvaluatorAsync(id, A<CancellationToken>._)).MustHaveHappened();
-            A.CallTo(() => condition2.BuildEvaluatorAsync(id, A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(() => condition.BuildEvaluatorAsync(id, A<IConditionErasePlan>._, A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(() => condition2.BuildEvaluatorAsync(id, A<IConditionErasePlan>._, A<CancellationToken>._)).MustHaveHappened();
         }
     }
 }

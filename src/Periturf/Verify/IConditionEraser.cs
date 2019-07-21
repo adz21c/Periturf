@@ -19,17 +19,15 @@ using System.Threading.Tasks;
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Verifies a condition.
+    /// Removes any changes made to the <see cref="Environment"/> to monitor for the condition.
     /// </summary>
-    public interface IConditionEvaluator
+    public interface IConditionEraser
     {
         /// <summary>
-        /// Evaluates this instance's condition.
+        /// Erases the changes to an <see cref="Environment"/> for the condition.
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
-        /// <returns>
-        ///   <c>true</c> if the condition can be varified; else <c>false</c>
-        /// </returns>
-        Task<bool> EvaluateAsync(CancellationToken ct = default);
+        /// <returns></returns>
+        Task EraseAsync(CancellationToken ct = default);
     }
 }

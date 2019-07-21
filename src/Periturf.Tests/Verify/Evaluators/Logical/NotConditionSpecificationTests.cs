@@ -35,17 +35,19 @@ namespace Periturf.Tests.Verify.Evaluators.Logical
 
             var evaluator = A.Dummy<IConditionEvaluator>();
             var condition = A.Fake<IConditionSpecification>();
-            A.CallTo(() => condition.BuildEvaluatorAsync(A<Guid>._, A<CancellationToken>._)).Returns(evaluator);
+            A.CallTo(() => condition.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._)).Returns(evaluator);
 
             var spec = new NotConditionSpecification(condition);
 
+            var erasePlan = A.Dummy<IConditionErasePlan>();
+
             // Act
-            var parentEvaluator = await spec.BuildEvaluatorAsync(id);
+            var parentEvaluator = await spec.BuildEvaluatorAsync(id, erasePlan);
 
             // Assert
             Assert.IsNotNull(parentEvaluator);
             Assert.AreEqual(typeof(NotConditionEvaluator), parentEvaluator.GetType());
-            A.CallTo(() => condition.BuildEvaluatorAsync(id, A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(() => condition.BuildEvaluatorAsync(id, A<IConditionErasePlan>._, A<CancellationToken>._)).MustHaveHappened();
         }
     }
 }

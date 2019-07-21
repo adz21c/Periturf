@@ -41,13 +41,5 @@ namespace Periturf.Components
         /// <returns></returns>
         TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
             where TComponentConditionBuilder : IComponentConditionBuilder;
-
-        /// <summary>
-        /// Unregisters the conditions associated with the supplied identifier.
-        /// </summary>
-        /// <param name="id">The unique identifier for the conditions.</param>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns></returns>
-        Task UnregisterConditionsAsync(Guid id, CancellationToken ct = default);
     }
 }

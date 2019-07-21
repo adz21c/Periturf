@@ -308,9 +308,10 @@ namespace Periturf
             var condition = verifierBuilder(conditionContext);
 
             var verifyId = Guid.NewGuid();
-            var evaluator = await condition.BuildEvaluatorAsync(verifyId, ct);
+            var erasePlan = new ErasePlan();
+            var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
 
-            return new Verifier(verifyId, evaluator);
+            return new Verifier(evaluator);
         }
 
         class ConditionContext : IConditionContext
@@ -335,12 +336,10 @@ namespace Periturf
 
         class Verifier : IVerifier
         {
-            private Guid _verifyId;
-            private IConditionEvaluator _evaluator;
+            private readonly IConditionEvaluator _evaluator;
 
-            public Verifier(Guid verifyId, IConditionEvaluator evaluator)
+            public Verifier(IConditionEvaluator evaluator)
             {
-                _verifyId = verifyId;
                 _evaluator = evaluator;
             }
 
@@ -384,6 +383,16 @@ namespace Periturf
                 Dispose(true);
             }
             #endregion
+        }
+
+        class ErasePlan : IConditionErasePlan
+        {
+            private readonly List<IConditionEraser> _erasers = new List<IConditionEraser>();
+
+            public void AddEraser(IConditionEraser eraser)
+            {
+                _erasers.Add(eraser ?? throw new ArgumentNullException(nameof(eraser)));
+            }
         }
 
         #endregion
