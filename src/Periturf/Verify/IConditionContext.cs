@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Periturf.Verify;
+
 namespace Periturf
 {
     /// <summary>
@@ -25,6 +27,7 @@ namespace Periturf
         /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
         /// <param name="componentName">The name of the component.</param>
         /// <returns></returns>
-        TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName);
+        TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName)
+            where TComponentConditionBuilder : IComponentConditionBuilder;
     }
 }

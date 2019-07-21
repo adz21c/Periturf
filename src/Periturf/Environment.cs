@@ -302,7 +302,7 @@ namespace Periturf
         /// <returns>
         ///   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
         /// </returns>
-        public IVerifier Verify(Func<IConditionContext, IConditionSpecification> condition, CancellationToken ct = default)
+        public Task<IVerifier> VerifyAsync(Func<IConditionContext, IConditionSpecification> condition, CancellationToken ct = default)
         {
             throw new NotImplementedException();
         }

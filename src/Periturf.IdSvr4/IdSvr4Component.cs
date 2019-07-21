@@ -16,6 +16,7 @@
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Periturf.Components;
+using Periturf.Verify;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -49,6 +50,16 @@ namespace Periturf.IdSvr4
             if (_configurations.TryRemove(id, out _))
                 RebuildStores();
             return Task.CompletedTask;
+        }
+
+        public IComponentConditionBuilder CreateConditionBuilder()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnregisterConditionsAsync(Guid id, CancellationToken ct = default)
+        {
+            throw new NotImplementedException();
         }
 
         private void RebuildStores()
