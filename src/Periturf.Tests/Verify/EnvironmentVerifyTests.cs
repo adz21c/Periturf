@@ -51,7 +51,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _componentConditionBuilder.CreateSpecification()).Returns(_specification);
 
             _component = A.Fake<IComponent>();
-            A.CallTo(() => _component.CreateConditionBuilder()).Returns(_componentConditionBuilder);
+            A.CallTo(() => _component.CreateConditionBuilder<ITestComponentConditionBuilder>()).Returns(_componentConditionBuilder);
 
             var host1 = A.Fake<IHost>();
             A.CallTo(() => host1.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(_component), _component } }));

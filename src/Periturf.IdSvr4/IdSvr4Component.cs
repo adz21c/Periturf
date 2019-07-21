@@ -52,7 +52,8 @@ namespace Periturf.IdSvr4
             return Task.CompletedTask;
         }
 
-        public IComponentConditionBuilder CreateConditionBuilder()
+        public TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
+            where TComponentConditionBuilder : IComponentConditionBuilder
         {
             throw new NotImplementedException();
         }

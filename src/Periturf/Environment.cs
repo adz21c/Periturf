@@ -297,14 +297,93 @@ namespace Periturf
         /// <summary>
         /// Registers listeners for conditions and returns a <see cref="IVerifier" /> to evaluate if the condition has happened since creation.
         /// </summary>
-        /// <param name="condition">The condition.</param>
-        /// <param name="ct">The ct.</param>
+        /// <param name="verifierBuilder">Specifies the conditions for the verifier.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns>
         ///   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
         /// </returns>
-        public Task<IVerifier> VerifyAsync(Func<IConditionContext, IConditionSpecification> condition, CancellationToken ct = default)
+        public async Task<IVerifier> VerifyAsync(Func<IConditionContext, IConditionSpecification> verifierBuilder, CancellationToken ct = default)
         {
-            throw new NotImplementedException();
+            var conditionContext = new ConditionContext(this);
+            var condition = verifierBuilder(conditionContext);
+
+            var verifyId = Guid.NewGuid();
+            var evaluator = await condition.BuildEvaluatorAsync(verifyId, ct);
+
+            return new Verifier(verifyId, evaluator);
+        }
+
+        class ConditionContext : IConditionContext
+        {
+            private readonly Environment _env;
+
+            public ConditionContext(Environment env)
+            {
+                _env = env;
+            }
+
+            public TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName) where TComponentConditionBuilder : IComponentConditionBuilder
+            {
+                if (!_env._components.TryGetValue(componentName, out var component))
+                {
+                    // TODO: Throw exception
+                }
+
+                return component.CreateConditionBuilder<TComponentConditionBuilder>();
+            }
+        }
+
+        class Verifier : IVerifier
+        {
+            private Guid _verifyId;
+            private IConditionEvaluator _evaluator;
+
+            public Verifier(Guid verifyId, IConditionEvaluator evaluator)
+            {
+                _verifyId = verifyId;
+                _evaluator = evaluator;
+            }
+
+            public async Task VerifyAndThrowAsync(CancellationToken ct = default)
+            {
+                if (_disposedValue)
+                    throw new ObjectDisposedException("Verifier");
+
+                var result = await _evaluator.EvaluateAsync(ct);
+                if (!result)
+                    throw new VerificationFailedException();
+            }
+
+            public Task CleanUpAsync(CancellationToken ct = default)
+            {
+                if (_disposedValue)
+                    throw new ObjectDisposedException("Verifier");
+
+                throw new NotImplementedException();
+            }
+
+            #region IDisposable Support
+            private bool _disposedValue = false; // To detect redundant calls
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!_disposedValue)
+                {
+                    if (disposing)
+                    {
+                        CleanUpAsync().Wait();
+                    }
+
+                    _disposedValue = true;
+                }
+            }
+
+            // This code added to correctly implement the disposable pattern.
+            public void Dispose()
+            {
+                Dispose(true);
+            }
+            #endregion
         }
 
         #endregion

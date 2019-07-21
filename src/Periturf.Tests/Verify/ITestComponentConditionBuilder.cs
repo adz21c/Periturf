@@ -17,7 +17,7 @@ using Periturf.Verify;
 
 namespace Periturf.Tests.Verify
 {
-    interface ITestComponentConditionBuilder : IComponentConditionBuilder
+    public interface ITestComponentConditionBuilder : IComponentConditionBuilder
     {
         IConditionSpecification CreateSpecification();
     }
