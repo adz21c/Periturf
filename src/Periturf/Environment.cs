@@ -326,9 +326,7 @@ namespace Periturf
             public TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName) where TComponentConditionBuilder : IComponentConditionBuilder
             {
                 if (!_env._components.TryGetValue(componentName, out var component))
-                {
-                    // TODO: Throw exception
-                }
+                    throw new ComponentLocationFailedException(componentName);
 
                 return component.CreateConditionBuilder<TComponentConditionBuilder>();
             }
