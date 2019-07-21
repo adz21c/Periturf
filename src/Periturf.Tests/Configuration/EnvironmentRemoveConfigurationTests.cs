@@ -24,13 +24,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Tests
+namespace Periturf.Tests.Configuration
 {
     [TestFixture]
-    class EnvironmentRegisterConfigurationTests
+    class EnvironmentRemoveConfigurationTests
     {
         [Test]
-        public async Task Given_MultipleComponents_When_Configure_Then_ComponentsAreConfigured()
+        public async Task Given_MultipleComponentsConfigured_When_RemoveConfiguration_Then_ConfigurationUnRegistered()
         {
             // Arrange
             var component1 = A.Fake<IComponent>();
@@ -49,60 +49,32 @@ namespace Periturf.Tests
                 x.Host(nameof(host2), host2);
             });
 
-            // Act
-            await environment.ConfigureAsync(x =>
+            var configId = await environment.ConfigureAsync(x =>
             {
                 x.AddComponentConfigurator<IComponent>(nameof(component1), cmp => componentConfigurator1);
                 x.AddComponentConfigurator<IComponent>(nameof(component2), cmp => componentConfigurator2);
             });
 
-            // Assert
-            A.CallTo(() => componentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => componentConfigurator2.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => component1.UnregisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustNotHaveHappened();
-            A.CallTo(() => component2.UnregisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustNotHaveHappened();
-        }
-
-        [TestCase(null, Description = "Null Component Name")]
-        [TestCase("", Description = "Empty Component Name")]
-        [TestCase(" ", Description = "Whitespace Component Name")]
-        public void Given_BadComponentName_When_Configure_Then_ThrowException(string componentName)
-        {
-
-            // Arrange
-            var component1 = A.Fake<IComponent>();
-            var componentConfigurator1 = A.Fake<IComponentConfigurator>();
-            var host1 = A.Fake<IHost>();
-            A.CallTo(() => host1.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component1), component1 } }));
-
-            var environment = Environment.Setup(x =>
-            {
-                x.Host(nameof(host1), host1);
-            });
-
             // Act
-            var exception = Assert.ThrowsAsync<ArgumentNullException>(() => environment.ConfigureAsync(x =>
-            {
-                x.AddComponentConfigurator<IComponent>(componentName, cmp => componentConfigurator1);
-            }));
+            await environment.RemoveConfigurationAsync(configId);
 
             // Assert
-            Assert.AreEqual("componentName", exception.ParamName);
-            A.CallTo(() => componentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustNotHaveHappened();
+            A.CallTo(() => component1.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => component2.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
         }
 
         [Test]
-        public void Given_MultipleComponents_When_ConfigureFails_Then_ThrowException()
+        public async Task Given_MultipleComponentsConfigured_When_RemoveConfigurationFails_Then_ThrowExceptionAsync()
         {
             // Arrange
             var component1 = A.Fake<IComponent>();
             var componentConfigurator1 = A.Fake<IComponentConfigurator>();
 
-            var failingComponent1 = A.Fake<IComponent>();
-            var failingComponentConfigurator1 = A.Fake<IComponentConfigurator>();
             var failingComponent1Exception = new Exception("failingComponent1Exception");
+            var failingComponent1 = A.Fake<IComponent>();
             // Throws immediately
-            A.CallTo(() => failingComponentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).Throws(failingComponent1Exception);
+            A.CallTo(() => failingComponent1.UnregisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).Throws(failingComponent1Exception);
+            var failingComponentConfigurator1 = A.Fake<IComponentConfigurator>();
 
             var host1 = A.Fake<IHost>();
             A.CallTo(() => host1.Components)
@@ -115,11 +87,11 @@ namespace Periturf.Tests
             var component2 = A.Fake<IComponent>();
             var componentConfigurator2 = A.Fake<IComponentConfigurator>();
 
-            var failingComponent2 = A.Fake<IComponent>();
-            var failingComponentConfigurator2 = A.Fake<IComponentConfigurator>();
             var failingComponent2Exception = new Exception("failingComponent2Exception");
+            var failingComponent2 = A.Fake<IComponent>();
             // Throws via task
-            A.CallTo(() => failingComponentConfigurator2.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).ThrowsAsync(failingComponent2Exception);
+            A.CallTo(() => failingComponent2.UnregisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).Throws(failingComponent2Exception);
+            var failingComponentConfigurator2 = A.Fake<IComponentConfigurator>();
 
             var host2 = A.Fake<IHost>();
             A.CallTo(() => host2.Components)
@@ -135,14 +107,16 @@ namespace Periturf.Tests
                 x.Host(nameof(host2), host2);
             });
 
-            // Act
-            var exception = Assert.ThrowsAsync<ConfigurationApplicationException>(() => environment.ConfigureAsync(x =>
+            var configId = await environment.ConfigureAsync(x =>
             {
                 x.AddComponentConfigurator<IComponent>(nameof(component1), cmp => componentConfigurator1);
                 x.AddComponentConfigurator<IComponent>(nameof(failingComponent1), cmp => failingComponentConfigurator1);
                 x.AddComponentConfigurator<IComponent>(nameof(component2), cmp => componentConfigurator2);
                 x.AddComponentConfigurator<IComponent>(nameof(failingComponent2), cmp => failingComponentConfigurator2);
-            }));
+            });
+
+            // Act
+            var exception = Assert.ThrowsAsync<ConfigurationRemovalException>(() => environment.RemoveConfigurationAsync(configId));
 
             // Assert
             Assert.IsNotNull(exception.Details);
@@ -152,10 +126,10 @@ namespace Periturf.Tests
             Assert.That(exception.Details.Any(x => x.ComponentName == nameof(failingComponent2) && x.Exception == failingComponent2Exception), $"{nameof(failingComponent2)} is missing from the exception details");
 
             // Assert
-            A.CallTo(() => componentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => failingComponentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => componentConfigurator1.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => failingComponentConfigurator2.RegisterConfigurationAsync(A<Guid>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => component1.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => failingComponent1.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => component2.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => failingComponent2.UnregisterConfigurationAsync(configId, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
         }
     }
 }

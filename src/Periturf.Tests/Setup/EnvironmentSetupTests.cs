@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Periturf.Tests
+namespace Periturf.Tests.Setup
 {
     [TestFixture]
     class EnvironmentSetupTests

@@ -20,7 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Periturf.Tests
+namespace Periturf.Tests.Configuration
 {
     [TestFixture]
     class ConfigurationApplicationExceptionTests

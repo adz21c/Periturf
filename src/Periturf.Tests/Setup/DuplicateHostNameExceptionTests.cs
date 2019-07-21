@@ -18,7 +18,7 @@ using Periturf.Setup;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Periturf.Tests
+namespace Periturf.Tests.Setup
 {
     [TestFixture]
     class DuplicateHostNameExceptionTests
