@@ -29,11 +29,11 @@ namespace Periturf.Tests.Verify
     class EnvironmentVerifyDefinitionAndCleanupTests
     {
         private IConditionEvaluator _evaluator;
+        private IConditionEraser _eraser;
         private ITestComponentConditionBuilder _componentConditionBuilder;
         private IConditionSpecification _specification;
         private IComponent _component;
         private Environment _environment;
-        private Guid _verifyId;
 
         [SetUp]
         public void SetUp()
@@ -42,9 +42,11 @@ namespace Periturf.Tests.Verify
             _evaluator = A.Fake<IConditionEvaluator>();
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(true);
 
+            _eraser = A.Fake<IConditionEraser>();
+
             _specification = A.Fake<IConditionSpecification>();
             A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
-                .Invokes((Guid id, IConditionErasePlan erasePlan, CancellationToken ct) => _verifyId = id)
+                .Invokes((Guid id, IConditionErasePlan erasePlan, CancellationToken ct) => erasePlan.AddEraser(_eraser))
                 .Returns(_evaluator);
 
             _componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
@@ -66,7 +68,7 @@ namespace Periturf.Tests.Verify
         public async Task Given_Condition_When_Verify_Then_ConditionIsSpecifiedThenBuilt()
         {
             // Act
-            var verifier = await _environment.VerifyAsync(c =>
+            await _environment.VerifyAsync(c =>
                 c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
                     .CreateSpecification());
 
@@ -86,7 +88,7 @@ namespace Periturf.Tests.Verify
             await verifier.CleanUpAsync();
 
             // Assert
-            // TODO: Complete
+            A.CallTo(() => _eraser.EraseAsync(A<CancellationToken>._)).MustHaveHappened();
         }
     }
 }

@@ -311,7 +311,7 @@ namespace Periturf
             var erasePlan = new ErasePlan();
             var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
 
-            return new Verifier(evaluator);
+            return new Verifier(evaluator, erasePlan);
         }
 
         class ConditionContext : IConditionContext
@@ -337,10 +337,12 @@ namespace Periturf
         class Verifier : IVerifier
         {
             private readonly IConditionEvaluator _evaluator;
+            private readonly ErasePlan _erasePlan;
 
-            public Verifier(IConditionEvaluator evaluator)
+            public Verifier(IConditionEvaluator evaluator, ErasePlan erasePlan)
             {
                 _evaluator = evaluator;
+                _erasePlan = erasePlan;
             }
 
             public async Task VerifyAndThrowAsync(CancellationToken ct = default)
@@ -358,7 +360,7 @@ namespace Periturf
                 if (_disposedValue)
                     throw new ObjectDisposedException("Verifier");
 
-                throw new NotImplementedException();
+                return _erasePlan.ExecuteCleanUpAsync(ct);
             }
 
             #region IDisposable Support
@@ -392,6 +394,32 @@ namespace Periturf
             public void AddEraser(IConditionEraser eraser)
             {
                 _erasers.Add(eraser ?? throw new ArgumentNullException(nameof(eraser)));
+            }
+
+            public async Task ExecuteCleanUpAsync(CancellationToken ct = default)
+            {
+                Task Erase(IConditionEraser eraser)
+                {
+                    try
+                    {
+                        return eraser.EraseAsync(ct);
+                    }
+                    catch (Exception ex)
+                    {
+                        return Task.FromException(ex);
+                    }
+                }
+
+                var erasers = _erasers.Select(Erase).ToList();
+
+                try
+                {
+                    await Task.WhenAll(erasers);
+                }
+                catch
+                {
+                    throw new VerificationCleanUpFailedException();
+                }
             }
         }
 
