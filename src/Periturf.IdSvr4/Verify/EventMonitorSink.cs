@@ -24,7 +24,7 @@ namespace Periturf.IdSvr4.Verify
     class EventMonitorSink : IEventMonitorSink
     {
         private readonly IEventSink _innerSink;
-        private readonly ConcurrentDictionary<Type, ConcurrentBag<IEventOccurredConditionEvaluator>> _evaluators = new ConcurrentDictionary<Type, ConcurrentBag<IEventOccurredConditionEvaluator>>();
+        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>> _evaluators = new ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>>();
 
         public EventMonitorSink(IEventSink innerSink)
         {
@@ -33,13 +33,14 @@ namespace Periturf.IdSvr4.Verify
 
         void IEventMonitorSink.AddEvaluator(Type eventType, IEventOccurredConditionEvaluator evaluator)
         {
-            var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentBag<IEventOccurredConditionEvaluator>());
-            eventTypeEvaluators.Add(evaluator);
+            var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
+            eventTypeEvaluators.TryAdd(evaluator.Id, evaluator);
         }
 
         void IEventMonitorSink.RemoveEvaluator(Type eventType, IEventOccurredConditionEvaluator evaluator)
         {
-            throw new NotImplementedException();
+            var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
+            eventTypeEvaluators.TryRemove(evaluator.Id, out var _);
         }
 
         async Task IEventSink.PersistAsync(Event evt)
@@ -47,9 +48,9 @@ namespace Periturf.IdSvr4.Verify
             await _innerSink.PersistAsync(evt);
 
             var eventType = evt.GetType();
-            var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentBag<IEventOccurredConditionEvaluator>());
+            var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
 
-            foreach (var evaluator in eventTypeEvaluators.ToArray())
+            foreach (var evaluator in eventTypeEvaluators.Values)
                 evaluator.CheckEvent(evt);
         }
     }

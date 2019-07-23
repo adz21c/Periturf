@@ -30,6 +30,8 @@ namespace Periturf.IdSvr4.Verify
             _checker = checker;
         }
 
+        public Guid Id { get; } = Guid.NewGuid();
+
         public void CheckEvent(Event @event)
         {
             var upcastEvent = @event as TEvent;
