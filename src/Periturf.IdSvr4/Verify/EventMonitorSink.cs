@@ -23,12 +23,12 @@ namespace Periturf.IdSvr4.Verify
 {
     class EventMonitorSink : IEventMonitorSink
     {
-        private readonly DefaultEventSink _defaultSink;
+        private readonly IEventSink _innerSink;
         private readonly ConcurrentDictionary<Type, ConcurrentBag<IEventOccurredConditionEvaluator>> _evaluators = new ConcurrentDictionary<Type, ConcurrentBag<IEventOccurredConditionEvaluator>>();
 
-        public EventMonitorSink(DefaultEventSink defaultSink)
+        public EventMonitorSink(IEventSink innerSink)
         {
-            _defaultSink = defaultSink;
+            _innerSink = innerSink;
         }
 
         void IEventMonitorSink.AddEvaluator(Type eventType, IEventOccurredConditionEvaluator evaluator)
@@ -44,7 +44,7 @@ namespace Periturf.IdSvr4.Verify
 
         async Task IEventSink.PersistAsync(Event evt)
         {
-            await _defaultSink.PersistAsync(evt);
+            await _innerSink.PersistAsync(evt);
 
             var eventType = evt.GetType();
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentBag<IEventOccurredConditionEvaluator>());

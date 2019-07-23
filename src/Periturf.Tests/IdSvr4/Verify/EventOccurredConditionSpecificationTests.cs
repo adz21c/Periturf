@@ -44,7 +44,7 @@ namespace Periturf.Tests.IdSvr4.Verify
             A.CallTo(() => erasePlan.AddEraser(A<IConditionEraser>._)).MustHaveHappened();
 
             var eventOccurredEvaluator = (IEventOccurredConditionEvaluator)evaluator;
-            A.CallTo(() => eventMonitorSink.AddEvaluator(typeof(EventOccurredConditionEvaluator<Event>), eventOccurredEvaluator)).MustHaveHappened();
+            A.CallTo(() => eventMonitorSink.AddEvaluator(typeof(Event), eventOccurredEvaluator)).MustHaveHappened();
         }
     }
 }

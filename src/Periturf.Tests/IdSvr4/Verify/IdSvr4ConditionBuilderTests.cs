@@ -27,8 +27,8 @@ namespace Periturf.Tests.IdSvr4.Verify
         [Test]
         public void Given_Builder_When_EventOccurred_Then_CreatedEventOccurredSpecification()
         {
-            var eventMonitorSink = A.Dummy<IEventMonitorSink>();
-            var condition = A.Dummy<Func<Event, bool>>();
+            var eventMonitorSink = A.Fake<IEventMonitorSink>();
+            var condition = A.Fake<Func<Event, bool>>();
 
             var builder = new IdSvr4ConditionBuilder(eventMonitorSink);
 
