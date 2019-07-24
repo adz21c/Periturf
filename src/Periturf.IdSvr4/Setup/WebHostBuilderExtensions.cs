@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Periturf.IdSvr4;
+using Periturf.IdSvr4.Configuration;
+using Periturf.IdSvr4.Verify;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -52,21 +56,30 @@ namespace Periturf
 
             builder.Configure(app => app.UseIdentityServer());
 
-            var component = new IdSvr4Component();
+            var store = new Store();
+            var eventMonitorSink = new EventMonitorSink();
 
             builder.ConfigureServices(services =>
             {
                 services
-                    .AddSingleton<IClientStore, IdSvr4Component>(sp => component)
-                    .AddSingleton<IResourceStore, IdSvr4Component>(sp => component);
+                    .AddSingleton<IClientStore, Store>(sp => store)
+                    .AddSingleton<IResourceStore, Store>(sp => store)
+                    .AddSingleton<IEventSink, EventMonitorSink>(sp => eventMonitorSink);
 
                 var identityServiceBuilder = services
-                    .AddIdentityServer()
+                    .AddIdentityServer(i =>
+                    {
+                        i.Events.RaiseErrorEvents = true;
+                        i.Events.RaiseFailureEvents = true;
+                        i.Events.RaiseInformationEvents = true;
+                        i.Events.RaiseSuccessEvents = true;
+                    })
                     .AddDeveloperSigningCredential();
 
                 configurator.ServicesCallback?.Invoke(identityServiceBuilder);
             });
 
+            var component = new IdSvr4Component(store, eventMonitorSink);
             builder.AddComponent(name, component);
         }
     }

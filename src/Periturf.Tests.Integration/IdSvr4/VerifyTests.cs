@@ -31,7 +31,7 @@ namespace Periturf.Tests.Integration.IdSvr4
     {
 
         [Test]
-        public async Task Given_IdSvr_When_ConfigureAndRemoveConfiguration_Then_ClientAuthsAndFailsAuth()
+        public async Task GiveMeAName()
         {
             // Arrange
             const string WebHostUrl = "http://localhost:3505";

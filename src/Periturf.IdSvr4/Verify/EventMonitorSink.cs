@@ -26,7 +26,7 @@ namespace Periturf.IdSvr4.Verify
         private readonly IEventSink _innerSink;
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>> _evaluators = new ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>>();
 
-        public EventMonitorSink(IEventSink innerSink)
+        public EventMonitorSink(IEventSink innerSink = null)
         {
             _innerSink = innerSink;
         }
@@ -45,7 +45,10 @@ namespace Periturf.IdSvr4.Verify
 
         async Task IEventSink.PersistAsync(Event evt)
         {
-            await _innerSink.PersistAsync(evt);
+            var task = _innerSink?.PersistAsync(evt);
+            if (task != null)   // TODO: Temp hack
+                await task;
+
 
             var eventType = evt.GetType();
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
