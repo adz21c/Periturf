@@ -45,10 +45,7 @@ namespace Periturf.IdSvr4.Verify
 
         async Task IEventSink.PersistAsync(Event evt)
         {
-            var task = _innerSink?.PersistAsync(evt);
-            if (task != null)   // TODO: Temp hack
-                await task;
-
+            await (_innerSink?.PersistAsync(evt) ?? Task.CompletedTask);
 
             var eventType = evt.GetType();
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
