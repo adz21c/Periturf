@@ -19,6 +19,7 @@ using NUnit.Framework;
 using Periturf.Components;
 using Periturf.IdSvr4;
 using Periturf.IdSvr4.Configuration;
+using Periturf.IdSvr4.Verify;
 using System;
 using System.Threading.Tasks;
 
@@ -36,15 +37,16 @@ namespace Periturf.Tests.IdSvr4
             const string clientId2 = "ClientID2";
 
             var store = new Store();
+            var component = new IdSvr4Component(store, A.Dummy<IEventMonitorSink>());
             var clientStore = (IClientStore)store;
             IComponentConfigurator configurator1 = null;
             IComponentConfigurator configurator2 = null;
 
             var builder = A.Fake<IConfiugrationBuilder>();
             A.CallTo(() => builder.AddComponentConfigurator(componentName, A<Func<IdSvr4Component, IComponentConfigurator>>._))
-                .Invokes((string name, Func<Store, IComponentConfigurator> config) =>
+                .Invokes((string name, Func<IdSvr4Component, IComponentConfigurator> config) =>
                 {
-                    var configurator = config(store);
+                    var configurator = config(component);
 
                     if (configurator1 == null)
                         configurator1 = configurator;
