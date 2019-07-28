@@ -34,8 +34,6 @@ namespace Periturf.Tests.Verify.Evaluators.Logical
         public async Task Given_ChildConditions_When_Evaluate_Then_ExpectedResult(bool conditionResult, bool condition2Result, bool parentConditionResult)
         {
             // Arrange
-            var id = Guid.NewGuid();
-
             var evaluator = A.Dummy<IConditionEvaluator>();
             A.CallTo(() => evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(conditionResult);
 
@@ -51,6 +49,28 @@ namespace Periturf.Tests.Verify.Evaluators.Logical
             Assert.AreEqual(parentConditionResult, parentResult);
         }
 
-        // TODO: Test short circuit
+        public async Task Given_ChildConditions_When_Evaluate_Then_FirstTrueStopEvaluating()
+        {
+            // Arrange
+            var evaluator = A.Dummy<IConditionEvaluator>();
+            A.CallTo(() => evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(false);
+
+            var evaluator2 = A.Dummy<IConditionEvaluator>();
+            A.CallTo(() => evaluator2.EvaluateAsync(A<CancellationToken>._)).Returns(true);
+
+            var evaluator3 = A.Dummy<IConditionEvaluator>();
+            A.CallTo(() => evaluator3.EvaluateAsync(A<CancellationToken>._)).Returns(true);
+
+            var spec = new OrConditionEvaluator(new List<IConditionEvaluator> { evaluator, evaluator2, evaluator3 });
+
+            // Act
+            var parentResult = await spec.EvaluateAsync();
+
+            // Assert
+            Assert.IsTrue(parentResult);
+            A.CallTo(() => evaluator.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(() => evaluator2.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(() => evaluator3.EvaluateAsync(A<CancellationToken>._)).MustNotHaveHappened();
+        }
     }
 }
