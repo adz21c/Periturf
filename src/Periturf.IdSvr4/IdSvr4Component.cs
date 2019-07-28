@@ -34,10 +34,9 @@ namespace Periturf.IdSvr4
             _eventMonitor = eventMonitor;
         }
 
-        public Task RegisterConfigurationAsync(Guid id, ConfigurationRegistration config) // TODO: Cancellation token
+        public void RegisterConfiguration(Guid id, ConfigurationRegistration config)
         {
             _store.RegisterConfiguration(id, config);
-            return Task.CompletedTask;
         }
 
         public Task UnregisterConfigurationAsync(Guid id, CancellationToken ct = default)

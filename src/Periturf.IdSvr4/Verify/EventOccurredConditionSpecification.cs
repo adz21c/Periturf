@@ -34,7 +34,7 @@ namespace Periturf.IdSvr4.Verify
             _condition = condition;
         }
 
-        Task<IConditionEvaluator> IConditionSpecification.BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct = default)
+        Task<IConditionEvaluator> IConditionSpecification.BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct)
         {
             _evaluator = new EventOccurredConditionEvaluator<TEvent>(_condition);
             _eventMonitorSink.AddEvaluator(typeof(TEvent), _evaluator);
