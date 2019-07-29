@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Periturf.IdSvr4.Configuration
 {
-    class Store : IClientStore, IResourceStore
+    class Store : IClientStore, IResourceStore, IStore
     {
         // Concurrent friendly configuration registration
         private readonly ConcurrentDictionary<Guid, ConfigurationRegistration> _configurations = new ConcurrentDictionary<Guid, ConfigurationRegistration>();

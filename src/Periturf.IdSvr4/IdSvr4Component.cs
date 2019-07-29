@@ -25,10 +25,10 @@ namespace Periturf.IdSvr4
 {
     class IdSvr4Component : IComponent
     {
-        private readonly Store _store;
+        private readonly IStore _store;
         private readonly IEventMonitorSink _eventMonitor;
 
-        public IdSvr4Component(Store store, IEventMonitorSink eventMonitor)
+        public IdSvr4Component(IStore store, IEventMonitorSink eventMonitor)
         {
             _store = store;
             _eventMonitor = eventMonitor;
