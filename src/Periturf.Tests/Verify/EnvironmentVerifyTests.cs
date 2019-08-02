@@ -1,4 +1,4 @@
-﻿/*
+/*
  *     Copyright 2019 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,36 +58,51 @@ namespace Periturf.Tests.Verify
             {
                 x.Host(nameof(host1), host1);
             });
-
-            _verifier = await _environment.VerifyAsync(c =>
-                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
-                    .CreateSpecification());
         }
 
         [Test]
-        public void Given_TrueCondition_When_VerifyAndThrowAsync_Then_DoesNotThrow()
+        public async Task Given_TrueCondition_When_VerifyAndThrowAsync_Then_DoesNotThrow()
         {
             // Arrange
+            var verifier = await _environment.VerifyAsync(c =>
+                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
+                    .CreateSpecification());
+
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(true);
 
             // Act
-            Assert.DoesNotThrow(() => _verifier.VerifyAndThrowAsync());
+            Assert.DoesNotThrow(() => verifier.VerifyAndThrowAsync());
 
             // Assert
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
         }
 
         [Test]
-        public void Given_FalseCondition_When_VerifyAndThrowAsync_Then_ThrowsException()
+        public async Task Given_FalseCondition_When_VerifyAndThrowAsync_Then_ThrowsException()
         {
             // Arrange
+            var verifier = await _environment.VerifyAsync(c =>
+                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
+                    .CreateSpecification());
+
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(false);
 
             // Act
-            Assert.ThrowsAsync<VerificationFailedException>(() => _verifier.VerifyAndThrowAsync());
+            Assert.ThrowsAsync<VerificationFailedException>(() => verifier.VerifyAndThrowAsync());
 
             // Assert
             A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Test]
+        public void Given_Environment_When_VerifyWithWrongComponentName_Then_ThrowsException()
+        {
+            // Arrange
+            const string wrongComponentName = "WrongComponentName";
+
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<ComponentLocationFailedException>( () => _environment.VerifyAsync(c => c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(wrongComponentName).CreateSpecification()));
+            Assert.AreEqual(wrongComponentName, exception.ComponentName);
         }
     }
 }
