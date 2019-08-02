@@ -345,9 +345,6 @@ namespace Periturf
 
             public async Task VerifyAndThrowAsync(CancellationToken ct = default)
             {
-                if (_disposedValue)
-                    throw new ObjectDisposedException("Verifier");
-
                 var result = await _evaluator.EvaluateAsync(ct);
                 if (!result)
                     throw new VerificationFailedException();
@@ -355,34 +352,8 @@ namespace Periturf
 
             public Task CleanUpAsync(CancellationToken ct = default)
             {
-                if (_disposedValue)
-                    throw new ObjectDisposedException("Verifier");
-
                 return _erasePlan.ExecuteCleanUpAsync(ct);
             }
-
-            #region IDisposable Support
-            private bool _disposedValue = false; // To detect redundant calls
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (!_disposedValue)
-                {
-                    if (disposing)
-                    {
-                        CleanUpAsync().Wait();
-                    }
-
-                    _disposedValue = true;
-                }
-            }
-
-            // This code added to correctly implement the disposable pattern.
-            public void Dispose()
-            {
-                Dispose(true);
-            }
-            #endregion
         }
 
         class ErasePlan : IConditionErasePlan
