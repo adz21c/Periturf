@@ -1,4 +1,4 @@
-﻿/*
+/*
  *     Copyright 2019 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,8 +21,7 @@ namespace Periturf
     /// <summary>
     /// Evaluates if a condition has happened since creation of the instance.
     /// </summary>
-    /// <seealso cref="System.IDisposable" />
-    public interface IVerifier : IDisposable
+    public interface IVerifier
     {
         /// <summary>
         /// Verifies the condition and throws an exception on failure.
