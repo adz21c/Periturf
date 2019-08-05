@@ -90,5 +90,29 @@ namespace Periturf.Tests.Verify
             // Assert
             A.CallTo(() => _eraser.EraseAsync(A<CancellationToken>._)).MustHaveHappened();
         }
+
+        [Test]
+        public async Task Given_Verifier_When_ErrorDuringCleanUp_Then_ThrowsException()
+        {
+            // Arrange
+            var erase = A.Fake<IConditionEraser>();
+            A.CallTo(() => erase.EraseAsync(A<CancellationToken>._)).Throws(new InvalidOperationException());   // Throws immediately
+
+            var erase2 = A.Fake<IConditionEraser>();
+            A.CallTo(() => erase.EraseAsync(A<CancellationToken>._)).ThrowsAsync(new InvalidOperationException());  // Throws via task
+
+            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
+                .Invokes((Guid id, IConditionErasePlan plan, CancellationToken ct) =>
+                {
+                    plan.AddEraser(erase);
+                    plan.AddEraser(erase2);
+                });
+
+            var verifier = await _environment.VerifyAsync(c =>
+                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
+                    .CreateSpecification());
+            // Act
+            Assert.ThrowsAsync<VerificationCleanUpFailedException>(() => verifier.CleanUpAsync());
+        }
     }
 }

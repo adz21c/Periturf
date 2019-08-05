@@ -26,27 +26,23 @@ using System.Threading.Tasks;
 namespace Periturf.Tests.Verify
 {
     [TestFixture]
-    class EnvironmentVerifyDefinitionAndCleanupTests
+    class EnvironmentVerifyTests
     {
         private IConditionEvaluator _evaluator;
-        private IConditionEraser _eraser;
         private ITestComponentConditionBuilder _componentConditionBuilder;
         private IConditionSpecification _specification;
         private IComponent _component;
         private Environment _environment;
+        private IVerifier _verifier;
 
         [SetUp]
-        public void SetUp()
+        public async Task SetUpAsync()
         {
             // Arrange
             _evaluator = A.Fake<IConditionEvaluator>();
-            A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(true);
-
-            _eraser = A.Fake<IConditionEraser>();
 
             _specification = A.Fake<IConditionSpecification>();
             A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
-                .Invokes((Guid id, IConditionErasePlan erasePlan, CancellationToken ct) => erasePlan.AddEraser(_eraser))
                 .Returns(_evaluator);
 
             _componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
@@ -65,54 +61,48 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_Condition_When_Verify_Then_ConditionIsSpecifiedThenBuilt()
-        {
-            // Act
-            await _environment.VerifyAsync(c =>
-                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
-                    .CreateSpecification());
-
-            // Assert
-            A.CallTo(() => _componentConditionBuilder.CreateSpecification()).MustHaveHappened().Then(
-                A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._)).MustHaveHappened());
-        }
-
-        [Test]
-        public async Task Given_Verifier_When_CleanUp_Then_ComponentUnregistersCondition()
-        {
-            // Act
-            var verifier = await _environment.VerifyAsync(c =>
-                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
-                    .CreateSpecification());
-
-            await verifier.CleanUpAsync();
-
-            // Assert
-            A.CallTo(() => _eraser.EraseAsync(A<CancellationToken>._)).MustHaveHappened();
-        }
-
-        [Test]
-        public async Task Given_Verifier_When_ErrorDuringCleanUp_Then_ThrowsException()
+        public async Task Given_TrueCondition_When_VerifyAndThrowAsync_Then_DoesNotThrow()
         {
             // Arrange
-            var erase = A.Fake<IConditionEraser>();
-            A.CallTo(() => erase.EraseAsync(A<CancellationToken>._)).Throws(new InvalidOperationException());   // Throws immediately
-
-            var erase2 = A.Fake<IConditionEraser>();
-            A.CallTo(() => erase.EraseAsync(A<CancellationToken>._)).ThrowsAsync(new InvalidOperationException());  // Throws via task
-
-            A.CallTo(() => _specification.BuildEvaluatorAsync(A<Guid>._, A<IConditionErasePlan>._, A<CancellationToken>._))
-                .Invokes((Guid id, IConditionErasePlan plan, CancellationToken ct) =>
-                {
-                    plan.AddEraser(erase);
-                    plan.AddEraser(erase2);
-                });
-
             var verifier = await _environment.VerifyAsync(c =>
                 c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
                     .CreateSpecification());
+
+            A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(true);
+
             // Act
-            Assert.ThrowsAsync<VerificationCleanUpFailedException>(() => verifier.CleanUpAsync());
+            Assert.DoesNotThrow(() => verifier.VerifyAndThrowAsync());
+
+            // Assert
+            A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Test]
+        public async Task Given_FalseCondition_When_VerifyAndThrowAsync_Then_ThrowsException()
+        {
+            // Arrange
+            var verifier = await _environment.VerifyAsync(c =>
+                c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(nameof(_component))
+                    .CreateSpecification());
+
+            A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).Returns(false);
+
+            // Act
+            Assert.ThrowsAsync<VerificationFailedException>(() => verifier.VerifyAndThrowAsync());
+
+            // Assert
+            A.CallTo(() => _evaluator.EvaluateAsync(A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Test]
+        public void Given_Environment_When_VerifyWithWrongComponentName_Then_ThrowsException()
+        {
+            // Arrange
+            const string wrongComponentName = "WrongComponentName";
+
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<ComponentLocationFailedException>(() => _environment.VerifyAsync(c => c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(wrongComponentName).CreateSpecification()));
+            Assert.AreEqual(wrongComponentName, exception.ComponentName);
         }
     }
 }
