@@ -46,5 +46,33 @@ namespace Periturf.Tests.IdSvr4.Verify
             var eventOccurredEvaluator = (IEventOccurredConditionEvaluator)evaluator;
             A.CallTo(() => eventMonitorSink.AddEvaluator(typeof(Event), eventOccurredEvaluator)).MustHaveHappened();
         }
+
+        [Test]
+        public async Task Given_Spec_When_Erase_Then_RemovesEvaluatorFromMonitorSink()
+        {
+            // Arrange
+            var eventMonitorSink = A.Fake<IEventMonitorSink>();
+            var erasePlan = A.Fake<IConditionErasePlan>();
+            var condition = A.Dummy<Func<Event, bool>>();
+
+            IConditionSpecification spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
+            IEventOccurredConditionEvaluator evaluator = null;
+            A.CallTo(() => eventMonitorSink.AddEvaluator(typeof(Event), A<IEventOccurredConditionEvaluator>._)).Invokes((Type t, IEventOccurredConditionEvaluator e) => evaluator = e);
+            await spec.BuildEvaluatorAsync(Guid.NewGuid(), erasePlan);
+
+            var eraser = (IConditionEraser)spec;
+
+            Fake.ClearRecordedCalls(eventMonitorSink);
+            Fake.ClearRecordedCalls(erasePlan);
+            Fake.ClearRecordedCalls(condition);
+
+            Assume.That(evaluator != null);
+
+            // Act
+            await eraser.EraseAsync();
+
+            // Assert
+            A.CallTo(() => eventMonitorSink.RemoveEvaluator(typeof(Event), evaluator)).MustHaveHappened();
+        }
     }
 }
