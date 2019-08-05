@@ -26,18 +26,18 @@ namespace Periturf.Tests.IdSvr4.Verify
         public void Given_Context_When_GetComponentConditionBuilder_Then_ReturnsBuilder()
         {
             const string componentName = "Component";
-            var componentBuilder = A.Dummy<ITestComponentConditionBuilder>();
+            var componentBuilder = A.Dummy<IIdSvr4ConditionBuilder>();
             var context = A.Fake<IConditionContext>();
-            A.CallTo(() => context.GetComponentConditionBuilder<ITestComponentConditionBuilder>(componentName))
+            A.CallTo(() => context.GetComponentConditionBuilder<IIdSvr4ConditionBuilder>(componentName))
                 .Returns(componentBuilder);
             
             // Act
-            var builder = context.GetComponentConditionBuilder<ITestComponentConditionBuilder>(componentName);
+            var builder = context.IdSvr4(componentName);
 
             // Assert
             Assert.IsNotNull(builder);
             Assert.AreEqual(componentBuilder, builder);
-            A.CallTo(() => context.GetComponentConditionBuilder<ITestComponentConditionBuilder>(componentName)).MustHaveHappened();
+            A.CallTo(() => context.GetComponentConditionBuilder<IIdSvr4ConditionBuilder>(componentName)).MustHaveHappened();
         }
     }
 }
