@@ -33,10 +33,9 @@ namespace Periturf.Tests.Verify
         private IConditionSpecification _specification;
         private IComponent _component;
         private Environment _environment;
-        private IVerifier _verifier;
 
         [SetUp]
-        public async Task SetUpAsync()
+        public void SetUp()
         {
             // Arrange
             _evaluator = A.Fake<IConditionEvaluator>();
