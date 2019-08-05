@@ -52,7 +52,7 @@ namespace Periturf.Tests.Integration.IdSvr4
                 e.WebHost(h =>
                 {
                     h.UseUrls(WebHostUrl);
-                    h.SetupIdSvr4();
+                    h.IdSvr4();
                 });
             });
 
@@ -71,7 +71,7 @@ namespace Periturf.Tests.Integration.IdSvr4
                 // Act
                 var configId = await env.ConfigureAsync(c =>
                 {
-                    c.ConfigureIdSvr4("IdSvr4", i =>
+                    c.IdSvr4("IdSvr4", i =>
                     {
                         i.Client(cl =>
                         {

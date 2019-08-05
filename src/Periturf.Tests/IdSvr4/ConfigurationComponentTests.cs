@@ -18,6 +18,8 @@ using IdentityServer4.Stores;
 using NUnit.Framework;
 using Periturf.Components;
 using Periturf.IdSvr4;
+using Periturf.IdSvr4.Configuration;
+using Periturf.IdSvr4.Verify;
 using System;
 using System.Threading.Tasks;
 
@@ -34,8 +36,9 @@ namespace Periturf.Tests.IdSvr4
             const string clientId1 = "ClientID1";
             const string clientId2 = "ClientID2";
 
-            var component = new IdSvr4Component();
-            var clientStore = (IClientStore)component;
+            var store = new Store();
+            var component = new IdSvr4Component(store, A.Dummy<IEventMonitorSink>());
+            var clientStore = (IClientStore)store;
             IComponentConfigurator configurator1 = null;
             IComponentConfigurator configurator2 = null;
 
@@ -52,7 +55,7 @@ namespace Periturf.Tests.IdSvr4
                 });
 
 
-            builder.ConfigureIdSvr4(componentName, x =>
+            builder.IdSvr4(componentName, x =>
             {
                 x.Client(c =>
                 {
@@ -60,7 +63,7 @@ namespace Periturf.Tests.IdSvr4
                 });
             });
 
-            builder.ConfigureIdSvr4(componentName, x =>
+            builder.IdSvr4(componentName, x =>
             {
                 x.Client(c =>
                 {

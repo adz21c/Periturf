@@ -38,7 +38,7 @@ namespace Periturf.Tests.IdSvr4.Configuration
 
 
             // Act
-            builder.ConfigureIdSvr4(componentName, config);
+            builder.IdSvr4(componentName, config);
 
             // Assert
             A.CallTo(() => builder.AddComponentConfigurator(componentName, A<Func<IdSvr4Component, IComponentConfigurator>>._)).MustHaveHappenedOnceExactly();

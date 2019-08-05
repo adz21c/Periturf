@@ -37,7 +37,7 @@ namespace Periturf.Tests.Integration.IdSvr4
                 e.WebHost(h =>
                 {
                     h.UseUrls(WebHostUrl);
-                    h.SetupIdSvr4();
+                    h.IdSvr4();
                 });
             });
 

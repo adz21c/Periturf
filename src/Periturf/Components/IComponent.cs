@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Periturf.Verify;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,5 +33,13 @@ namespace Periturf.Components
         /// <param name="ct">The cancellation token</param>
         /// <returns></returns>
         Task UnregisterConfigurationAsync(Guid id, CancellationToken ct = default);
+
+        /// <summary>
+        /// Creates a component specific condition builder.
+        /// </summary>
+        /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
+        /// <returns></returns>
+        TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
+            where TComponentConditionBuilder : IComponentConditionBuilder;
     }
 }

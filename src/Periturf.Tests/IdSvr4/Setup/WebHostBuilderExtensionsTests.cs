@@ -36,7 +36,7 @@ namespace Periturf.Tests.IdSvr4.Setup
             const string componentName = "IdSvr4Test";
 
             // Act
-            builder.SetupIdSvr4(componentName, config);
+            builder.IdSvr4(componentName, config);
 
             // Assert
             A.CallTo(() => builder.ConfigureServices(A<Action<IServiceCollection>>._)).MustHaveHappenedOnceOrMore();
@@ -52,7 +52,7 @@ namespace Periturf.Tests.IdSvr4.Setup
             const string componentName = "IdSvr4Test";
 
             // Act
-            builder.SetupIdSvr4(componentName, null);
+            builder.IdSvr4(componentName, null);
 
             // Assert
             A.CallTo(() => builder.ConfigureServices(A<Action<IServiceCollection>>._)).MustHaveHappenedOnceOrMore();
