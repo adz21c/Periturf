@@ -51,5 +51,10 @@ namespace Periturf.IdSvr4
             object builder = new IdSvr4ConditionBuilder(_eventMonitor);
             return (TComponentConditionBuilder)builder;
         }
+
+        public IComponentClient CreateClient()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

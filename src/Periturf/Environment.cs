@@ -393,5 +393,27 @@ namespace Periturf
         }
 
         #endregion
+
+        #region Client
+
+        /// <summary>
+        /// Creates a component client.
+        /// </summary>
+        /// <param name="componentName">Name of the component.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">componentName</exception>
+        /// <exception cref="ComponentLocationFailedException"></exception>
+        public IComponentClient CreateComponentClient(string componentName)
+        {
+            if (string.IsNullOrWhiteSpace(componentName))
+                throw new ArgumentNullException(nameof(componentName));
+
+            if (!_components.TryGetValue(componentName, out var component))
+                throw new ComponentLocationFailedException(componentName);
+
+            return component.CreateClient();
+        }
+
+        #endregion
     }
 }
