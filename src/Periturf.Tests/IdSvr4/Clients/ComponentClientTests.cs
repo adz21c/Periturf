@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Net.Http;
-using IdentityModel.Client;
+using NUnit.Framework;
 
-namespace Periturf.IdSvr4.Clients
+namespace Periturf.Tests.IdSvr4.Clients
 {
-    class ComponentClient : IIdSvr4Client
+    [TestFixture]
+    class ComponentClientTests
     {
-        private HttpClient _httpClient;
-
-        public ComponentClient(HttpClient httpClient)
+        [Test]
+        public void Something()
         {
-            _httpClient = httpClient.RequestAuthorizationCodeTokenAsync;
+
         }
     }
 }

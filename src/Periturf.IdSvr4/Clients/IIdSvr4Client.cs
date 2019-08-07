@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityModel.Client;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Periturf
 {
     /// <summary>
@@ -21,5 +25,18 @@ namespace Periturf
     /// <seealso cref="Periturf.IComponentClient" />
     public interface IIdSvr4Client : IComponentClient
     {
+        Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest request = null, CancellationToken cancellationToken = default);
+
+        Task<TokenResponse> RequestAuthorizationCodeTokenAsync(AuthorizationCodeTokenRequest request, CancellationToken cancellationToken = default);
+        
+        Task<TokenResponse> RequestClientCredentialsTokenAsync(ClientCredentialsTokenRequest request, CancellationToken cancellationToken = default);
+        
+        Task<TokenResponse> RequestDeviceTokenAsync(DeviceTokenRequest request, CancellationToken cancellationToken = default);
+        
+        Task<TokenResponse> RequestPasswordTokenAsync(PasswordTokenRequest request, CancellationToken cancellationToken = default);
+        
+        Task<TokenResponse> RequestRefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default);
+        
+        Task<TokenResponse> RequestTokenAsync(TokenRequest request, CancellationToken cancellationToken = default);
     }
 }
