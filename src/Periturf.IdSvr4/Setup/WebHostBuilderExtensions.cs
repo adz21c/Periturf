@@ -20,10 +20,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Periturf.IdSvr4;
+using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;
 using Periturf.IdSvr4.Verify;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 
 namespace Periturf
 {
@@ -58,6 +60,7 @@ namespace Periturf
 
             var store = new Store();
             var eventMonitorSink = new EventMonitorSink();
+            var client = new ComponentClient(new HttpClient()); // TODO: IdSvr4 base Url
 
             builder.ConfigureServices(services =>
             {
@@ -79,7 +82,7 @@ namespace Periturf
                 configurator.ServicesCallback?.Invoke(identityServiceBuilder);
             });
 
-            var component = new IdSvr4Component(store, eventMonitorSink);
+            var component = new IdSvr4Component(store, eventMonitorSink, client);
             builder.AddComponent(name, component);
         }
     }
