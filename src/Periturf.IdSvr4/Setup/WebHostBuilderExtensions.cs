@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityModel.Client;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
@@ -60,7 +61,9 @@ namespace Periturf
 
             var store = new Store();
             var eventMonitorSink = new EventMonitorSink();
-            var client = new ComponentClient(new HttpClient()); // TODO: IdSvr4 base Url
+            var client = new ComponentClient(
+                new HttpClient(),
+                new DiscoveryCache("")); // TODO: IdSvr4 base Url
 
             builder.ConfigureServices(services =>
             {

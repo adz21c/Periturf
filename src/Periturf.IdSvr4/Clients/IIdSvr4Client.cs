@@ -25,18 +25,68 @@ namespace Periturf
     /// <seealso cref="Periturf.IComponentClient" />
     public interface IIdSvr4Client : IComponentClient
     {
+        /// <summary>
+        /// Gets the discovery document asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest request = null, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Requests the authorization code token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestAuthorizationCodeTokenAsync(AuthorizationCodeTokenRequest request, CancellationToken cancellationToken = default);
-        
+
+        /// <summary>
+        /// Requests the client credentials token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestClientCredentialsTokenAsync(ClientCredentialsTokenRequest request, CancellationToken cancellationToken = default);
-        
+
+        /// <summary>
+        /// Requests the device token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestDeviceTokenAsync(DeviceTokenRequest request, CancellationToken cancellationToken = default);
-        
+
+        /// <summary>
+        /// Requests the password token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestPasswordTokenAsync(PasswordTokenRequest request, CancellationToken cancellationToken = default);
-        
+
+        /// <summary>
+        /// Requests the refresh token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestRefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default);
-        
+
+        /// <summary>
+        /// Requests the token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         Task<TokenResponse> RequestTokenAsync(TokenRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Introspects the token asynchronous.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IntrospectionResponse> IntrospectTokenAsync(TokenIntrospectionRequest request, CancellationToken cancellationToken = default);
     }
 }
