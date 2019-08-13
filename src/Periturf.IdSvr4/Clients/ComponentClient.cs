@@ -81,7 +81,7 @@ namespace Periturf.IdSvr4.Clients
         public async Task<IntrospectionResponse> IntrospectTokenAsync(TokenIntrospectionRequest request, CancellationToken cancellationToken = default)
         {
             var discovery = await _discoveryCache.GetAsync().ConfigureAwait(false);
-            request.Address = discovery.TokenEndpoint;
+            request.Address = discovery.IntrospectionEndpoint;
             return await _httpClient.IntrospectTokenAsync(request, cancellationToken).ConfigureAwait(false);
         }
     }
