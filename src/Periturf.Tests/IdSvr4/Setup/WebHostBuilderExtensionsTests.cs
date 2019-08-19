@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 using FakeItEasy;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
@@ -32,7 +34,12 @@ namespace Periturf.Tests.IdSvr4.Setup
             A.CallTo(() => builder.GetSetting("urls")).Returns("http://localhost:5000/");
 
             var config = A.Fake<Action<IdSvr4SetupConfigurator>>();
-            A.CallTo(() => config(A<IdSvr4SetupConfigurator>._)).Invokes(c => c.GetArgument<IdSvr4SetupConfigurator>(0).Services(s => { }));
+            A.CallTo(() => config(A<IdSvr4SetupConfigurator>._))
+                .Invokes(c =>
+                {
+                    c.GetArgument<IdSvr4SetupConfigurator>(0).Configure(s => { });
+                    c.GetArgument<IdSvr4SetupConfigurator>(0).Services(s => { });
+                });
 
             const string componentName = "IdSvr4Test";
 
