@@ -29,6 +29,7 @@ namespace Periturf.Tests.IdSvr4.Setup
         {
             // Arrange
             var builder = A.Fake<IPeriturfWebHostBuilder>();
+            A.CallTo(() => builder.GetSetting("urls")).Returns("http://localhost:5000/");
 
             var config = A.Fake<Action<IdSvr4SetupConfigurator>>();
             A.CallTo(() => config(A<IdSvr4SetupConfigurator>._)).Invokes(c => c.GetArgument<IdSvr4SetupConfigurator>(0).Services(s => { }));
@@ -48,6 +49,7 @@ namespace Periturf.Tests.IdSvr4.Setup
         {
             // Arrange
             var builder = A.Fake<IPeriturfWebHostBuilder>();
+            A.CallTo(() => builder.GetSetting("urls")).Returns("http://localhost:5000/");
 
             const string componentName = "IdSvr4Test";
 
