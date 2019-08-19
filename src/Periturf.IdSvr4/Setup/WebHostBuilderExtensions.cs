@@ -83,7 +83,7 @@ namespace Periturf
             var httpClient = new HttpClient() { BaseAddress = uri };
             var client = new ComponentClient(
                 httpClient,
-                new DiscoveryCache(url, httpClient));
+                new DiscoveryCache(uri.AbsoluteUri.ToLower(), httpClient));
 
             builder.ConfigureServices(services =>
             {
