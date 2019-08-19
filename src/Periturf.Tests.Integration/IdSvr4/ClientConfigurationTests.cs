@@ -34,7 +34,7 @@ namespace Periturf.Tests.Integration.IdSvr4
         {
             // Arrange
             const string WebHostUrl = "http://localhost:3502";
-            const string TokenEndpointUrl = WebHostUrl + "/connect/token";
+            const string TokenEndpointUrl = WebHostUrl + "/IdSvr4/connect/token";
 
             const string ClientId = "ClientId";
             const string ClientSecret = "secret";

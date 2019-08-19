@@ -45,7 +45,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             var client = new HttpClient();
             var beforeStartResponse = await client.RequestTokenAsync(new IdentityModel.Client.TokenRequest
             {
-                Address = WebHostUrl + "/connect/token",
+                Address = WebHostUrl + "/IdSvr4/connect/token",
                 GrantType = GrantTypes.ClientCredentials,
                 ClientId = "Client1",
                 ClientSecret = "Secret"
@@ -59,7 +59,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             // Assert
             var afterStartResponse = await client.RequestTokenAsync(new IdentityModel.Client.TokenRequest
             {
-                Address = WebHostUrl + "/connect/token",
+                Address = WebHostUrl + "/IdSvr4/connect/token",
                 GrantType = GrantTypes.ClientCredentials,
                 ClientId = "Client1",
                 ClientSecret = "Secret"
@@ -74,7 +74,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             // Assert
             var afterStopResponse = await client.RequestTokenAsync(new IdentityModel.Client.TokenRequest
             {
-                Address = WebHostUrl + "/connect/token",
+                Address = WebHostUrl + "/IdSvr4/connect/token",
                 GrantType = GrantTypes.ClientCredentials,
                 ClientId = "Client1",
                 ClientSecret = "Secret"

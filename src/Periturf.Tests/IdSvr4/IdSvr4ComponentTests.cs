@@ -39,8 +39,9 @@ namespace Periturf.Tests.IdSvr4
 
             var store = A.Fake<IStore>();
             var sink = A.Fake<IEventMonitorSink>();
+            var client = A.Fake<IIdSvr4Client>();
 
-            var component = new IdSvr4Component(store, sink);
+            var component = new IdSvr4Component(store, sink, client);
 
             // Act
             component.RegisterConfiguration(id, config);
@@ -56,8 +57,9 @@ namespace Periturf.Tests.IdSvr4
 
             var store = A.Fake<IStore>();
             var sink = A.Fake<IEventMonitorSink>();
+            var client = A.Fake<IIdSvr4Client>();
 
-            var component = new IdSvr4Component(store, sink);
+            var component = new IdSvr4Component(store, sink, client);
 
             // Act
             await component.UnregisterConfigurationAsync(id);
@@ -73,8 +75,9 @@ namespace Periturf.Tests.IdSvr4
             // Arrange
             var store = A.Fake<IStore>();
             var sink = A.Fake<IEventMonitorSink>();
+            var client = A.Fake<IIdSvr4Client>();
 
-            var component = new IdSvr4Component(store, sink);
+            var component = new IdSvr4Component(store, sink, client);
 
             // Act
             var builder = component.CreateConditionBuilder<IdSvr4ConditionBuilder>();

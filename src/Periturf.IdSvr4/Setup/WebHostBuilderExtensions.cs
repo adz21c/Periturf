@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityModel.Client;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Periturf.IdSvr4;
+using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;
 using Periturf.IdSvr4.Verify;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net.Http;
 
 namespace Periturf
 {
@@ -54,10 +59,31 @@ namespace Periturf
             var configurator = new IdSvr4SetupConfigurator();
             config?.Invoke(configurator);
 
-            builder.Configure(app => app.UseIdentityServer());
+            var appPath = new PathString((name.StartsWith("/") ? string.Empty : "/") + name);
+
+            var appConfig = configurator.AppConfigCallback ?? ((IApplicationBuilder app) => app.UseIdentityServer());
+            builder.Configure(app => app.Map(appPath, appConfig));
+
+            var urls = builder.GetSetting("urls");
+            var url = urls.Split(';')
+                .Select(x => x.Replace("*", "localhost"))
+                .Select(x => new
+                {
+                    Url = x,
+                    Rank = x.Contains("localhost") ? 0 : 1
+                })
+                .OrderBy(x => x.Rank)
+                .Select(x => x.Url)
+                .First();
+            var uri = new Uri(new Uri(url), appPath.ToUriComponent());
 
             var store = new Store();
             var eventMonitorSink = new EventMonitorSink();
+
+            var httpClient = new HttpClient() { BaseAddress = uri };
+            var client = new ComponentClient(
+                httpClient,
+                new DiscoveryCache(uri.AbsoluteUri.ToLower(), httpClient));
 
             builder.ConfigureServices(services =>
             {
@@ -79,7 +105,7 @@ namespace Periturf
                 configurator.ServicesCallback?.Invoke(identityServiceBuilder);
             });
 
-            var component = new IdSvr4Component(store, eventMonitorSink);
+            var component = new IdSvr4Component(store, eventMonitorSink, client);
             builder.AddComponent(name, component);
         }
     }

@@ -27,11 +27,13 @@ namespace Periturf.IdSvr4
     {
         private readonly IStore _store;
         private readonly IEventMonitorSink _eventMonitor;
+        private readonly IIdSvr4Client _client;
 
-        public IdSvr4Component(IStore store, IEventMonitorSink eventMonitor)
+        public IdSvr4Component(IStore store, IEventMonitorSink eventMonitor, IIdSvr4Client client)
         {
             _store = store;
             _eventMonitor = eventMonitor;
+            _client = client;
         }
 
         public void RegisterConfiguration(Guid id, ConfigurationRegistration config)
@@ -50,6 +52,11 @@ namespace Periturf.IdSvr4
         {
             object builder = new IdSvr4ConditionBuilder(_eventMonitor);
             return (TComponentConditionBuilder)builder;
+        }
+
+        public IComponentClient CreateClient()
+        {
+            return _client;
         }
     }
 }

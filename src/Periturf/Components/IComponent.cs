@@ -41,5 +41,11 @@ namespace Periturf.Components
         /// <returns></returns>
         TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
             where TComponentConditionBuilder : IComponentConditionBuilder;
+
+        /// <summary>
+        /// Creates a component client.
+        /// </summary>
+        /// <returns></returns>
+        IComponentClient CreateClient();
     }
 }

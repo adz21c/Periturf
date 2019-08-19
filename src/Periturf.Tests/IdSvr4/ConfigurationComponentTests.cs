@@ -37,7 +37,7 @@ namespace Periturf.Tests.IdSvr4
             const string clientId2 = "ClientID2";
 
             var store = new Store();
-            var component = new IdSvr4Component(store, A.Dummy<IEventMonitorSink>());
+            var component = new IdSvr4Component(store, A.Dummy<IEventMonitorSink>(), A.Dummy<IIdSvr4Client>());
             var clientStore = (IClientStore)store;
             IComponentConfigurator configurator1 = null;
             IComponentConfigurator configurator2 = null;

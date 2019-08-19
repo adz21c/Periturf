@@ -27,18 +27,16 @@ using static IdentityModel.OidcConstants;
 namespace Periturf.Tests.Integration.IdSvr4
 {
     [TestFixture]
-    class VerifyTests
+    class ClientTests
     {
 
         [Test]
         public async Task GiveMeAName()
         {
             // Arrange
-            const string WebHostUrl = "http://localhost:3505";
-            const string TokenEndpointUrl = WebHostUrl + "/IdSvr4/connect/token";
+            const string WebHostUrl = "http://localhost:3510";
 
             const string ClientId = "ClientId";
-            const string InvalidClientId = "InvalidClientId";
             const string ClientSecret = "secret";
             const string Scope = "Resource";
 
@@ -69,25 +67,13 @@ namespace Periturf.Tests.Integration.IdSvr4
                 });
             });
 
-            var verifier = await env.VerifyAsync(c => c.And(
-                c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
-                c.Not(c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == ClientId)),
-                c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == InvalidClientId),
-                c.Not(c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == InvalidClientId))));
+            var verifier = await env.VerifyAsync(c => c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId));
 
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(TokenEndpointUrl);
+            var idSvr4Client = env.IdSvr4Client();
 
-            // Assert
-            var successResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            var idSvr4Response = await idSvr4Client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 ClientId = ClientId,
-                ClientSecret = ClientSecret,
-                Scope = Scope
-            });
-            var failedResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                ClientId = InvalidClientId,
                 ClientSecret = ClientSecret,
                 Scope = Scope
             });
