@@ -34,7 +34,7 @@ namespace Periturf.IdSvr4.Verify
 
         public void CheckEvent(Event @event)
         {
-            var upcastEvent = @event as TEvent;
+            var upcastEvent = (TEvent) @event;
 
             if (_checker(upcastEvent))
                 _occurred = true;

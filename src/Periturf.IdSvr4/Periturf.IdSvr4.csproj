@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -13,14 +14,9 @@
     <Authors>adz21c</Authors>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup>
     <CodeAnalysisRuleSet>Periturf.IdSvr4.ruleset</CodeAnalysisRuleSet>
-    <WarningsAsErrors>NU1605;CS1591</WarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CodeAnalysisRuleSet>Periturf.IdSvr4.ruleset</CodeAnalysisRuleSet>
-    <WarningsAsErrors>NU1605;CS1591</WarningsAsErrors>
+    <WarningsAsErrors>NU1605;CS1591;CS8618;CS8625;CS8604</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

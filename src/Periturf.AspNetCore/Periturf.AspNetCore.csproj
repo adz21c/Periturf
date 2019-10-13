@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <CodeAnalysisRuleSet>Periturf.AspNetCore.ruleset</CodeAnalysisRuleSet>
-    <WarningsAsErrors>NU1605;CS1591;CS8618;CS8625</WarningsAsErrors>
+    <WarningsAsErrors>NU1605;CS1591;CS8618;CS8625;CS8604</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

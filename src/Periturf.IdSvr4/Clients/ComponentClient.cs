@@ -31,7 +31,7 @@ namespace Periturf.IdSvr4.Clients
             _discoveryCache = discoveryCache;
         }
 
-        public async Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest request = null, CancellationToken cancellationToken = default)
+        public async Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest? request = null, CancellationToken cancellationToken = default)
         {
             return await _discoveryCache.GetAsync().ConfigureAwait(false);
         }

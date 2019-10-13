@@ -31,7 +31,7 @@ namespace Periturf
         /// <param name="request">The request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest request = null, CancellationToken cancellationToken = default);
+        Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest? request = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Requests the authorization code token asynchronous.

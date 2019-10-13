@@ -26,7 +26,7 @@ namespace Periturf.IdSvr4.Verify
     {
         private readonly IEventMonitorSink _eventMonitorSink;
         private readonly Func<TEvent, bool> _condition;
-        private IEventOccurredConditionEvaluator _evaluator;
+        private IEventOccurredConditionEvaluator? _evaluator;
 
         public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition)
         {
@@ -44,6 +44,9 @@ namespace Periturf.IdSvr4.Verify
 
         Task IConditionEraser.EraseAsync(CancellationToken ct)
         {
+            if (_evaluator == null)
+                throw new InvalidOperationException("Evaluator not yet built");
+
             _eventMonitorSink.RemoveEvaluator(typeof(TEvent), _evaluator);
             return Task.CompletedTask;
         }

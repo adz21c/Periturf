@@ -33,7 +33,7 @@ namespace Periturf
             AppConfigCallback = config;
         }
 
-        internal Action<IApplicationBuilder> AppConfigCallback { get; private set; }
+        internal Action<IApplicationBuilder>? AppConfigCallback { get; private set; }
 
         /// <summary>
         /// Applies configuration to the <see cref="IIdentityServerBuilder"/>.
@@ -44,6 +44,6 @@ namespace Periturf
             ServicesCallback = config;
         }
 
-        internal Action<IIdentityServerBuilder> ServicesCallback { get; private set; }
+        internal Action<IIdentityServerBuilder>? ServicesCallback { get; private set; }
     }
 }
