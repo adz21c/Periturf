@@ -74,5 +74,23 @@ namespace Periturf.Tests.IdSvr4.Verify
             // Assert
             A.CallTo(() => eventMonitorSink.RemoveEvaluator(typeof(Event), evaluator)).MustHaveHappened();
         }
+
+        [Test]
+        public void Given_SpecThatHasntBuiltEvaluator_When_Erase_Then_Throws()
+        {
+            // Arrange
+            var eventMonitorSink = A.Fake<IEventMonitorSink>();
+            var condition = A.Dummy<Func<Event, bool>>();
+
+            IConditionSpecification spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
+
+            var eraser = (IConditionEraser)spec;
+
+            Fake.ClearRecordedCalls(eventMonitorSink);
+            Fake.ClearRecordedCalls(condition);
+
+            // Act
+            Assert.ThrowsAsync<InvalidOperationException>(() => eraser.EraseAsync());
+        }
     }
 }
