@@ -23,7 +23,7 @@ test: off
 
 before_build:
   cmd: >-
-    choco install gitversion.portable -y
+    choco install gitversion.portable -y --version 4.0.0
     
     gitversion /l console /output buildserver /updateAssemblyInfo
     
