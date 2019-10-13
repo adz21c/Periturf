@@ -30,7 +30,7 @@ namespace Periturf.Configuration
         /// </summary>
         /// <param name="id">The identifier for the configuration.</param>
         /// <param name="details">The component error details.</param>
-        public ConfigurationRemovalException(Guid id, ComponentExceptionDetails[] details = null) : base("There was a problem while removing configuration from environment")
+        public ConfigurationRemovalException(Guid id, ComponentExceptionDetails[]? details = null) : base("There was a problem while removing configuration from environment")
         {
             Id = id;
             Details = details ?? new ComponentExceptionDetails[] { };
@@ -42,7 +42,7 @@ namespace Periturf.Configuration
         /// <param name="message">The message.</param>
         /// <param name="id">The identifier for the configuration.</param>
         /// <param name="details">The component error details.</param>
-        public ConfigurationRemovalException(string message, Guid id, ComponentExceptionDetails[] details = null) : base(message)
+        public ConfigurationRemovalException(string message, Guid id, ComponentExceptionDetails[]? details = null) : base(message)
         {
             Id = id;
             Details = details ?? new ComponentExceptionDetails[] { };

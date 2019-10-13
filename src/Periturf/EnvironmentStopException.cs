@@ -29,7 +29,7 @@ namespace Periturf
         /// Initializes a new instance of the <see cref="EnvironmentStopException"/> class.
         /// </summary>
         /// <param name="details">The details.</param>
-        public EnvironmentStopException(HostExceptionDetails[] details = null) : base("Failed to correctly stop environment")
+        public EnvironmentStopException(HostExceptionDetails[]? details = null) : base("Failed to correctly stop environment")
         {
             Details = details ?? new HostExceptionDetails[] { };
         }
@@ -39,7 +39,7 @@ namespace Periturf
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="details">The details.</param>
-        public EnvironmentStopException(string message, HostExceptionDetails[] details = null) : base(message)
+        public EnvironmentStopException(string message, HostExceptionDetails[]? details = null) : base(message)
         {
             Details = details ?? new HostExceptionDetails[] { };
         }

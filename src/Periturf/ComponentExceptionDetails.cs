@@ -28,7 +28,9 @@ namespace Periturf
         /// Initializes a new instance of the <see cref="ComponentExceptionDetails"/> class.
         /// </summary>
         [ExcludeFromCodeCoverage]
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         protected ComponentExceptionDetails()
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         { }
 
         /// <summary>
