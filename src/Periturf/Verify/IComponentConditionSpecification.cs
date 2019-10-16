@@ -13,23 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// Verifies a condition.
-    /// </summary>
-    public interface IConditionEvaluator
+    public interface IComponentConditionSpecification
     {
-        /// <summary>
-        /// Evaluates this instance's condition.
-        /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns>
-        ///   <c>true</c> if the condition can be varified; else <c>false</c>
-        /// </returns>
-        Task<bool> EvaluateAsync(CancellationToken ct = default);
     }
 }

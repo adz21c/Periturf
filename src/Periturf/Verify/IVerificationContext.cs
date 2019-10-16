@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Threading;
-using System.Threading.Tasks;
+using Periturf.Verify;
+using System;
 
-namespace Periturf.Verify
+namespace Periturf
 {
-    /// <summary>
-    /// Removes any changes made to the <see cref="Environment"/> to monitor for the condition.
-    /// </summary>
-    public interface IConditionEraser
+    public interface IVerificationContext
     {
-        /// <summary>
-        /// Erases the changes to an <see cref="Environment"/> for the condition.
-        /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns></returns>
-        Task EraseAsync(CancellationToken ct = default);
+        TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName)
+            where TComponentConditionBuilder : IComponentConditionBuilder;
+
+        void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config);
     }
 }

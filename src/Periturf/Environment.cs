@@ -294,31 +294,32 @@ namespace Periturf
 
         #region Verify
 
-        /// <summary>
-        /// Registers listeners for conditions and returns a <see cref="IVerifier" /> to evaluate if the condition has happened since creation.
-        /// </summary>
-        /// <param name="verifierBuilder">Specifies the conditions for the verifier.</param>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns>
-        ///   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
-        /// </returns>
-        public async Task<IVerifier> VerifyAsync(Func<IConditionContext, IConditionSpecification> verifierBuilder, CancellationToken ct = default)
-        {
-            var conditionContext = new ConditionContext(this);
-            var condition = verifierBuilder(conditionContext);
+        ///// <summary>
+        ///// Registers listeners for conditions and returns a <see cref="IVerifier" /> to evaluate if the condition has happened since creation.
+        ///// </summary>
+        ///// <param name="verifierBuilder">Specifies the conditions for the verifier.</param>
+        ///// <param name="ct">The cancellation token.</param>
+        ///// <returns>
+        /////   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
+        ///// </returns>
+        //public async Task<IVerifier> VerifyAsync(Func<IVerificationContext, IComponentConditionSpecification> verifierBuilder, CancellationToken ct = default)
+        //{
+        //    var conditionContext = new VerificationContext(this);
+        //    var condition = verifierBuilder(conditionContext);
 
-            var verifyId = Guid.NewGuid();
-            var erasePlan = new ErasePlan();
-            var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
+        //    var verifyId = Guid.NewGuid();
+        //    var erasePlan = new ErasePlan();
+        //    var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
 
-            return new Verifier(evaluator, erasePlan);
-        }
+        //    return new Verifier(evaluator, erasePlan);
+        //}
 
-        class ConditionContext : IConditionContext
+        class VerificationContext : IVerificationContext
         {
             private readonly Environment _env;
+            private readonly List<(IComponentConditionSpecification component, )>
 
-            public ConditionContext(Environment env)
+            public VerificationContext(Environment env)
             {
                 _env = env;
             }
@@ -330,67 +331,72 @@ namespace Periturf
 
                 return component.CreateConditionBuilder<TComponentConditionBuilder>();
             }
-        }
 
-        class Verifier : IVerifier
-        {
-            private readonly IConditionEvaluator _evaluator;
-            private readonly ErasePlan _erasePlan;
-
-            public Verifier(IConditionEvaluator evaluator, ErasePlan erasePlan)
+            public void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config)
             {
-                _evaluator = evaluator;
-                _erasePlan = erasePlan;
-            }
-
-            public async Task VerifyAndThrowAsync(CancellationToken ct = default)
-            {
-                var result = await _evaluator.EvaluateAsync(ct);
-                if (!result)
-                    throw new VerificationFailedException();
-            }
-
-            public Task CleanUpAsync(CancellationToken ct = default)
-            {
-                return _erasePlan.ExecuteCleanUpAsync(ct);
+                throw new NotImplementedException();
             }
         }
 
-        class ErasePlan : IConditionErasePlan
-        {
-            private readonly List<IConditionEraser> _erasers = new List<IConditionEraser>();
+        //class Verifier : IVerifier
+        //{
+        //    private readonly IConditionEvaluator _evaluator;
+        //    private readonly ErasePlan _erasePlan;
 
-            public void AddEraser(IConditionEraser eraser)
-            {
-                _erasers.Add(eraser ?? throw new ArgumentNullException(nameof(eraser)));
-            }
+        //    public Verifier(IConditionEvaluator evaluator, ErasePlan erasePlan)
+        //    {
+        //        _evaluator = evaluator;
+        //        _erasePlan = erasePlan;
+        //    }
 
-            public async Task ExecuteCleanUpAsync(CancellationToken ct = default)
-            {
-                Task Erase(IConditionEraser eraser)
-                {
-                    try
-                    {
-                        return eraser.EraseAsync(ct);
-                    }
-                    catch (Exception ex)
-                    {
-                        return Task.FromException(ex);
-                    }
-                }
+        //    public async Task VerifyAndThrowAsync(CancellationToken ct = default)
+        //    {
+        //        var result = await _evaluator.EvaluateAsync(ct);
+        //        if (!result)
+        //            throw new VerificationFailedException();
+        //    }
 
-                var erasers = _erasers.Select(Erase).ToList();
+        //    public Task CleanUpAsync(CancellationToken ct = default)
+        //    {
+        //        return _erasePlan.ExecuteCleanUpAsync(ct);
+        //    }
+        //}
 
-                try
-                {
-                    await Task.WhenAll(erasers);
-                }
-                catch
-                {
-                    throw new VerificationCleanUpFailedException();
-                }
-            }
-        }
+        //class ErasePlan : IConditionErasePlan
+        //{
+        //    private readonly List<IConditionEraser> _erasers = new List<IConditionEraser>();
+
+        //    public void AddEraser(IConditionEraser eraser)
+        //    {
+        //        _erasers.Add(eraser ?? throw new ArgumentNullException(nameof(eraser)));
+        //    }
+
+        //    public async Task ExecuteCleanUpAsync(CancellationToken ct = default)
+        //    {
+        //        Task Erase(IConditionEraser eraser)
+        //        {
+        //            try
+        //            {
+        //                return eraser.EraseAsync(ct);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                return Task.FromException(ex);
+        //            }
+        //        }
+
+        //        var erasers = _erasers.Select(Erase).ToList();
+
+        //        try
+        //        {
+        //            await Task.WhenAll(erasers);
+        //        }
+        //        catch
+        //        {
+        //            throw new VerificationCleanUpFailedException();
+        //        }
+        //    }
+        //}
 
         #endregion
 
