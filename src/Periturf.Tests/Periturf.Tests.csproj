@@ -9,6 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="AspNetCore\**" />
+    <Compile Remove="IdSvr4\**" />
+    <Compile Remove="Verify\Evaluators\**" />
+    <EmbeddedResource Remove="AspNetCore\**" />
+    <EmbeddedResource Remove="IdSvr4\**" />
+    <EmbeddedResource Remove="Verify\Evaluators\**" />
+    <None Remove="AspNetCore\**" />
+    <None Remove="IdSvr4\**" />
+    <None Remove="Verify\Evaluators\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="2.7.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
