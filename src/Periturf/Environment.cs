@@ -294,34 +294,38 @@ namespace Periturf
 
         #region Verify
 
-        ///// <summary>
-        ///// Registers listeners for conditions and returns a <see cref="IVerifier" /> to evaluate if the condition has happened since creation.
-        ///// </summary>
-        ///// <param name="verifierBuilder">Specifies the conditions for the verifier.</param>
-        ///// <param name="ct">The cancellation token.</param>
-        ///// <returns>
-        /////   <see cref="IVerifier" /> to evaluate if the condition has happened since creation
-        ///// </returns>
-        //public async Task<IVerifier> VerifyAsync(Func<IVerificationContext, IComponentConditionSpecification> verifierBuilder, CancellationToken ct = default)
-        //{
-        //    var conditionContext = new VerificationContext(this);
-        //    var condition = verifierBuilder(conditionContext);
+        public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
+        {
+            var context = new VerificationContext(this);
+            builder(context);
 
-        //    var verifyId = Guid.NewGuid();
-        //    var erasePlan = new ErasePlan();
-        //    var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
+            //var verifyId = Guid.NewGuid();
+            //var erasePlan = new ErasePlan();
+            //var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
 
-        //    return new Verifier(evaluator, erasePlan);
-        //}
+            return context.Build();
+        }
 
         class VerificationContext : IVerificationContext
         {
+            private readonly List<(IComponentConditionSpecification ComponentSpec, ExpectationSpecification ExpectationSpec)> _specs = new List<(IComponentConditionSpecification, ExpectationSpecification)>();
             private readonly Environment _env;
-            private readonly List<(IComponentConditionSpecification component, )>
 
             public VerificationContext(Environment env)
             {
                 _env = env;
+            }
+
+            public void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config)
+            {
+                var expecationSpec = new ExpectationSpecification();
+                config(expecationSpec);
+
+                _specs.Add(
+                    (
+                        conditionSpecification ?? throw new ArgumentNullException(nameof(conditionSpecification)),
+                        expecationSpec
+                    ));
             }
 
             public TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName) where TComponentConditionBuilder : IComponentConditionBuilder
@@ -332,35 +336,19 @@ namespace Periturf
                 return component.CreateConditionBuilder<TComponentConditionBuilder>();
             }
 
-            public void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config)
+            public Verifier Build()
             {
-                throw new NotImplementedException();
+                var expectations = _specs.Select(async x =>
+                {
+                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync();
+                    return x.ExpectationSpec.Build(componentConditionEvaluator);
+                }).ToList();
+
+                Task.WhenAll(expectations);
+
+                return new Verifier(expectations.Select(x => x.Result).ToList());
             }
         }
-
-        //class Verifier : IVerifier
-        //{
-        //    private readonly IConditionEvaluator _evaluator;
-        //    private readonly ErasePlan _erasePlan;
-
-        //    public Verifier(IConditionEvaluator evaluator, ErasePlan erasePlan)
-        //    {
-        //        _evaluator = evaluator;
-        //        _erasePlan = erasePlan;
-        //    }
-
-        //    public async Task VerifyAndThrowAsync(CancellationToken ct = default)
-        //    {
-        //        var result = await _evaluator.EvaluateAsync(ct);
-        //        if (!result)
-        //            throw new VerificationFailedException();
-        //    }
-
-        //    public Task CleanUpAsync(CancellationToken ct = default)
-        //    {
-        //        return _erasePlan.ExecuteCleanUpAsync(ct);
-        //    }
-        //}
 
         //class ErasePlan : IConditionErasePlan
         //{

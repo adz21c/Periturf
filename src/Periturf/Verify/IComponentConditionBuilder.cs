@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace Periturf.Verify
+namespace Periturf
 {
     /// <summary>
     /// Symbolic interface for component specific condition builders.

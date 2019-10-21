@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Periturf.Verify
 {
     public interface IComponentConditionSpecification
     {
+        Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default);
     }
 }
