@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using Periturf.Verify;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,15 +24,8 @@ namespace Periturf
     /// <summary>
     /// Evaluates if a condition has happened since creation of the instance.
     /// </summary>
-    public interface IVerifier
+    public interface IVerifier : IAsyncDisposable
     {
-        Task<IReadOnlyList<IExpectationResult>> Verify();
-
-        /// <summary>
-        /// Removes associated listeners from components.
-        /// </summary>
-        /// <param name="ct">The ct.</param>
-        /// <returns></returns>
-        Task CleanUpAsync(CancellationToken ct = default);
+        Task<IReadOnlyList<IExpectationResult>> VerifyAsync();
     }
 }

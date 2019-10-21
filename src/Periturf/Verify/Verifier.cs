@@ -30,14 +30,14 @@ namespace Periturf.Verify
             _expectations = expectations;
         }
 
-        public async Task<IReadOnlyList<IExpectationResult>> Verify()
+        public async Task<IReadOnlyList<IExpectationResult>> VerifyAsync()
         {
             var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
             await Task.WhenAll(expectations);
             return expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
         }
 
-        public Task CleanUpAsync(CancellationToken ct = default)
+        public ValueTask DisposeAsync()
         {
             throw new NotImplementedException();
         }

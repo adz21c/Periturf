@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Verify\EnvironmentVerifyDefinitionAndCleanupTests.cs" />
+    <Compile Remove="Verify\EnvironmentVerifyTests.cs" />
+    <Compile Remove="Verify\ITestComponentConditionBuilder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="2.7.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

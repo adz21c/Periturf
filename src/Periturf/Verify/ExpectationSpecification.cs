@@ -23,20 +23,23 @@ namespace Periturf.Verify
     {
         private IExpectationCriteriaSpecification? _criteriaSpecification;
         private readonly List<IExpectationFilterSpecification> _filterSpecifications = new List<IExpectationFilterSpecification>();
-        private string? _description = null;
+        //private string? _description = null;
 
-        IExpectationConfigurator IExpectationConfigurator.Description(string description)
-        {
-            if (string.IsNullOrWhiteSpace(description))
-                throw new ArgumentOutOfRangeException(nameof(description));
+        //IExpectationConfigurator IExpectationConfigurator.Description(string description)
+        //{
+        //    if (string.IsNullOrWhiteSpace(description))
+        //        throw new ArgumentOutOfRangeException(nameof(description));
             
-            _description = description;
-            return this;
-        }
+        //    _description = description;
+        //    return this;
+        //}
 
         IExpectationConfigurator IExpectationConfigurator.Where(Action<IExpectationFilterConfigurator> config)
         {
-            config(this);
+            if (config == null)
+                throw new ArgumentNullException(nameof(config));
+            
+            config?.Invoke(this);
             return this;
         }
 

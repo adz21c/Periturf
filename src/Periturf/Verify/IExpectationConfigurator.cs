@@ -20,7 +20,7 @@ namespace Periturf
 {
     public interface IExpectationConfigurator
     {
-        IExpectationConfigurator Description(string description);
+        //IExpectationConfigurator Description(string description);
 
         IExpectationConfigurator Where(Action<IExpectationFilterConfigurator> config);
 
