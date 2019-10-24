@@ -15,20 +15,21 @@ namespace Periturf.Tests.Verify
         private Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>> _filter;
         private readonly ConditionInstance _conditionInstance = new ConditionInstance(TimeSpan.Zero, "ID");
         private readonly IAsyncEnumerable<ConditionInstance> _conditionInstances;
-        private readonly IExpectationCriteriaEvaluator _evaluator = A.Fake<IExpectationCriteriaEvaluator>();
+        private IExpectationCriteriaEvaluator _evaluator;
 
         public ExpectationSpecificationFilterAndCriteriaTests()
         {
             _conditionInstances = new[] { _conditionInstance }.AsAsyncEnumerable();
         }
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetUp()
         {
             var filterSpec = A.Fake<IExpectationFilterSpecification>();
             _filter = A.Dummy<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>();
             A.CallTo(() => filterSpec.Build()).Returns(_filter);
 
+            _evaluator = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _evaluator.Completed).Returns(true);
             var criteriaSpec = A.Fake<IExpectationCriteriaSpecification>();
             A.CallTo(() => criteriaSpec.Build()).Returns(_evaluator);
@@ -48,9 +49,6 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_NotFilterOut_When_Evaluator_Then_PassedToCriteria()
         {
-            Fake.ClearRecordedCalls(_filter);
-            Fake.ClearRecordedCalls(_evaluator);
-
             A.CallTo(() => _filter.Invoke(A<IAsyncEnumerable<ConditionInstance>>._)).Returns(_conditionInstances);
             A.CallTo(() => _evaluator.Met).Returns(true);
 
@@ -64,9 +62,6 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_FilterOut_When_Evaluator_Then_NotPassedToCriteria()
         {
-            Fake.ClearRecordedCalls(_filter);
-            Fake.ClearRecordedCalls(_evaluator);
-
             A.CallTo(() => _filter.Invoke(A<IAsyncEnumerable<ConditionInstance>>._)).Returns(Enumerable.Empty<ConditionInstance>().AsAsyncEnumerable());
             A.CallTo(() => _evaluator.Met).Returns(true);
 
@@ -80,9 +75,6 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_TrueCriteria_When_Evaluator_Then_CriteriaMet()
         {
-            Fake.ClearRecordedCalls(_filter);
-            Fake.ClearRecordedCalls(_evaluator);
-
             A.CallTo(() => _filter.Invoke(A<IAsyncEnumerable<ConditionInstance>>._)).Returns(_conditionInstances);
             A.CallTo(() => _evaluator.Met).Returns(true);
 
@@ -96,9 +88,6 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_FalseCriteria_When_Evaluator_Then_CriteriaNotMet()
         {
-            Fake.ClearRecordedCalls(_filter);
-            Fake.ClearRecordedCalls(_evaluator);
-
             A.CallTo(() => _filter.Invoke(A<IAsyncEnumerable<ConditionInstance>>._)).Returns(_conditionInstances);
             A.CallTo(() => _evaluator.Met).Returns(false);
 
