@@ -39,35 +39,5 @@ namespace Periturf.Tests.Verify
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => spec.AddSpecification(null));
         }
-
-        [Test]
-        public async System.Threading.Tasks.Task Given__When__Then_Async()
-        {
-            // Arrange
-            var filterSpec = A.Fake<IExpectationFilterSpecification>();
-            var filter = A.Dummy<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>();
-            A.CallTo(() => filterSpec.Build()).Returns(filter);
-
-            var criteriaSpec = A.Fake<IExpectationCriteriaSpecification>();
-            var evaluator = A.Fake<IExpectationCriteriaEvaluator>();
-            A.CallTo(() => criteriaSpec.Build()).Returns(evaluator);
-
-            var componentEvaluator = A.Fake<IComponentConditionEvaluator>();
-
-            var spec = new ExpectationSpecification();
-            var configurator = (IExpectationConfigurator)spec;
-
-            // Act
-            configurator.Where(x => x.AddSpecification(filterSpec));
-            configurator.Must(criteriaSpec);
-
-            var expectationEvaluator = spec.Build(componentEvaluator);
-            Assert.IsNotNull(expectationEvaluator);
-
-            var result = await expectationEvaluator.EvaluateAsync();
-
-            Assert.IsNotNull(result);
-            Assert.True(result.Met);
-        }
     }
 }
