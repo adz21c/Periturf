@@ -350,6 +350,28 @@ namespace Periturf
             }
         }
 
+        class Verifier : IVerifier
+        {
+            private readonly List<ExpectationEvaluator> _expectations;
+
+            public Verifier(List<ExpectationEvaluator> expectations)
+            {
+                _expectations = expectations;
+            }
+
+            public async Task<IReadOnlyList<IExpectationResult>> VerifyAsync()
+            {
+                var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
+                await Task.WhenAll(expectations);
+                return expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         //class ErasePlan : IConditionErasePlan
         //{
         //    private readonly List<IConditionEraser> _erasers = new List<IConditionEraser>();
