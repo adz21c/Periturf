@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System.Diagnostics.CodeAnalysis;
+
 namespace Periturf.Verify
 {
+    [ExcludeFromCodeCoverage]
     class ExpectationResult : IExpectationResult
     {
         public ExpectationResult(bool met)

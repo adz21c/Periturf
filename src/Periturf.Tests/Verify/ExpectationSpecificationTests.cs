@@ -39,5 +39,28 @@ namespace Periturf.Tests.Verify
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => spec.AddSpecification(null));
         }
+
+        [Test]
+        public void Given_NullComponent_When_Build_Then_Throw()
+        {
+
+            // Arrange
+            var spec = new ExpectationSpecification();
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => spec.Build(null));
+        }
+
+        [Test]
+        public void Given_NotConfigured_When_Build_Then_Throw()
+        {
+
+            // Arrange
+            var spec = new ExpectationSpecification();
+            var component = A.Dummy<IComponentConditionEvaluator>();
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(() => spec.Build(component));
+        }
     }
 }

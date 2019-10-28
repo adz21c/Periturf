@@ -56,6 +56,9 @@ namespace Periturf.Verify
 
         public ExpectationEvaluator Build(IComponentConditionEvaluator componentConditionEvaluator)
         {
+            if (componentConditionEvaluator is null)
+                throw new ArgumentNullException(nameof(componentConditionEvaluator));
+            
             if (_criteriaSpecification == null)
                 throw new InvalidOperationException("Criteria not specified");
 
