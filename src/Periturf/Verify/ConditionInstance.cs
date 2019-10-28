@@ -21,6 +21,9 @@ namespace Periturf
     {
         public ConditionInstance(TimeSpan when, string id)
         {
+            if (when < TimeSpan.Zero)
+                throw new ArgumentOutOfRangeException(nameof(when));
+
             When = when;
             ID = id ?? string.Empty;
         }
