@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Periturf.Tests.Verify
 {
     [TestFixture]
-    class ExpectationSpecificationFilterAndCriteriaTests
+    class ExpectationSpecificationAndEvaluatorFilterAndCriteriaTests
     {
         private ExpectationEvaluator _expectationEvaluator;
         private Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>> _filter;
@@ -17,7 +17,7 @@ namespace Periturf.Tests.Verify
         private readonly IAsyncEnumerable<ConditionInstance> _conditionInstances;
         private IExpectationCriteriaEvaluator _evaluator;
 
-        public ExpectationSpecificationFilterAndCriteriaTests()
+        public ExpectationSpecificationAndEvaluatorFilterAndCriteriaTests()
         {
             _conditionInstances = new[] { _conditionInstance }.AsAsyncEnumerable();
         }
@@ -97,16 +97,5 @@ namespace Periturf.Tests.Verify
             Assert.False(result.Met);
             A.CallTo(() => _evaluator.Evaluate(_conditionInstance)).MustHaveHappened();
         }
-    }
-
-    static class Helpers
-    {
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public static async IAsyncEnumerable<T> AsAsyncEnumerable<T>(this IEnumerable<T> enumerable)
-        {
-            foreach (var item in enumerable)
-                yield return item;
-        }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }
 }
