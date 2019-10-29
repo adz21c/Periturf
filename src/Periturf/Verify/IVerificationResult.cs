@@ -1,4 +1,4 @@
-/*
+﻿/*
  *     Copyright 2019 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Periturf.Verify;
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf
 {
-    /// <summary>
-    /// Evaluates if a condition has happened since creation of the instance.
-    /// </summary>
-    public interface IVerifier : IAsyncDisposable
+    public interface IVerificationResult
     {
-        Task<IVerificationResult> VerifyAsync();
+        bool ExpectationsMet { get; }
+
+        IReadOnlyList<IExpectationResult> ExpectationResults { get; }
     }
 }

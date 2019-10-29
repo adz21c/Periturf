@@ -359,11 +359,14 @@ namespace Periturf
                 _expectations = expectations;
             }
 
-            public async Task<IReadOnlyList<IExpectationResult>> VerifyAsync()
+            public async Task<IVerificationResult> VerifyAsync()
             {
                 var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
                 await Task.WhenAll(expectations);
-                return expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
+                var results = expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
+                return new VerificationResult(
+                    results.All(x => x.Met),
+                    results);
             }
 
             public ValueTask DisposeAsync()

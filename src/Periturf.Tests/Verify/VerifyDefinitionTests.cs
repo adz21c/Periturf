@@ -5,6 +5,7 @@ using Periturf.Verify;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,34 +19,26 @@ namespace Periturf.Tests.Verify
         private IExpectationCriteriaSpecification _expectationCriteriaSpec1;
         private IExpectationCriteriaEvaluator _expectationCriteriaEvaluator2;
         private IExpectationCriteriaSpecification _expectationCriteriaSpec2;
-        private string componentName;
+        private string _componentName;
         private Environment _environment;
+        private IComponentConditionSpecification _componentConditionSpecification;
 
         [SetUp]
         public void SetUp()
         {
-            ITestComponentConditionBuilder CreateConditionBuilder()
-            {
-                var componentConditionEvaluator = A.Fake<IComponentConditionEvaluator>();
-                A.CallTo(() => componentConditionEvaluator.GetInstances())
-                    .Returns(new ConditionInstance[] { new ConditionInstance(TimeSpan.FromMilliseconds(1), "ID") }.AsAsyncEnumerable());
+            var componentConditionEvaluators = A.CollectionOfDummy<IComponentConditionEvaluator>(2);
+         
+            _componentConditionSpecification = A.Fake<IComponentConditionSpecification>();
+            A.CallTo(() => _componentConditionSpecification.BuildAsync(A<CancellationToken>._))
+                .ReturnsNextFromSequence(componentConditionEvaluators.ToArray());
 
-                var componentConditionSpecification = A.Fake<IComponentConditionSpecification>();
-                A.CallTo(() => componentConditionSpecification.BuildAsync(A<CancellationToken>._))
-                    .Returns(componentConditionEvaluator);
-
-                var componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
-                A.CallTo(() => componentConditionBuilder.CreateCondition()).Returns(componentConditionSpecification);
-
-                return componentConditionBuilder;
-            }
+            var componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
+            A.CallTo(() => componentConditionBuilder.CreateCondition()).Returns(_componentConditionSpecification);
 
             // Arrange
             var component = A.Fake<IComponent>();
-            A.CallTo(() => component.CreateConditionBuilder<ITestComponentConditionBuilder>()).ReturnsNextFromSequence(
-                CreateConditionBuilder(),
-                CreateConditionBuilder());
-            componentName = nameof(component);
+            A.CallTo(() => component.CreateConditionBuilder<ITestComponentConditionBuilder>()).Returns(componentConditionBuilder);
+            _componentName = nameof(component);
 
             var host1 = A.Fake<IHost>();
             A.CallTo(() => host1.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component } }));
@@ -65,27 +58,22 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_()
+        public async Task Given_SharedCondition_When_Verify_Then_SpecificationBuiltTwice()
         {
-            A.CallTo(() => _expectationCriteriaEvaluator1.Met).Returns(true);
-            A.CallTo(() => _expectationCriteriaEvaluator2.Met).Returns(true);
-
             var verifier = await _environment.VerifyAsync(c =>
             {
+                var sharedCondition = c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(_componentName).CreateCondition();
                 c.Expect(
-                     c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(componentName).CreateCondition(),
-                     e => e.Must(_expectationCriteriaSpec1));
+                    sharedCondition,
+                    e => e.Must(_expectationCriteriaSpec1));
                 c.Expect(
-                     c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(componentName).CreateCondition(),
-                     e => e.Must(_expectationCriteriaSpec2));
+                    sharedCondition,
+                    e => e.Must(_expectationCriteriaSpec2));
             });
 
             Assert.IsNotNull(verifier);
 
-            var result = await verifier.VerifyAsync();
-
-            Assert.IsNotNull(result);
-            Assert.IsNotEmpty(result);
+            A.CallTo(() => _componentConditionSpecification.BuildAsync(A<CancellationToken>._)).MustHaveHappenedTwiceExactly();
         }
     }
 }
