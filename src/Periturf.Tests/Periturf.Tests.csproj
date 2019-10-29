@@ -23,7 +23,6 @@
   <ItemGroup>
     <Compile Remove="Verify\EnvironmentVerifyDefinitionAndCleanupTests.cs" />
     <Compile Remove="Verify\EnvironmentVerifyTests.cs" />
-    <Compile Remove="Verify\ITestComponentConditionBuilder.cs" />
   </ItemGroup>
 
   <ItemGroup>
