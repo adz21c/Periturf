@@ -4,7 +4,6 @@ branches:
   only:
     - develop
     - master
-    - feature/*
 
 skip_tags: true
 
@@ -45,9 +44,7 @@ build_script:
       dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.pullrequest.key="$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:sonar.pullrequest.branch="$env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" /d:sonar.pullrequest.base="$env:APPVEYOR_REPO_BRANCH"
     }
     
-    dotnet build src/Periturf/Periturf.csproj --no-restore
-    
-    dotnet build src/Periturf.Tests/Periturf.Tests.csproj --no-restore
+    dotnet build src --no-restore
     
     dotnet test src /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="$env:coverlet_output" --no-build
     
