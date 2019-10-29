@@ -45,17 +45,17 @@ build_script:
       dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.pullrequest.key="$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:sonar.pullrequest.branch="$env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" /d:sonar.pullrequest.base="$env:APPVEYOR_REPO_BRANCH"
     }
     
-    dotnet build src/Periturf/Periturf.csproj
+    dotnet build src/Periturf/Periturf.csproj --no-restore
     
-    dotnet build src/Periturf.Tests/Periturf.Tests.csproj
+    dotnet build src/Periturf.Tests/Periturf.Tests.csproj --no-restore
     
-    dotnet test src /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="$env:coverlet_output"
+    dotnet test src /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="$env:coverlet_output" --no-build
     
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
     codecov -f "$env:coverlet_output" -t "$env:CODECOV_TOKEN"
     
-    dotnet pack src --no-restore --include-symbols -c Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
+    dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
 
 artifacts:
 - path: '**\bin\Release\*.nupkg'
