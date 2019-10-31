@@ -18,8 +18,15 @@ using System.Collections.Generic;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Defines a specification of a filter to apply too condition instances of an expectation.
+    /// </summary>
     public interface IExpectationFilterSpecification
     {
+        /// <summary>
+        /// Provides an implementation of the specification.
+        /// </summary>
+        /// <returns></returns>
         Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>> Build();
     }
 }

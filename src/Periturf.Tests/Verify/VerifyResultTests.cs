@@ -42,7 +42,7 @@ namespace Periturf.Tests.Verify
             ITestComponentConditionBuilder CreateConditionBuilder()
             {
                 var componentConditionEvaluator = A.Fake<IComponentConditionEvaluator>();
-                A.CallTo(() => componentConditionEvaluator.GetInstances())
+                A.CallTo(() => componentConditionEvaluator.GetInstancesAsync())
                     .Returns(new ConditionInstance[] { new ConditionInstance(TimeSpan.FromMilliseconds(1), "ID") }.AsAsyncEnumerable());
 
                 var componentConditionSpecification = A.Fake<IComponentConditionSpecification>();

@@ -17,8 +17,15 @@ using System.Collections.Generic;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Feeds expectations with instances of a components expected condition.
+    /// </summary>
     public interface IComponentConditionEvaluator
     {
-        IAsyncEnumerable<ConditionInstance> GetInstances();
+        /// <summary>
+        /// Gets the instances of the expected component condition, fed asyncronously.
+        /// </summary>
+        /// <returns></returns>
+        IAsyncEnumerable<ConditionInstance> GetInstancesAsync();
     }
 }

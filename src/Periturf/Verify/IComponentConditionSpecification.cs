@@ -19,8 +19,18 @@ using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Specifies a component's expected condition. Constructs an evaluator for the condition.
+    /// </summary>
     public interface IComponentConditionSpecification
     {
+        /// <summary>
+        /// Constructs an <see cref="IComponentConditionEvaluator"/>.
+        /// When called multiple times builds a reference count to monitor the condition 
+        /// across multiple streams.
+        /// </summary>
+        /// <param name="ct">The ct.</param>
+        /// <returns></returns>
         Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default);
     }
 }

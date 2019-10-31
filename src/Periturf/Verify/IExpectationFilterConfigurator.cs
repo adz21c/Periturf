@@ -16,8 +16,15 @@
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Builds an expectation filter specification
+    /// </summary>
     public interface IExpectationFilterConfigurator
     {
+        /// <summary>
+        /// Adds a filter specification to the expectation.
+        /// </summary>
+        /// <param name="specification">The specification.</param>
         void AddSpecification(IExpectationFilterSpecification specification);
     }
 }

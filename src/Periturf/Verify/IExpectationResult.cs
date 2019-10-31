@@ -15,8 +15,17 @@
  */
 namespace Periturf
 {
+    /// <summary>
+    /// The results of an expectation evaluation.
+    /// </summary>
     public interface IExpectationResult
     {
+        /// <summary>
+        /// Gets a value indicating whether the expectation was met.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if met; otherwise, <c>false</c>.
+        /// </value>
         bool Met { get; }
     }
 }

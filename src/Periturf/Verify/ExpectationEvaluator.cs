@@ -39,7 +39,7 @@ namespace Periturf.Verify
 
         public async Task<ExpectationResult> EvaluateAsync()
         {
-            var conditions = _componentConditionEvaluator.GetInstances();
+            var conditions = _componentConditionEvaluator.GetInstancesAsync();
             foreach (var filter in _filters)
                 conditions = filter(conditions);
 

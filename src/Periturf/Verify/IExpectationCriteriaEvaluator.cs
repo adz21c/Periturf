@@ -17,14 +17,39 @@ using System;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Checks whether one or more condition instances match a criteria.
+    /// </summary>
     public interface IExpectationCriteriaEvaluator
     {
+        /// <summary>
+        /// Minimum time this needs to run for.
+        /// </summary>
+        /// <value>
+        /// The timeout.
+        /// </value>
         TimeSpan? Timeout { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IExpectationCriteriaEvaluator"/> has finished checking for its criteria.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if completed; otherwise, <c>false</c>.
+        /// </value>
         bool Completed { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IExpectationCriteriaEvaluator"/> has been met.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if met; otherwise, <c>false</c>.
+        /// </value>
         bool Met { get; }
 
+        /// <summary>
+        /// Evaluates the specified instance.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
         void Evaluate(ConditionInstance instance);
     }
 }

@@ -18,12 +18,25 @@ using System;
 
 namespace Periturf
 {
+    /// <summary>
+    /// Builds the definition of an expectation specification.
+    /// </summary>
     public interface IExpectationConfigurator
     {
         //IExpectationConfigurator Description(string description);
 
+        /// <summary>
+        /// Filters applied to condition instances prior to evaluator by criteria.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns></returns>
         IExpectationConfigurator Where(Action<IExpectationFilterConfigurator> config);
 
+        /// <summary>
+        /// Sets a critera specification that <c>must</c> be met.
+        /// </summary>
+        /// <param name="specification">The specification.</param>
+        /// <returns></returns>
         IExpectationConfigurator Must(IExpectationCriteriaSpecification specification);
     }
 }

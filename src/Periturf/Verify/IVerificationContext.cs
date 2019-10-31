@@ -18,11 +18,25 @@ using System;
 
 namespace Periturf
 {
+    /// <summary>
+    /// Context within which the verification will be defined.
+    /// </summary>
     public interface IVerificationContext
     {
+        /// <summary>
+        /// Gets a component condition builder for a specified component.
+        /// </summary>
+        /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
+        /// <param name="componentName">Name of the component.</param>
+        /// <returns></returns>
         TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName)
             where TComponentConditionBuilder : IComponentConditionBuilder;
 
+        /// <summary>
+        /// Defines an expectation.
+        /// </summary>
+        /// <param name="conditionSpecification">The component condition specification.</param>
+        /// <param name="config">Configures an expectation specification.</param>
         void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config);
     }
 }

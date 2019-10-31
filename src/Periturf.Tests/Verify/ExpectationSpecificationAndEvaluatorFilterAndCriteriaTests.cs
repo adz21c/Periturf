@@ -50,7 +50,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => criteriaSpec.Build()).Returns(_evaluator);
 
             var componentEvaluator = A.Fake<IComponentConditionEvaluator>();
-            A.CallTo(() => componentEvaluator.GetInstances()).Returns(_conditionInstances);
+            A.CallTo(() => componentEvaluator.GetInstancesAsync()).Returns(_conditionInstances);
 
             var spec = new ExpectationSpecification();
             var configurator = (IExpectationConfigurator)spec;
