@@ -67,7 +67,10 @@ namespace Periturf.Tests.Integration.IdSvr4
                 });
             });
 
-            var verifier = await env.VerifyAsync(c => c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId));
+            var verifier = await env.VerifyAsync(c => 
+                c.Expect(
+                    c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
+                    e => e.Must(null)));
 
             var idSvr4Client = env.IdSvr4Client();
 
@@ -78,7 +81,7 @@ namespace Periturf.Tests.Integration.IdSvr4
                 Scope = Scope
             });
 
-            await verifier.VerifyAndThrowAsync();
+            await verifier.VerifyAsync();
 
             await env.RemoveConfigurationAsync(configId);
             await env.StopAsync();
