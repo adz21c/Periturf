@@ -24,9 +24,8 @@ namespace Periturf.Verify
         private readonly IComponentConditionEvaluator _componentConditionEvaluator;
         private readonly IReadOnlyList<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> _filters;
         private readonly IExpectationCriteriaEvaluator _criteria;
-        
+
         private bool _disposed;
-        private bool _disposing;
 
         public ExpectationEvaluator(
             IComponentConditionEvaluator componentConditionEvaluator,
@@ -42,6 +41,9 @@ namespace Periturf.Verify
 
         public async Task<ExpectationResult> EvaluateAsync()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(typeof(ExpectationEvaluator).FullName);
+
             var conditions = _componentConditionEvaluator.GetInstancesAsync();
             foreach (var filter in _filters)
                 conditions = filter(conditions);
@@ -53,19 +55,15 @@ namespace Periturf.Verify
                     break;
             }
 
-            return new ExpectationResult(
-                _criteria.Met);
+            return new ExpectationResult(_criteria.Met);
         }
 
         public async ValueTask DisposeAsync()
         {
-            if (_disposed || _disposing)
+            if (_disposed)
                 return;
 
-            _disposing = true;
-
             await _componentConditionEvaluator.DisposeAsync();
-
             _disposed = true;
         }
     }

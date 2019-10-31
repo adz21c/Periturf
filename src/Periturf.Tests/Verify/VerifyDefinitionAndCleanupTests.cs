@@ -115,5 +115,22 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _componentConditionEvaluator1.DisposeAsync()).MustHaveHappened();
             A.CallTo(() => _componentConditionEvaluator2.DisposeAsync()).MustHaveHappened();
         }
+
+        [Test]
+        public async Task Given_DisposedVerifier_When_Verify_Then_Throws()
+        {
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.Expect(
+                    c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(_componentName).CreateCondition(),
+                    e => e.Must(_expectationCriteriaSpec1));
+            });
+
+            Assume.That(verifier != null);
+
+            await verifier.DisposeAsync();
+
+            Assert.ThrowsAsync<ObjectDisposedException>(() => verifier.VerifyAsync());
+        }
     }
 }

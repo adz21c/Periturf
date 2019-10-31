@@ -359,6 +359,7 @@ namespace Periturf
         class Verifier : IVerifier
         {
             private readonly List<ExpectationEvaluator> _expectations;
+            private bool _disposed;
 
             public Verifier(List<ExpectationEvaluator> expectations)
             {
@@ -367,6 +368,9 @@ namespace Periturf
 
             public async Task<IVerificationResult> VerifyAsync()
             {
+                if (_disposed)
+                    throw new ObjectDisposedException(typeof(Environment.Verifier).FullName);
+
                 var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
                 await Task.WhenAll(expectations);
                 var results = expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
@@ -375,44 +379,15 @@ namespace Periturf
                     results);
             }
 
-            public async ValueTask DisposeAsync() => await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
+            public async ValueTask DisposeAsync()
+            {
+                if (_disposed)
+                    return;
+
+                await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
+                _disposed = true;
+            }
         }
-
-        //class ErasePlan : IConditionErasePlan
-        //{
-        //    private readonly List<IConditionEraser> _erasers = new List<IConditionEraser>();
-
-        //    public void AddEraser(IConditionEraser eraser)
-        //    {
-        //        _erasers.Add(eraser ?? throw new ArgumentNullException(nameof(eraser)));
-        //    }
-
-        //    public async Task ExecuteCleanUpAsync(CancellationToken ct = default)
-        //    {
-        //        Task Erase(IConditionEraser eraser)
-        //        {
-        //            try
-        //            {
-        //                return eraser.EraseAsync(ct);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                return Task.FromException(ex);
-        //            }
-        //        }
-
-        //        var erasers = _erasers.Select(Erase).ToList();
-
-        //        try
-        //        {
-        //            await Task.WhenAll(erasers);
-        //        }
-        //        catch
-        //        {
-        //            throw new VerificationCleanUpFailedException();
-        //        }
-        //    }
-        //}
 
         #endregion
 
