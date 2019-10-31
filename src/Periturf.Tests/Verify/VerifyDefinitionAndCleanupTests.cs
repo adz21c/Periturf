@@ -108,7 +108,7 @@ namespace Periturf.Tests.Verify
                     e => e.Must(_expectationCriteriaSpec2));
             });
 
-            Assume.That(verifier !is null);
+            Assume.That(verifier != null);
 
             await verifier.DisposeAsync();
 

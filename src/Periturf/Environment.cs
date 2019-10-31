@@ -375,10 +375,7 @@ namespace Periturf
                     results);
             }
 
-            public ValueTask DisposeAsync()
-            {
-                throw new NotImplementedException();
-            }
+            public async ValueTask DisposeAsync() => await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
         }
 
         //class ErasePlan : IConditionErasePlan

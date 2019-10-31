@@ -19,11 +19,14 @@ using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
-    class ExpectationEvaluator
+    class ExpectationEvaluator : IAsyncDisposable
     {
         private readonly IComponentConditionEvaluator _componentConditionEvaluator;
         private readonly IReadOnlyList<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> _filters;
         private readonly IExpectationCriteriaEvaluator _criteria;
+        
+        private bool _disposed;
+        private bool _disposing;
 
         public ExpectationEvaluator(
             IComponentConditionEvaluator componentConditionEvaluator,
@@ -52,6 +55,18 @@ namespace Periturf.Verify
 
             return new ExpectationResult(
                 _criteria.Met);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed || _disposing)
+                return;
+
+            _disposing = true;
+
+            await _componentConditionEvaluator.DisposeAsync();
+
+            _disposed = true;
         }
     }
 }
