@@ -21,12 +21,11 @@ using Periturf.Verify;
 
 namespace Periturf.IdSvr4.Verify
 {
-    class EventOccurredConditionSpecification<TEvent> : IConditionSpecification, IConditionEraser
+    class EventOccurredConditionSpecification<TEvent> : IComponentConditionSpecification
         where TEvent : Event
     {
         private readonly IEventMonitorSink _eventMonitorSink;
         private readonly Func<TEvent, bool> _condition;
-        private IEventOccurredConditionEvaluator? _evaluator;
 
         public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition)
         {
@@ -34,21 +33,11 @@ namespace Periturf.IdSvr4.Verify
             _condition = condition;
         }
 
-        Task<IConditionEvaluator> IConditionSpecification.BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct)
+        public Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default)
         {
-            _evaluator = new EventOccurredConditionEvaluator<TEvent>(_condition);
-            _eventMonitorSink.AddEvaluator(typeof(TEvent), _evaluator);
-            erasePlan.AddEraser(this);
-            return Task.FromResult<IConditionEvaluator>(_evaluator);
-        }
-
-        Task IConditionEraser.EraseAsync(CancellationToken ct)
-        {
-            if (_evaluator == null)
-                throw new InvalidOperationException("Evaluator not yet built");
-
-            _eventMonitorSink.RemoveEvaluator(typeof(TEvent), _evaluator);
-            return Task.CompletedTask;
+            var evaluator = new EventOccurredConditionEvaluator<TEvent>(_condition);
+            _eventMonitorSink.AddEvaluator(typeof(TEvent), evaluator);
+            return Task.FromResult<IComponentConditionEvaluator>(evaluator);
         }
     }
 }

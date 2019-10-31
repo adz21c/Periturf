@@ -33,7 +33,7 @@ namespace Periturf
         /// <typeparam name="TEvent">The type of the event.</typeparam>
         /// <param name="condition">The condition.</param>
         /// <returns></returns>
-        IConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition)
+        IComponentConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition)
             where TEvent : Event;
     }
 }

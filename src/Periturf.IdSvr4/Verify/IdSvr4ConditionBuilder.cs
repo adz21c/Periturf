@@ -28,7 +28,7 @@ namespace Periturf.IdSvr4.Verify
             _eventMonitorSink = eventMonitorSink;
         }
 
-        public IConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition) where TEvent : Event
+        public IComponentConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition) where TEvent : Event
         {
             return new EventOccurredConditionSpecification<TEvent>(_eventMonitorSink, condition);
         }

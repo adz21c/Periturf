@@ -23,10 +23,10 @@ namespace Periturf
         /// <summary>
         /// Get an IdentityServer4 condition builder.
         /// </summary>
-        /// <param name="context">The condition context.</param>
+        /// <param name="context">The verification context.</param>
         /// <param name="componentName">Name of the component.</param>
         /// <returns></returns>
-        public static IIdSvr4ConditionBuilder IdSvr4(this IConditionContext context, string componentName = "IdSvr4")
+        public static IIdSvr4ConditionBuilder IdSvr4(this IVerificationContext context, string componentName = "IdSvr4")
         {
             return context.GetComponentConditionBuilder<IIdSvr4ConditionBuilder>(componentName);
         }

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 using IdentityServer4.Events;
+using Periturf.Verify;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,26 +26,35 @@ namespace Periturf.IdSvr4.Verify
     class EventOccurredConditionEvaluator<TEvent> : IEventOccurredConditionEvaluator where TEvent : Event
     {
         private readonly Func<TEvent, bool> _checker;
-        private bool _occurred = false;
+        private readonly BlockingCollection<TimeSpan> _collection = new BlockingCollection<TimeSpan>();
 
         public EventOccurredConditionEvaluator(Func<TEvent, bool> checker)
         {
             _checker = checker;
         }
 
-        public Guid Id { get; } = Guid.NewGuid();
-
         public void CheckEvent(Event @event)
         {
             var upcastEvent = (TEvent) @event;
 
             if (_checker(upcastEvent))
-                _occurred = true;
+                _collection.Add(TimeSpan.Zero);
         }
 
-        public Task<bool> EvaluateAsync(CancellationToken ct = default)
+        async IAsyncEnumerable<ConditionInstance> IComponentConditionEvaluator.GetInstancesAsync()
         {
-            return Task.FromResult(_occurred);
+            while (true)
+            {
+                if (_collection.TryTake(out var instance))
+                    yield return new ConditionInstance(instance, "ID");
+                
+                await Task.Delay(1000);
+            }
+        }
+
+        ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }
