@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 namespace Periturf.Tests.Verify
 {
     [TestFixture]
-    class VerifyDefinitionTests
+    class VerifyDefinitionAndCleanupTests
     {
         private IExpectationCriteriaEvaluator _expectationCriteriaEvaluator1;
         private IExpectationCriteriaSpecification _expectationCriteriaSpec1;
@@ -37,15 +37,18 @@ namespace Periturf.Tests.Verify
         private string _componentName;
         private Environment _environment;
         private IComponentConditionSpecification _componentConditionSpecification;
+        private IComponentConditionEvaluator _componentConditionEvaluator1;
+        private IComponentConditionEvaluator _componentConditionEvaluator2;
 
         [SetUp]
         public void SetUp()
         {
-            var componentConditionEvaluators = A.CollectionOfDummy<IComponentConditionEvaluator>(2);
-         
+            _componentConditionEvaluator1 = A.Fake<IComponentConditionEvaluator>();
+            _componentConditionEvaluator2 = A.Fake<IComponentConditionEvaluator>();
+
             _componentConditionSpecification = A.Fake<IComponentConditionSpecification>();
             A.CallTo(() => _componentConditionSpecification.BuildAsync(A<CancellationToken>._))
-                .ReturnsNextFromSequence(componentConditionEvaluators.ToArray());
+                .ReturnsNextFromSequence(new[] { _componentConditionEvaluator1, _componentConditionEvaluator2 });
 
             var componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
             A.CallTo(() => componentConditionBuilder.CreateCondition()).Returns(_componentConditionSpecification);
@@ -89,6 +92,28 @@ namespace Periturf.Tests.Verify
             Assert.IsNotNull(verifier);
 
             A.CallTo(() => _componentConditionSpecification.BuildAsync(A<CancellationToken>._)).MustHaveHappenedTwiceExactly();
+        }
+
+        [Test]
+        public async Task Given_SharedConditionEvaluators_When_DisposeOfVerifier_Then_BothEvaluatorsStopped()
+        {
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                var sharedCondition = c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(_componentName).CreateCondition();
+                c.Expect(
+                    sharedCondition,
+                    e => e.Must(_expectationCriteriaSpec1));
+                c.Expect(
+                    sharedCondition,
+                    e => e.Must(_expectationCriteriaSpec2));
+            });
+
+            Assume.That(verifier !is null);
+
+            await verifier.DisposeAsync();
+
+            A.CallTo(() => _componentConditionEvaluator1.DisposeAsync()).MustHaveHappened();
+            A.CallTo(() => _componentConditionEvaluator2.DisposeAsync()).MustHaveHappened();
         }
     }
 }
