@@ -294,6 +294,12 @@ namespace Periturf
 
         #region Verify
 
+        /// <summary>
+        /// Defines a verifier to establish if expectations are met.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns></returns>
         public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
         {
             var context = new VerificationContext(this);
@@ -303,7 +309,7 @@ namespace Periturf
             //var erasePlan = new ErasePlan();
             //var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
 
-            return context.Build();
+            return await context.BuildAsync();
         }
 
         class VerificationContext : IVerificationContext
@@ -336,7 +342,7 @@ namespace Periturf
                 return component.CreateConditionBuilder<TComponentConditionBuilder>();
             }
 
-            public Verifier Build()
+            public async Task<Verifier> BuildAsync()
             {
                 var expectations = _specs.Select(async x =>
                 {
@@ -344,7 +350,7 @@ namespace Periturf
                     return x.ExpectationSpec.Build(componentConditionEvaluator);
                 }).ToList();
 
-                Task.WhenAll(expectations);
+                await Task.WhenAll(expectations);
 
                 return new Verifier(expectations.Select(x => x.Result).ToList());
             }

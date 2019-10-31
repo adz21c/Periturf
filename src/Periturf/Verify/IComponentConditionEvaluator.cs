@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Collections.Generic;
 
 namespace Periturf.Verify
@@ -20,7 +21,7 @@ namespace Periturf.Verify
     /// <summary>
     /// Feeds expectations with instances of a components expected condition.
     /// </summary>
-    public interface IComponentConditionEvaluator
+    public interface IComponentConditionEvaluator : IAsyncDisposable
     {
         /// <summary>
         /// Gets the instances of the expected component condition, fed asyncronously.

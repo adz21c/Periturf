@@ -17,8 +17,17 @@ using System;
 
 namespace Periturf
 {
+    /// <summary>
+    /// A moment when a component condition matched
+    /// </summary>
     public class ConditionInstance
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConditionInstance"/> class.
+        /// </summary>
+        /// <param name="when">The when.</param>
+        /// <param name="id">The identifier.</param>
+        /// <exception cref="ArgumentOutOfRangeException">when</exception>
         public ConditionInstance(TimeSpan when, string id)
         {
             if (when < TimeSpan.Zero)
@@ -28,8 +37,20 @@ namespace Periturf
             ID = id ?? string.Empty;
         }
 
+        /// <summary>
+        /// When the condition instance occurred relative to the time of definition.
+        /// </summary>
+        /// <value>
+        /// The when.
+        /// </value>
         public TimeSpan When { get; }
 
+        /// <summary>
+        /// Component specific identifier for the condition instance.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
         public string ID { get; }
     }
 }

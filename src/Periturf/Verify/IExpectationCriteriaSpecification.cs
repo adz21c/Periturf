@@ -17,10 +17,23 @@ using System;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// The specification for expectation criteria
+    /// </summary>
     public interface IExpectationCriteriaSpecification
     {
+        /// <summary>
+        /// The maximum time required to establish if the criteria is met.
+        /// </summary>
+        /// <value>
+        /// The timeout.
+        /// </value>
         TimeSpan? Timeout { get; }
 
+        /// <summary>
+        /// Convert the specification into an evaluator that tests the criteria is met.
+        /// </summary>
+        /// <returns></returns>
         IExpectationCriteriaEvaluator Build();
     }
 }

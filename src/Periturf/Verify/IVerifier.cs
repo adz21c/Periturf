@@ -26,6 +26,10 @@ namespace Periturf
     /// </summary>
     public interface IVerifier : IAsyncDisposable
     {
+        /// <summary>
+        /// Verifies if expectations have been met.
+        /// </summary>
+        /// <returns></returns>
         Task<IVerificationResult> VerifyAsync();
     }
 }

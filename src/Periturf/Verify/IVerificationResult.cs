@@ -17,10 +17,25 @@ using System.Collections.Generic;
 
 namespace Periturf
 {
+    /// <summary>
+    /// The aggregated result expectations.
+    /// </summary>
     public interface IVerificationResult
     {
+        /// <summary>
+        /// Gets a value indicating whether all expectations were met.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if all expectations were met; otherwise, <c>false</c>.
+        /// </value>
         bool ExpectationsMet { get; }
 
+        /// <summary>
+        /// Gets the expectation results.
+        /// </summary>
+        /// <value>
+        /// The expectation results.
+        /// </value>
         IReadOnlyList<IExpectationResult> ExpectationResults { get; }
     }
 }
