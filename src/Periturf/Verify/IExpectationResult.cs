@@ -26,6 +26,14 @@ namespace Periturf
         /// <value>
         ///   <c>true</c> if met; otherwise, <c>false</c>.
         /// </value>
-        bool Met { get; }
+        bool? Met { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this expectation was fully evaluated or ended prematurely is completed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if completed; otherwise, <c>false</c>.
+        /// </value>
+        bool Completed { get; }
     }
 }

@@ -24,7 +24,7 @@ namespace Periturf
     /// <summary>
     /// Builds IdentityServer4 specific conditions for a component.
     /// </summary>
-    /// <seealso cref="Periturf.Verify.IComponentConditionBuilder" />
+    /// <seealso cref="Periturf.IComponentConditionBuilder" />
     public interface IIdSvr4ConditionBuilder : IComponentConditionBuilder
     {
         /// <summary>

@@ -20,11 +20,13 @@ namespace Periturf.Verify
     [ExcludeFromCodeCoverage]
     class ExpectationResult : IExpectationResult
     {
-        public ExpectationResult(bool met)
+        public ExpectationResult(bool? met)
         {
             Met = met;
         }
 
-        public bool Met { get; }
+        public bool? Met { get; }
+
+        public bool Completed => Met.HasValue;
     }
 }

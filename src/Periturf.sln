@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests", "Periturf.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests.Integration", "Periturf.Tests.Integration\Periturf.Tests.Integration.csproj", "{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Periturf.Tests.ExtensionExpectations", "Periturf.Tests.ExtensionExpectations\Periturf.Tests.ExtensionExpectations.csproj", "{FCCC0977-C655-4145-A03A-AEC524389C1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCCC0977-C655-4145-A03A-AEC524389C1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCCC0977-C655-4145-A03A-AEC524389C1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCCC0977-C655-4145-A03A-AEC524389C1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCCC0977-C655-4145-A03A-AEC524389C1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

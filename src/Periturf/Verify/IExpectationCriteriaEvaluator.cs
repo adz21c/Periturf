@@ -44,7 +44,7 @@ namespace Periturf.Verify
         /// <value>
         ///   <c>true</c> if met; otherwise, <c>false</c>.
         /// </value>
-        bool Met { get; }
+        bool? Met { get; }
 
         /// <summary>
         /// Evaluates the specified instance.

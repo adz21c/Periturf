@@ -28,7 +28,7 @@ namespace Periturf
     /// <summary>
     /// The environment which manages the assignment and removal of configuration to components.
     /// </summary>
-    public class Environment
+    public partial class Environment
     {
         private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
@@ -353,39 +353,6 @@ namespace Periturf
                 await Task.WhenAll(expectations);
 
                 return new Verifier(expectations.Select(x => x.Result).ToList());
-            }
-        }
-
-        class Verifier : IVerifier
-        {
-            private readonly List<ExpectationEvaluator> _expectations;
-            private bool _disposed;
-
-            public Verifier(List<ExpectationEvaluator> expectations)
-            {
-                _expectations = expectations;
-            }
-
-            public async Task<IVerificationResult> VerifyAsync()
-            {
-                if (_disposed)
-                    throw new ObjectDisposedException(typeof(Environment.Verifier).FullName);
-
-                var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
-                await Task.WhenAll(expectations);
-                var results = expectations.Select(x => x.Result).Cast<IExpectationResult>().ToList();
-                return new VerificationResult(
-                    results.All(x => x.Met),
-                    results);
-            }
-
-            public async ValueTask DisposeAsync()
-            {
-                if (_disposed)
-                    return;
-
-                await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
-                _disposed = true;
             }
         }
 
