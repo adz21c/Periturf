@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf
 {
     /// <summary>
     /// A moment when a component condition matched
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class ConditionInstance
     {
         /// <summary>
@@ -27,12 +29,8 @@ namespace Periturf
         /// </summary>
         /// <param name="when">The when.</param>
         /// <param name="id">The identifier.</param>
-        /// <exception cref="ArgumentOutOfRangeException">when</exception>
         public ConditionInstance(TimeSpan when, string id)
         {
-            if (when < TimeSpan.Zero)
-                throw new ArgumentOutOfRangeException(nameof(when));
-
             When = when;
             ID = id ?? string.Empty;
         }
