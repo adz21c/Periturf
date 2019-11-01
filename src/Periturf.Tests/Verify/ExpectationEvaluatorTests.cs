@@ -4,7 +4,6 @@ using Periturf.Verify;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -64,7 +63,7 @@ namespace Periturf.Tests.Verify
 
             // Prepare for evaluator to take longer than cancelling
             _sut = new ExpectationEvaluator(
-                new TimeoutEvaluator(TimeSpan.FromMilliseconds(1000), null),
+                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
 
@@ -86,7 +85,7 @@ namespace Periturf.Tests.Verify
 
             // Prepare for evaluator to take longer than cancelling
             _sut = new ExpectationEvaluator(
-                new TimeoutEvaluator(TimeSpan.FromMilliseconds(1000), null),
+                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
 
@@ -110,7 +109,7 @@ namespace Periturf.Tests.Verify
         {
             // For an await with a timeout evaluator
             _sut = new ExpectationEvaluator(
-                new TimeoutEvaluator(TimeSpan.FromMilliseconds(1000), 5),
+                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), 5),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
 
@@ -165,32 +164,6 @@ namespace Periturf.Tests.Verify
         private void TestDependenciesCleanUp()
         {
             A.CallTo(() => _componentEvaluator.DisposeAsync()).MustHaveHappened();
-        }
-
-        class TimeoutEvaluator : IComponentConditionEvaluator
-        {
-            private readonly TimeSpan _delays;
-            private readonly int? _numberOfInstances;
-
-            public TimeoutEvaluator(TimeSpan delays, int? numberOfInstances)
-            {
-                _delays = delays;
-                _numberOfInstances = numberOfInstances;
-            }
-
-            public ValueTask DisposeAsync()
-            {
-                return new ValueTask();
-            }
-
-            public async IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default)
-            {
-                for(int i = 0; !ect.IsCancellationRequested && (!_numberOfInstances.HasValue || i < _numberOfInstances); ++i)
-                {
-                    await Task.Delay(_delays, ect);
-                    yield return new ConditionInstance(TimeSpan.FromMilliseconds(1), "ID");
-                }
-            }
         }
     }
 }

@@ -24,11 +24,14 @@ namespace Periturf.Verify
     class Verifier : IVerifier
     {
         private readonly List<ExpectationEvaluator> _expectations;
+        private readonly bool _shortCircuit;
+
         private bool _disposed;
 
-        public Verifier(List<ExpectationEvaluator> expectations)
+        public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
         {
             _expectations = expectations;
+            _shortCircuit = shortCircuit;
         }
 
         public async Task<VerificationResult> VerifyAsync()
@@ -39,21 +42,30 @@ namespace Periturf.Verify
             var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
             var results = new List<ExpectationResult>(expectations.Count);
 
-            while(expectations.Any())
+            if (_shortCircuit)
             {
-                await Task.WhenAny(expectations);
-                var completed = expectations.Where(x => x.IsCompleted).ToList();
-                if (!completed.Any())
-                    continue;
+                while (expectations.Any())
+                {
+                    await Task.WhenAny(expectations);
+                    var completed = expectations.Where(x => x.IsCompleted).ToList();
+                    if (!completed.Any())
+                        continue;
 
-                expectations.RemoveAll(x => completed.Contains(x));
-                results.AddRange(completed.Select(x => x.Result));
-                if (completed.Any(x => !x.Result.Met.Value))
-                    break;
+                    expectations.RemoveAll(x => completed.Contains(x));
+                    results.AddRange(completed.Select(x => x.Result));
+                    if (completed.Any(x => !x.Result.Met.Value))
+                        break;
+                }
+
+                // TODO: Pass on cancellation
+                results.AddRange(Enumerable.Repeat(new ExpectationResult(new bool?()), expectations.Count));
             }
-
-            // TODO: Pass on cancellation
-            results.AddRange(Enumerable.Repeat(new ExpectationResult(new bool?()), expectations.Count));
+            else
+            {
+                await Task.WhenAll(expectations);
+                results.AddRange(expectations.Select(x => x.Result));
+                expectations.Clear();
+            }
 
             return new VerificationResult(
                 results.All(x => x.Met ?? false),
