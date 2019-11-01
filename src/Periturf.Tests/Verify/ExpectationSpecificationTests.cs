@@ -63,7 +63,7 @@ namespace Periturf.Tests.Verify
             var spec = new ExpectationSpecification();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => spec.Build(null));
+            Assert.Throws<ArgumentNullException>(() => spec.Build(TimeSpan.FromMilliseconds(1), null));
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Periturf.Tests.Verify
             var component = A.Dummy<IComponentConditionEvaluator>();
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => spec.Build(component));
+            Assert.Throws<InvalidOperationException>(() => spec.Build(TimeSpan.FromMilliseconds(1), component));
         }
     }
 }

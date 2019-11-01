@@ -39,7 +39,7 @@ namespace Periturf.Verify
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
             
-            config?.Invoke(this);
+            config.Invoke(this);
             return this;
         }
 
@@ -54,7 +54,9 @@ namespace Periturf.Verify
             _filterSpecifications.Add(specification ?? throw new ArgumentNullException(nameof(specification)));
         }
 
-        public ExpectationEvaluator Build(IComponentConditionEvaluator componentConditionEvaluator)
+        public TimeSpan? Timeout => _criteriaSpecification?.Timeout;
+
+        public ExpectationEvaluator Build(TimeSpan verifierTimeout, IComponentConditionEvaluator componentConditionEvaluator)
         {
             if (componentConditionEvaluator is null)
                 throw new ArgumentNullException(nameof(componentConditionEvaluator));
@@ -63,6 +65,7 @@ namespace Periturf.Verify
                 throw new InvalidOperationException("Criteria not specified");
 
             return new ExpectationEvaluator(
+                _criteriaSpecification.Timeout ?? verifierTimeout,  // Favour criteria over verifier
                 componentConditionEvaluator,
                 _filterSpecifications.Select(x => x.Build()).ToList(),
                 _criteriaSpecification.Build());

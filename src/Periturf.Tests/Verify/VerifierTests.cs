@@ -12,9 +12,11 @@ namespace Periturf.Tests.Verify
     [TestFixture]
     class VerifierTests
     {
+        private MockComponentEvaluator _componentEvaluator1;
         private IExpectationCriteriaEvaluator _criteriaEvaluator1;
         private IExpectationCriteriaEvaluatorFactory _criteriaFactory1;
         private ExpectationEvaluator _expectation1;
+        private MockComponentEvaluator _componentEvaluator2;
         private IExpectationCriteriaEvaluator _criteriaEvaluator2;
         private IExpectationCriteriaEvaluatorFactory _criteriaFactory2;
         private ExpectationEvaluator _expectation2;
@@ -22,7 +24,7 @@ namespace Periturf.Tests.Verify
         [SetUp]
         public void SetUp()
         {
-            var componentEvaluator1 = new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null);
+            _componentEvaluator1 = new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null);
 
             _criteriaEvaluator1 = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator1.Met).Returns(true);
@@ -30,15 +32,15 @@ namespace Periturf.Tests.Verify
 
             _criteriaFactory1 = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => _criteriaFactory1.CreateInstance()).Returns(_criteriaEvaluator1);
-            A.CallTo(() => _criteriaFactory1.Timeout).Returns(TimeSpan.FromMilliseconds(500));
 
             _expectation1 = new ExpectationEvaluator(
-                componentEvaluator1,
+                TimeSpan.FromMilliseconds(500),
+                _componentEvaluator1,
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory1);
 
 
-            var componentEvaluator2 = new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null);
+            _componentEvaluator2 = new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null);
 
             _criteriaEvaluator2 = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator2.Met).Returns(true);
@@ -46,10 +48,10 @@ namespace Periturf.Tests.Verify
 
             _criteriaFactory2 = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => _criteriaFactory2.CreateInstance()).Returns(_criteriaEvaluator2);
-            A.CallTo(() => _criteriaFactory2.Timeout).Returns(TimeSpan.FromMilliseconds(500));
 
             _expectation2 = new ExpectationEvaluator(
-                componentEvaluator2,
+                TimeSpan.FromMilliseconds(500),
+                _componentEvaluator2,
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory2);
         }
@@ -103,8 +105,19 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_AllExpectationMetWhileShortCircuit_When_Verify_Then_ExpectationsNotMet()
         {
-            A.CallTo(() => _criteriaFactory1.Timeout).Returns(TimeSpan.FromMilliseconds(100));
-            A.CallTo(() => _criteriaFactory2.Timeout).Returns(TimeSpan.FromMilliseconds(200));
+            _expectation1 = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(100),
+                _componentEvaluator1,
+                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
+                _criteriaFactory1);
+
+
+            _expectation2 = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(200),
+                _componentEvaluator2,
+                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
+                _criteriaFactory2);
+
             var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 }, shortCircuit: true);
 
             var result = await sut.VerifyAsync();
@@ -119,11 +132,23 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_AnExpectationNotMetWhileShortCircuit_When_Verify_Then_ExpectationsNotMet()
         {
+            _expectation1 = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(100),
+                _componentEvaluator1,
+                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
+                _criteriaFactory1);
+
+
+            _expectation2 = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(200),
+                _componentEvaluator2,
+                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
+                _criteriaFactory2);
+
             A.CallTo(() => _criteriaEvaluator1.Met).Returns(false);
             A.CallTo(() => _criteriaEvaluator1.Completed).Returns(true);
-            A.CallTo(() => _criteriaFactory1.Timeout).Returns(TimeSpan.FromMilliseconds(100));
             A.CallTo(() => _criteriaEvaluator2.Completed).Returns(false);
-            A.CallTo(() => _criteriaFactory2.Timeout).Returns(TimeSpan.FromMilliseconds(200));
+
             var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 }, shortCircuit: true);
 
             var result = await sut.VerifyAsync();

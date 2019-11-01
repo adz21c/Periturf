@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 
 namespace Periturf.Verify
 {
@@ -22,14 +21,6 @@ namespace Periturf.Verify
     /// </summary>
     public interface IExpectationCriteriaEvaluatorFactory
     {
-        /// <summary>
-        /// Minimum time this needs to run for.
-        /// </summary>
-        /// <value>
-        /// The timeout.
-        /// </value>
-        TimeSpan? Timeout { get; }
-
         /// <summary>
         /// Creates a stateful evaluator instance.
         /// </summary>

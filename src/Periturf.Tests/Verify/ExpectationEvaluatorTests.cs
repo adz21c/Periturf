@@ -12,7 +12,7 @@ namespace Periturf.Tests.Verify
     [TestFixture]
     class ExpectationEvaluatorTests
     {
-        private IComponentConditionEvaluator _componentEvaluator;
+        private MockComponentEvaluator _componentEvaluator;
         private IExpectationCriteriaEvaluator _criteriaEvaluator;
         private IExpectationCriteriaEvaluatorFactory _criteriaFactory;
         private ExpectationEvaluator _sut;
@@ -20,7 +20,7 @@ namespace Periturf.Tests.Verify
         [SetUp]
         public void SetUp()
         {
-            _componentEvaluator = A.Fake<IComponentConditionEvaluator>();
+            _componentEvaluator = new MockComponentEvaluator(TimeSpan.FromMilliseconds(50), 1);
 
             _criteriaEvaluator = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator.Met).Returns(true);
@@ -30,6 +30,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _criteriaFactory.CreateInstance()).Returns(_criteriaEvaluator);
 
             _sut = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(100),
                 _componentEvaluator,
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
@@ -59,10 +60,9 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_Evaluator_When_CancelToken_Then_ResultIsInconclusive()
         {
-            A.CallTo(() => _criteriaFactory.Timeout).Returns(TimeSpan.FromMilliseconds(500)); // Cancel second
-
             // Prepare for evaluator to take longer than cancelling
             _sut = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(1000),  // Cancel second
                 new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
@@ -81,10 +81,9 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_Evaluator_When_Timeout_Then_ResultCompleted()
         {
-            A.CallTo(() => _criteriaFactory.Timeout).Returns(TimeSpan.FromMilliseconds(250)); // Cancel first
-
             // Prepare for evaluator to take longer than cancelling
             _sut = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(100),  // Cancel first
                 new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
@@ -94,7 +93,7 @@ namespace Periturf.Tests.Verify
             var evaluateTask = Task.Run(async () => await _sut.EvaluateAsync(tokenSource.Token));
 
             // Cancel second
-            await Task.Delay(500);
+            await Task.Delay(300);
             tokenSource.Cancel();
 
             var result = await evaluateTask;
@@ -109,6 +108,7 @@ namespace Periturf.Tests.Verify
         {
             // For an await with a timeout evaluator
             _sut = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(500),
                 new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), 5),
                 new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
                 _criteriaFactory);
@@ -139,11 +139,11 @@ namespace Periturf.Tests.Verify
             Assume.That(result.Met == true);
 
             TestDependenciesCleanUp();
-            Fake.ClearRecordedCalls(_componentEvaluator);
+            _componentEvaluator.ResetCalls();
 
             await _sut.DisposeAsync();
 
-            A.CallTo(() => _componentEvaluator.DisposeAsync()).MustNotHaveHappened();
+            Assert.IsFalse(_componentEvaluator.DisposeCalled);
         }
 
         [Test]
@@ -163,7 +163,7 @@ namespace Periturf.Tests.Verify
 
         private void TestDependenciesCleanUp()
         {
-            A.CallTo(() => _componentEvaluator.DisposeAsync()).MustHaveHappened();
+            Assert.IsTrue(_componentEvaluator.DisposeCalled);
         }
     }
 }

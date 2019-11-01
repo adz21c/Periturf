@@ -33,16 +33,18 @@ namespace Periturf.Verify
         private bool _disposed;
 
         public ExpectationEvaluator(
+            TimeSpan timeout,
             IComponentConditionEvaluator componentConditionEvaluator,
             List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> filters,
             IExpectationCriteriaEvaluatorFactory criteria)
         {
+            Timeout = timeout;
             _componentConditionEvaluator = componentConditionEvaluator;
             _filters = filters;
             _criteria = criteria;
         }
 
-        public TimeSpan? Timeout => _criteria.Timeout;
+        public TimeSpan Timeout { get; }
 
         public async Task<ExpectationResult> EvaluateAsync(CancellationToken ct = default)
         {
@@ -63,10 +65,7 @@ namespace Periturf.Verify
                 conditions = filter(conditions);
 
             // Prepare cancellation
-            var expectationTimeout = new CancellationTokenSource();
-            if (Timeout.HasValue)
-                expectationTimeout.CancelAfter(Timeout.Value);
-
+            var expectationTimeout = new CancellationTokenSource(Timeout);
             var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, expectationTimeout.Token);
 
             // Start evaluating

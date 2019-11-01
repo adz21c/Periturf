@@ -344,10 +344,14 @@ namespace Periturf
 
             public async Task<Verifier> BuildAsync()
             {
+                // use the longest defined timeout
+                // TODO: Verifier timeout
+                var verifierTimeout = _specs.Select(x => x.ExpectationSpec.Timeout ?? TimeSpan.Zero).Concat(new[] { TimeSpan.Zero }).Max();
+                
                 var expectations = _specs.Select(async x =>
                 {
                     var componentConditionEvaluator = await x.ComponentSpec.BuildAsync();
-                    return x.ExpectationSpec.Build(componentConditionEvaluator);
+                    return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator);
                 }).ToList();
 
                 await Task.WhenAll(expectations);

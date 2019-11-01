@@ -18,8 +18,16 @@ namespace Periturf.Tests.Verify
             _numberOfInstances = numberOfInstances;
         }
 
+        public bool DisposeCalled { get; private set; }
+
+        public void ResetCalls()
+        {
+            DisposeCalled = false;
+        }
+
         public ValueTask DisposeAsync()
         {
+            DisposeCalled = true;
             return new ValueTask();
         }
 
