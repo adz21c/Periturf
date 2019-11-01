@@ -18,6 +18,7 @@ using NUnit.Framework;
 using Periturf.Verify;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Periturf.Tests.Verify
 {
@@ -76,6 +77,56 @@ namespace Periturf.Tests.Verify
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => spec.Build(TimeSpan.FromMilliseconds(1), component));
+        }
+
+        [Test]
+        public async Task Given_Configured_When_Build_Then_EvaluatorBuilt()
+        {
+            // Arrange
+            var verifierTimeout = TimeSpan.FromMilliseconds(500);
+
+            var spec = new ExpectationSpecification();
+            var config = (IExpectationConfigurator)spec;
+
+            async IAsyncEnumerable<ConditionInstance> FilterImp(IAsyncEnumerable<ConditionInstance> enumerable)
+            {
+                await foreach (var item in enumerable)
+                {
+                    if (item.When >= TimeSpan.FromMilliseconds(200))
+                        continue;
+
+                    yield return item;
+                }
+            }
+
+            var filterSpec = A.Fake<IExpectationFilterSpecification>();
+            A.CallTo(() => filterSpec.Build()).Returns(FilterImp);
+
+            bool failed = false;
+            var criteria = A.Fake<IExpectationCriteriaEvaluator>();
+            A.CallTo(() => criteria.Evaluate(A<ConditionInstance>._)).Invokes((ConditionInstance c) =>
+            {
+                if (c.When >= TimeSpan.FromMilliseconds(200))
+                    failed = true;
+            });
+            A.CallTo(() => criteria.Met).ReturnsLazily(() => !failed);
+            A.CallTo(() => criteria.Completed).Returns(true);
+
+            var criteriaFactory = A.Fake<IExpectationCriteriaEvaluatorFactory>();
+            A.CallTo(() => criteriaFactory.CreateInstance()).Returns(criteria);
+
+            var criteriaSpec = A.Fake<IExpectationCriteriaSpecification>();
+            A.CallTo(() => criteriaSpec.Build()).Returns(criteriaFactory);
+            A.CallTo(() => criteriaSpec.Timeout).Returns(TimeSpan.FromMilliseconds(500));
+
+            var componentEvaluator = new MockComponentEvaluator(TimeSpan.FromMilliseconds(50), 8);
+
+            config.Where(c => c.AddSpecification(filterSpec))
+                .Must(criteriaSpec);
+
+            var evaluator = spec.Build(verifierTimeout, componentEvaluator);
+
+            var result = await evaluator.EvaluateAsync();
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Periturf.Tests.Verify
             for (int i = 0; !ect.IsCancellationRequested && (!_numberOfInstances.HasValue || i < _numberOfInstances); ++i)
             {
                 await Task.Delay(_delays, ect);
-                yield return new ConditionInstance(TimeSpan.FromMilliseconds(1), "ID");
+                yield return new ConditionInstance(TimeSpan.FromMilliseconds(i * 50), $"ID-{i}");
             }
         }
     }
