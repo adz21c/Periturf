@@ -15,6 +15,8 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Periturf.Verify
 {
@@ -27,6 +29,6 @@ namespace Periturf.Verify
         /// Gets the instances of the expected component condition, fed asyncronously.
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerable<ConditionInstance> GetInstancesAsync();
+        IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default);
     }
 }

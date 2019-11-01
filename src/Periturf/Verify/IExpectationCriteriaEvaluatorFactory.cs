@@ -18,12 +18,12 @@ using System;
 namespace Periturf.Verify
 {
     /// <summary>
-    /// The specification for expectation criteria
+    /// Checks whether one or more condition instances match a criteria.
     /// </summary>
-    public interface IExpectationCriteriaSpecification
+    public interface IExpectationCriteriaEvaluatorFactory
     {
         /// <summary>
-        /// The maximum time required to establish if the criteria is met.
+        /// Minimum time this needs to run for.
         /// </summary>
         /// <value>
         /// The timeout.
@@ -31,9 +31,9 @@ namespace Periturf.Verify
         TimeSpan? Timeout { get; }
 
         /// <summary>
-        /// Convert the specification into an evaluator that tests the criteria is met.
+        /// Creates a stateful evaluator instance.
         /// </summary>
         /// <returns></returns>
-        IExpectationCriteriaEvaluatorFactory Build();
+        IExpectationCriteriaEvaluator CreateInstance();
     }
 }

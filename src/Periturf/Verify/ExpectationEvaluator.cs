@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Periturf.Verify
@@ -23,14 +24,18 @@ namespace Periturf.Verify
     {
         private readonly IComponentConditionEvaluator _componentConditionEvaluator;
         private readonly IReadOnlyList<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> _filters;
-        private readonly IExpectationCriteriaEvaluator _criteria;
+        private readonly IExpectationCriteriaEvaluatorFactory _criteria;
 
+        private ExpectationResult? _result;
+
+        private bool _evaluating;
+        private bool _dependenciesDisposed;
         private bool _disposed;
 
         public ExpectationEvaluator(
             IComponentConditionEvaluator componentConditionEvaluator,
             List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> filters,
-            IExpectationCriteriaEvaluator criteria)
+            IExpectationCriteriaEvaluatorFactory criteria)
         {
             _componentConditionEvaluator = componentConditionEvaluator;
             _filters = filters;
@@ -39,23 +44,56 @@ namespace Periturf.Verify
 
         public TimeSpan? Timeout => _criteria.Timeout;
 
-        public async Task<ExpectationResult> EvaluateAsync()
+        public async Task<ExpectationResult> EvaluateAsync(CancellationToken ct = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(ExpectationEvaluator).FullName);
 
+            if (_result != null)
+                return _result;
+
+            if (_evaluating)
+                throw new InvalidOperationException("Already evaluating");
+            
+            _evaluating = true;
+
+            // Build condition instance filter
             var conditions = _componentConditionEvaluator.GetInstancesAsync();
             foreach (var filter in _filters)
                 conditions = filter(conditions);
 
-            await foreach(var instance in conditions)
+            // Prepare cancellation
+            var expectationTimeout = new CancellationTokenSource();
+            if (Timeout.HasValue)
+                expectationTimeout.CancelAfter(Timeout.Value);
+
+            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, expectationTimeout.Token);
+
+            // Start evaluating
+            var criteriaEvaluator = _criteria.CreateInstance();
+            try
             {
-                _criteria.Evaluate(instance);
-                if (_criteria.Completed)
-                    break;
+                await foreach (var instance in conditions.WithCancellation(cancellationTokenSource.Token))
+                {
+                    criteriaEvaluator.Evaluate(instance);
+                }
+            }
+            catch (TaskCanceledException) when (expectationTimeout.IsCancellationRequested)
+            {
+                // if cancelled by expectation timeout then act as if the stream finished
+                return await CompleteExpectationAsync(criteriaEvaluator);
+            }
+            catch (TaskCanceledException)
+            {
+                await CompleteExpectationAsync(criteriaEvaluator);
+                throw;
+            }
+            finally
+            {
+                _evaluating = false;
             }
 
-            return new ExpectationResult(_criteria.Met);
+            return await CompleteExpectationAsync(criteriaEvaluator);
         }
 
         public async ValueTask DisposeAsync()
@@ -63,8 +101,23 @@ namespace Periturf.Verify
             if (_disposed)
                 return;
 
-            await _componentConditionEvaluator.DisposeAsync();
+            await DisposeDependenciesAsync();
             _disposed = true;
+        }
+
+        private async Task<ExpectationResult> CompleteExpectationAsync(IExpectationCriteriaEvaluator criteriaEvaluator)
+        {
+            await DisposeDependenciesAsync();
+            return _result = new ExpectationResult(!criteriaEvaluator.Completed ? null : criteriaEvaluator.Met);
+        }
+
+        private async ValueTask DisposeDependenciesAsync()
+        {
+            if (_dependenciesDisposed)
+                return;
+
+            await _componentConditionEvaluator.DisposeAsync();
+            _dependenciesDisposed = true;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Periturf.IdSvr4.Verify
                 _collection.Add(TimeSpan.Zero);
         }
 
-        async IAsyncEnumerable<ConditionInstance> IComponentConditionEvaluator.GetInstancesAsync()
+        async IAsyncEnumerable<ConditionInstance> IComponentConditionEvaluator.GetInstancesAsync(CancellationToken ct)
         {
             while (true)
             {

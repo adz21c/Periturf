@@ -23,14 +23,6 @@ namespace Periturf.Verify
     public interface IExpectationCriteriaEvaluator
     {
         /// <summary>
-        /// Minimum time this needs to run for.
-        /// </summary>
-        /// <value>
-        /// The timeout.
-        /// </value>
-        TimeSpan? Timeout { get; }
-
-        /// <summary>
         /// Gets a value indicating whether this <see cref="IExpectationCriteriaEvaluator"/> has finished checking for its criteria.
         /// </summary>
         /// <value>
@@ -39,7 +31,7 @@ namespace Periturf.Verify
         bool Completed { get; }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="IExpectationCriteriaEvaluator"/> has been met.
+        /// Gets a value indicating whether the criteria has been met.
         /// </summary>
         /// <value>
         ///   <c>true</c> if met; otherwise, <c>false</c>.
@@ -47,7 +39,7 @@ namespace Periturf.Verify
         bool? Met { get; }
 
         /// <summary>
-        /// Evaluates the specified instance.
+        /// Evaluates the specified condition instance.
         /// </summary>
         /// <param name="instance">The instance.</param>
         void Evaluate(ConditionInstance instance);
