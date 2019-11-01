@@ -30,6 +30,6 @@ namespace Periturf
         /// Verifies if expectations have been met.
         /// </summary>
         /// <returns></returns>
-        Task<IVerificationResult> VerifyAsync();
+        Task<VerificationResult> VerifyAsync();
     }
 }

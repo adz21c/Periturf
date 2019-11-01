@@ -15,18 +15,38 @@
  */
 using System.Diagnostics.CodeAnalysis;
 
-namespace Periturf.Verify
+namespace Periturf
 {
+
+    /// <summary>
+    /// The results of an expectation evaluation.
+    /// </summary>
     [ExcludeFromCodeCoverage]
-    class ExpectationResult : IExpectationResult
+    public class ExpectationResult
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExpectationResult"/> class.
+        /// </summary>
+        /// <param name="met">The met.</param>
         public ExpectationResult(bool? met)
         {
             Met = met;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the expectation was met.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if met; otherwise, <c>false</c>.
+        /// </value>
         public bool? Met { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this expectation was fully evaluated or ended prematurely is completed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if completed; otherwise, <c>false</c>.
+        /// </value>
         public bool Completed => Met.HasValue;
     }
 }

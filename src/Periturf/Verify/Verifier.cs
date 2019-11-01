@@ -31,13 +31,13 @@ namespace Periturf.Verify
             _expectations = expectations;
         }
 
-        public async Task<IVerificationResult> VerifyAsync()
+        public async Task<VerificationResult> VerifyAsync()
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(Verifier).FullName);
 
             var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
-            var results = new List<IExpectationResult>(expectations.Count);
+            var results = new List<ExpectationResult>(expectations.Count);
 
             while(expectations.Any())
             {
