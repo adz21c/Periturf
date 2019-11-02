@@ -155,6 +155,18 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
+        public async Task Given_AlreadyDisposed_When_Dispose_Then_Nothing()
+        {
+            await _sut.DisposeAsync();
+            TestDependenciesCleanUp();
+
+            _componentEvaluator.ResetCalls();
+            await _sut.DisposeAsync();
+
+            Assert.IsFalse(_componentEvaluator.DisposeCalled);
+        }
+
+        [Test]
         public async Task Given_Disposed_When_Evaluate_Then_Throw()
         {
             await _sut.DisposeAsync();
