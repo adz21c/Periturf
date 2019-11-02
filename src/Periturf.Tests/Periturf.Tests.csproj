@@ -10,18 +10,14 @@
 
   <ItemGroup>
     <Compile Remove="AspNetCore\**" />
-    <Compile Remove="IdSvr4\**" />
     <Compile Remove="Verify\Evaluators\**" />
     <EmbeddedResource Remove="AspNetCore\**" />
-    <EmbeddedResource Remove="IdSvr4\**" />
     <EmbeddedResource Remove="Verify\Evaluators\**" />
     <None Remove="AspNetCore\**" />
-    <None Remove="IdSvr4\**" />
     <None Remove="Verify\Evaluators\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Verify\ExpectationSpecificationAndEvaluatorFilterAndCriteriaTests.cs" />
     <Compile Remove="Verify\VerifyDefinitionAndCleanupTests.cs" />
     <Compile Remove="Verify\VerifyResultShortCircuitTests.cs" />
     <Compile Remove="Verify\VerifyResultTests.cs" />
