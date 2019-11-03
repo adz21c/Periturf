@@ -28,7 +28,7 @@ namespace Periturf
     /// <summary>
     /// The environment which manages the assignment and removal of configuration to components.
     /// </summary>
-    public partial class Environment
+    public class Environment
     {
         private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();

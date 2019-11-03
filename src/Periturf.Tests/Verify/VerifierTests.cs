@@ -176,5 +176,42 @@ namespace Periturf.Tests.Verify
             Assert.IsFalse(result.ExpectationResults.All(x => x.Completed));
             Assert.IsTrue(result.ExpectationResults.Any(x => x.Completed));
         }
+
+        [Test]
+        public async Task Given_Verifier_When_Dispose_Then_ExpectationsDisposed()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            await sut.DisposeAsync();
+
+            Assert.IsTrue(_componentEvaluator1.DisposeCalled);
+            Assert.IsTrue(_componentEvaluator2.DisposeCalled);
+        }
+
+        [Test]
+        public async Task Given_VerifierAlreadyDisposed_When_Dispose_Then_Nothing()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            await sut.DisposeAsync();
+            _componentEvaluator1.ResetCalls();
+            _componentEvaluator2.ResetCalls();
+
+            await sut.DisposeAsync();
+            Assert.IsFalse(_componentEvaluator1.DisposeCalled);
+            Assert.IsFalse(_componentEvaluator2.DisposeCalled);
+        }
+
+        [Test]
+        public async Task Given_VerifierAlreadyDisposed_When_Verify_Then_Throws()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            await sut.DisposeAsync();
+            _componentEvaluator1.ResetCalls();
+            _componentEvaluator2.ResetCalls();
+
+            Assert.ThrowsAsync<ObjectDisposedException>(() => sut.VerifyAsync());
+        }
     }
 }
