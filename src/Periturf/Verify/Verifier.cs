@@ -16,8 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Periturf.Verify;
 
 namespace Periturf.Verify
 {
@@ -25,6 +25,8 @@ namespace Periturf.Verify
     {
         private readonly List<ExpectationEvaluator> _expectations;
         private readonly bool _shortCircuit;
+
+        private VerificationResult? _result;
 
         private bool _disposed;
 
@@ -34,40 +36,69 @@ namespace Periturf.Verify
             _shortCircuit = shortCircuit;
         }
 
-        public async Task<VerificationResult> VerifyAsync()
+        public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(Verifier).FullName);
 
-            var expectations = _expectations.Select(x => x.EvaluateAsync()).ToList();
-            var results = new List<ExpectationResult>(expectations.Count);
-
-            if (_shortCircuit)
+            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
             {
-                while (expectations.Any())
-                {
-                    await Task.WhenAny(expectations);
-                    var completed = expectations.Where(x => x.IsCompleted).ToList();
-                    if (!completed.Any())
-                        continue;
+                var results = new List<ExpectationResult>(_expectations.Count);
+                var expectations = new List<Task<ExpectationResult>>(_expectations.Count);
 
-                    expectations.RemoveAll(x => completed.Contains(x));
-                    results.AddRange(completed.Select(x => x.Result));
-                    if (completed.Any(x => !x.Result.Met.Value))
-                        break;
+                try
+                {
+                    expectations.AddRange(_expectations.Select(x => x.EvaluateAsync(cancellationTokenSource.Token)));
+
+                    if (_shortCircuit)
+                    {
+                        while (expectations.Any())
+                        {
+                            await Task.WhenAny(expectations);
+                            var completed = expectations.Where(x => x.IsCompleted).ToList();
+
+                            expectations.RemoveAll(x => completed.Contains(x));
+                            results.AddRange(completed.Select(x => x.Result));
+
+                            // If any failed then lets break and cancel the rest
+                            if (completed.Any(x => !(x.Result.Met ?? false)))
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        await Task.WhenAll(expectations);
+                        results.AddRange(expectations.Select(x => x.Result));
+                        expectations.Clear();
+                    }
+                }
+                catch(TaskCanceledException)
+                {
+                    SetResult(cancellationTokenSource, results, expectations);
+                    throw;
                 }
 
-                // TODO: Pass on cancellation
-                results.AddRange(Enumerable.Repeat(new ExpectationResult(new bool?()), expectations.Count));
-            }
-            else
-            {
-                await Task.WhenAll(expectations);
-                results.AddRange(expectations.Select(x => x.Result));
-                expectations.Clear();
-            }
+                // Cancel remaining work and pass them on as inconclusive
+                SetResult(cancellationTokenSource, results, expectations);
 
-            return new VerificationResult(
+                return _result;
+            }
+        }
+
+        private void SetResult(CancellationTokenSource cancellationTokenSource, List<ExpectationResult> results, List<Task<ExpectationResult>> expectations)
+        {
+            // Cancel the remaining
+            if (expectations.Any(x => !x.IsCompleted))
+                cancellationTokenSource.Cancel();
+
+            // Transfer over the results
+            // TODO: Handle Faults
+            results.AddRange(
+                expectations.Where(x => !x.IsFaulted).Select(x => new ExpectationResult(
+                    // TODO: Pass on description
+                    !x.IsCompleted ? false : x.IsCanceled ? new bool?() : x.Result.Met ?? false)));
+
+            _result = new VerificationResult(
                 results.All(x => x.Met ?? false),
                 results);
         }

@@ -32,7 +32,8 @@ namespace Periturf
     {
         private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
-
+        private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
+        
         private Environment()
         { }
 
@@ -316,7 +317,9 @@ namespace Periturf
         {
             private readonly List<(IComponentConditionSpecification ComponentSpec, ExpectationSpecification ExpectationSpec)> _specs = new List<(IComponentConditionSpecification, ExpectationSpecification)>();
             private readonly Environment _env;
-
+            private TimeSpan? _expectationTimeout;
+            private bool _shortCircuit = false;
+            
             public VerificationContext(Environment env)
             {
                 _env = env;
@@ -342,11 +345,26 @@ namespace Periturf
                 return component.CreateConditionBuilder<TComponentConditionBuilder>();
             }
 
+            public void Timeout(TimeSpan timeout)
+            {
+                if (timeout <= TimeSpan.Zero)
+                    throw new ArgumentOutOfRangeException(nameof(timeout));
+
+                _expectationTimeout = timeout;
+            }
+
+            public void ShortCircuit(bool shortCircuit)
+            {
+                _shortCircuit = shortCircuit;
+            }
+
             public async Task<Verifier> BuildAsync()
             {
                 // use the longest defined timeout
-                // TODO: Verifier timeout
-                var verifierTimeout = _specs.Select(x => x.ExpectationSpec.Timeout ?? TimeSpan.Zero).Concat(new[] { TimeSpan.Zero }).Max();
+                var verifierTimeout = _specs
+                    .Select(x => x.ExpectationSpec.Timeout ?? TimeSpan.Zero)
+                    .Concat(new[] { _expectationTimeout ?? _env._defaultExpectationTimeout })
+                    .Max();
                 
                 var expectations = _specs.Select(async x =>
                 {
@@ -356,7 +374,7 @@ namespace Periturf
 
                 await Task.WhenAll(expectations);
 
-                return new Verifier(expectations.Select(x => x.Result).ToList());
+                return new Verifier(expectations.Select(x => x.Result).ToList(), _shortCircuit);
             }
         }
 

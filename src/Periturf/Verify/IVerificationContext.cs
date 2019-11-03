@@ -38,5 +38,17 @@ namespace Periturf
         /// <param name="conditionSpecification">The component condition specification.</param>
         /// <param name="config">Configures an expectation specification.</param>
         void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config);
+
+        /// <summary>
+        /// Sets a default expectation timeout.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        void Timeout(TimeSpan timeout);
+
+        /// <summary>
+        /// Fails a verification when the first expectation fails, cancelling the rest.
+        /// </summary>
+        /// <param name="shortCircuit">if set to <c>true</c> then it will short circuit.</param>
+        void ShortCircuit(bool shortCircuit);
     }
 }

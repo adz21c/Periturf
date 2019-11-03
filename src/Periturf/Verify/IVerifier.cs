@@ -29,7 +29,8 @@ namespace Periturf
         /// <summary>
         /// Verifies if expectations have been met.
         /// </summary>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        Task<VerificationResult> VerifyAsync();
+        Task<VerificationResult> VerifyAsync(CancellationToken ct = default);
     }
 }
