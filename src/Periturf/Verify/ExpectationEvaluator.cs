@@ -65,29 +65,30 @@ namespace Periturf.Verify
                 conditions = filter(conditions);
 
             // Prepare cancellation
-            var expectationTimeout = new CancellationTokenSource(Timeout);
-            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, expectationTimeout.Token);
-
-            // Start evaluating
-            var criteriaEvaluator = _criteria.CreateInstance();
-            try
+            using (var expectationTimeout = new CancellationTokenSource(Timeout))
+            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, expectationTimeout.Token))
             {
-                await foreach (var instance in conditions.WithCancellation(cancellationTokenSource.Token))
+                // Start evaluating
+                var criteriaEvaluator = _criteria.CreateInstance();
+                try
                 {
-                    criteriaEvaluator.Evaluate(instance);
+                    await foreach (var instance in conditions.WithCancellation(cancellationTokenSource.Token))
+                    {
+                        criteriaEvaluator.Evaluate(instance);
+                    }
                 }
-            }
-            catch (TaskCanceledException) when (expectationTimeout.IsCancellationRequested)
-            {
-                // if cancelled by expectation timeout then act as if the stream finished
+                catch (TaskCanceledException) when (expectationTimeout.IsCancellationRequested)
+                {
+                    // if cancelled by expectation timeout then act as if the stream finished
+                    return await CompleteExpectationAsync(criteriaEvaluator);
+                }
+                finally
+                {
+                    _evaluating = false;
+                }
+
                 return await CompleteExpectationAsync(criteriaEvaluator);
             }
-            finally
-            {
-                _evaluating = false;
-            }
-
-            return await CompleteExpectationAsync(criteriaEvaluator);
         }
 
         public async ValueTask DisposeAsync()
