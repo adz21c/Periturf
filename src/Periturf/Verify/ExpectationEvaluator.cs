@@ -82,11 +82,6 @@ namespace Periturf.Verify
                 // if cancelled by expectation timeout then act as if the stream finished
                 return await CompleteExpectationAsync(criteriaEvaluator);
             }
-            catch (TaskCanceledException)
-            {
-                await CompleteExpectationAsync(criteriaEvaluator);
-                throw;
-            }
             finally
             {
                 _evaluating = false;
