@@ -178,6 +178,50 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
+        public async Task Given_VerifierAlreadyVerified_When_Verify_Then_SameResult()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            var result = await sut.VerifyAsync();
+
+            var result2 = await sut.VerifyAsync();
+
+            Assert.AreSame(result, result2);
+        }
+
+        [Test]
+        public async Task Given_Verifying_When_Verify_Then_Throw()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            var result = Task.Run(async () => await sut.VerifyAsync());
+            await Task.Delay(100);
+
+            Assert.ThrowsAsync<InvalidOperationException>(() => sut.VerifyAsync());
+
+            await result;   // Unaffected, let it finish to clean up
+        }
+
+        [Test]
+        public async Task Given_Verified_When_Dispose_Then_DependenciesNotRedisposed()
+        {
+            var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
+
+            await sut.VerifyAsync();
+
+            Assume.That(_componentEvaluator1.DisposeCalled);
+            Assume.That(_componentEvaluator2.DisposeCalled);
+            _componentEvaluator1.ResetCalls();
+            _componentEvaluator2.ResetCalls();
+
+            await sut.DisposeAsync();
+
+
+            Assert.IsFalse(_componentEvaluator1.DisposeCalled);
+            Assert.IsFalse(_componentEvaluator2.DisposeCalled);
+        }
+
+        [Test]
         public async Task Given_Verifier_When_Dispose_Then_ExpectationsDisposed()
         {
             var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 });
