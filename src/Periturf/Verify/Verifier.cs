@@ -28,6 +28,8 @@ namespace Periturf.Verify
 
         private VerificationResult? _result;
 
+        private bool _verifying;
+        private bool _dependenciesDisposed;
         private bool _disposed;
 
         public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
@@ -40,6 +42,14 @@ namespace Periturf.Verify
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(Verifier).FullName);
+
+            if (_result != null)
+                return _result;
+
+            if (_verifying)
+                throw new InvalidOperationException("Already verifying");
+
+            _verifying = true;
 
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
             {
@@ -62,8 +72,17 @@ namespace Periturf.Verify
 
                             // If any failed then lets break and cancel the rest
                             if (completed.Any(x => !(x.Result.Met ?? false)))
+                            {
+                                cancellationTokenSource.Cancel();   // Cancel remaining tasks
+                                // Pass over remaining incomplete tasks
+                                results.AddRange(
+                                    expectations.Select(x => new ExpectationResult(
+                                        // TODO: Pass on description
+                                        null)));
                                 break;
+                            }
                         }
+
                     }
                     else
                     {
@@ -72,35 +91,17 @@ namespace Periturf.Verify
                         expectations.Clear();
                     }
                 }
-                catch(TaskCanceledException)
+                finally
                 {
-                    SetResult(cancellationTokenSource, results, expectations);
-                    throw;
+                    _verifying = false;
                 }
 
-                // Cancel remaining work and pass them on as inconclusive
-                SetResult(cancellationTokenSource, results, expectations);
+                await DisposeDependencies();
 
-                return _result;
+                return _result = new VerificationResult(
+                    results.All(x => x.Met ?? false),
+                    results);
             }
-        }
-
-        private void SetResult(CancellationTokenSource cancellationTokenSource, List<ExpectationResult> results, List<Task<ExpectationResult>> expectations)
-        {
-            // Cancel the remaining
-            if (expectations.Any(x => !x.IsCompleted))
-                cancellationTokenSource.Cancel();
-
-            // Transfer over the results
-            // TODO: Handle Faults
-            results.AddRange(
-                expectations.Where(x => !x.IsFaulted).Select(x => new ExpectationResult(
-                    // TODO: Pass on description
-                    !x.IsCompleted ? false : x.IsCanceled ? new bool?() : x.Result.Met ?? false)));
-
-            _result = new VerificationResult(
-                results.All(x => x.Met ?? false),
-                results);
         }
 
         public async ValueTask DisposeAsync()
@@ -108,8 +109,17 @@ namespace Periturf.Verify
             if (_disposed)
                 return;
 
-            await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
+            await DisposeDependencies();
             _disposed = true;
+        }
+
+        private async Task DisposeDependencies()
+        {
+            if (_dependenciesDisposed)
+                return;
+
+            await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
+            _dependenciesDisposed = true;
         }
     }
 }
