@@ -117,5 +117,15 @@ namespace Periturf.Tests.Verify
                     e => e.Must(_expectationSpecification))));
             Assert.AreEqual(wrongComponentName, exception.ComponentName);
         }
+
+        [Test]
+        public void Given_Zero_When_Timeout_Then_Throws()
+        {
+            // Act & Assert
+            var exception = Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => _environment.VerifyAsync(c =>
+                c.Timeout(TimeSpan.Zero)));
+
+            Assert.AreEqual("timeout", exception.ParamName);
+        }
     }
 }
