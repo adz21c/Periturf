@@ -306,10 +306,6 @@ namespace Periturf
             var context = new VerificationContext(this);
             builder(context);
 
-            //var verifyId = Guid.NewGuid();
-            //var erasePlan = new ErasePlan();
-            //var evaluator = await condition.BuildEvaluatorAsync(verifyId, erasePlan, ct);
-
             return await context.BuildAsync();
         }
 
