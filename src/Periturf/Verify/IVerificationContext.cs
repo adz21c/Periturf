@@ -49,6 +49,6 @@ namespace Periturf
         /// Fails a verification when the first expectation fails, cancelling the rest.
         /// </summary>
         /// <param name="shortCircuit">if set to <c>true</c> then it will short circuit.</param>
-        void ShortCircuit(bool shortCircuit);
+        void ShortCircuit(bool? shortCircuit);
     }
 }

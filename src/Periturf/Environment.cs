@@ -33,7 +33,8 @@ namespace Periturf
         private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
         private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
-        
+        private bool _defaultExpectationShortCircuit = false;
+
         private Environment()
         { }
 
@@ -145,6 +146,19 @@ namespace Periturf
             public SetupConfigurator(Environment env)
             {
                 _env = env;
+            }
+
+            public void DefaultExpectationTimeout(TimeSpan timeout)
+            {
+                if (timeout <= TimeSpan.Zero)
+                    throw new ArgumentOutOfRangeException(nameof(timeout));
+
+                _env._defaultExpectationTimeout = timeout;
+            }
+
+            public void DefaultExpectationShortCircuit(bool shortCircuit)
+            {
+                _env._defaultExpectationShortCircuit = shortCircuit;
             }
 
             public void Host(string name, IHost host)
@@ -314,7 +328,7 @@ namespace Periturf
             private readonly List<(IComponentConditionSpecification ComponentSpec, ExpectationSpecification ExpectationSpec)> _specs = new List<(IComponentConditionSpecification, ExpectationSpecification)>();
             private readonly Environment _env;
             private TimeSpan? _expectationTimeout;
-            private bool _shortCircuit = false;
+            private bool? _shortCircuit;
             
             public VerificationContext(Environment env)
             {
@@ -349,7 +363,7 @@ namespace Periturf
                 _expectationTimeout = timeout;
             }
 
-            public void ShortCircuit(bool shortCircuit)
+            public void ShortCircuit(bool? shortCircuit)
             {
                 _shortCircuit = shortCircuit;
             }
@@ -370,7 +384,9 @@ namespace Periturf
 
                 await Task.WhenAll(expectations);
 
-                return new Verifier(expectations.Select(x => x.Result).ToList(), _shortCircuit);
+                return new Verifier(
+                    expectations.Select(x => x.Result).ToList(),
+                    _shortCircuit ?? _env._defaultExpectationShortCircuit);
             }
         }
 

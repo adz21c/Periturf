@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using Periturf.Components;
+using System;
 
 namespace Periturf
 {
@@ -22,6 +23,18 @@ namespace Periturf
     /// </summary>
     public interface ISetupConfigurator
     {
+        /// <summary>
+        /// Sets the default expectation short circuit state.
+        /// </summary>
+        /// <param name="shortCircuit">if set to <c>true</c> [short circuit].</param>
+        void DefaultExpectationShortCircuit(bool shortCircuit);
+
+        /// <summary>
+        /// Sets the default expectation timeout.
+        /// </summary>
+        /// <param name="timeout">The timeout.</param>
+        void DefaultExpectationTimeout(TimeSpan timeout);
+
         /// <summary>
         /// Adds a host to the environment.
         /// </summary>
