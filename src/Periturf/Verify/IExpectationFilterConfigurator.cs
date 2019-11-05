@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-namespace Periturf.Verify
+namespace Periturf
 {
     /// <summary>
     /// Builds an expectation filter specification
