@@ -29,6 +29,6 @@ namespace Periturf.Verify
         /// Gets the instances of the expected component condition, fed asyncronously.
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default);
+        IAsyncEnumerable<ConditionInstance> GetInstancesAsync(CancellationToken ect = default);
     }
 }
