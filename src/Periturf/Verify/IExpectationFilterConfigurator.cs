@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+using Periturf.Verify;
+
 namespace Periturf
 {
     /// <summary>

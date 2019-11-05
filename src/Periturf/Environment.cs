@@ -320,7 +320,7 @@ namespace Periturf
             var context = new VerificationContext(this);
             builder(context);
 
-            return await context.BuildAsync();
+            return await context.BuildAsync(ct);
         }
 
         class VerificationContext : IVerificationContext
@@ -368,7 +368,7 @@ namespace Periturf
                 _shortCircuit = shortCircuit;
             }
 
-            public async Task<Verifier> BuildAsync()
+            public async Task<Verifier> BuildAsync(CancellationToken ct)
             {
                 // use the longest defined timeout
                 var verifierTimeout = _specs
@@ -378,7 +378,7 @@ namespace Periturf
                 
                 var expectations = _specs.Select(async x =>
                 {
-                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync();
+                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(ct);
                     return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator);
                 }).ToList();
 
