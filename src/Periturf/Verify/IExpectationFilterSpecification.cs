@@ -24,6 +24,14 @@ namespace Periturf.Verify
     public interface IExpectationFilterSpecification
     {
         /// <summary>
+        /// Gets the filter description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        string Description { get; }
+
+        /// <summary>
         /// Provides an implementation of the specification.
         /// </summary>
         /// <returns></returns>

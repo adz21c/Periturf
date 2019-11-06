@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Periturf.Verify
 {
@@ -23,16 +24,14 @@ namespace Periturf.Verify
     {
         private IExpectationCriteriaSpecification? _criteriaSpecification;
         private readonly List<IExpectationFilterSpecification> _filterSpecifications = new List<IExpectationFilterSpecification>();
-        //private string? _description = null;
+        private string? _expectationDescription = null;
+        private string? _filterDescription = null;
 
-        //IExpectationConfigurator IExpectationConfigurator.Description(string description)
-        //{
-        //    if (string.IsNullOrWhiteSpace(description))
-        //        throw new ArgumentOutOfRangeException(nameof(description));
-            
-        //    _description = description;
-        //    return this;
-        //}
+        IExpectationConfigurator IExpectationConfigurator.Description(string description)
+        {
+            _expectationDescription = description;
+            return this;
+        }
 
         IExpectationConfigurator IExpectationConfigurator.Where(Action<IExpectationFilterConfigurator> config)
         {
@@ -49,14 +48,21 @@ namespace Periturf.Verify
             return this;
         }
 
-        void IExpectationFilterConfigurator.AddSpecification(IExpectationFilterSpecification specification)
+        IExpectationFilterConfigurator IExpectationFilterConfigurator.Description(string description)
+        {
+            _filterDescription = description;
+            return this;
+        }
+
+        IExpectationFilterConfigurator IExpectationFilterConfigurator.AddSpecification(IExpectationFilterSpecification specification)
         {
             _filterSpecifications.Add(specification ?? throw new ArgumentNullException(nameof(specification)));
+            return this;
         }
 
         public TimeSpan? Timeout => _criteriaSpecification?.Timeout;
 
-        public ExpectationEvaluator Build(TimeSpan verifierTimeout, IComponentConditionEvaluator componentConditionEvaluator)
+        public ExpectationEvaluator Build(TimeSpan verifierTimeout, IComponentConditionEvaluator componentConditionEvaluator, string componentConditionDescription)
         {
             if (componentConditionEvaluator is null)
                 throw new ArgumentNullException(nameof(componentConditionEvaluator));
@@ -68,7 +74,31 @@ namespace Periturf.Verify
                 _criteriaSpecification.Timeout ?? verifierTimeout,  // Favour criteria over verifier
                 componentConditionEvaluator,
                 _filterSpecifications.Select(x => x.Build()).ToList(),
-                _criteriaSpecification.Build());
+                _criteriaSpecification.Build(),
+                GetDescription(componentConditionDescription));
+        }
+
+        private string GetDescription(string componentConditionDescription)
+        {
+            if (!string.IsNullOrWhiteSpace(_expectationDescription))
+                return _expectationDescription;
+
+            var filterDescription = _filterDescription ?? 
+                string.Join(
+                    ", ",
+                    _filterSpecifications
+                        .Where(x => !string.IsNullOrWhiteSpace(x.Description))
+                        .Select(x => x.Description).ToArray());
+
+            var description = new StringBuilder(componentConditionDescription);
+
+            if (!string.IsNullOrWhiteSpace(filterDescription))
+                description.Append(" WHERE {filterDescription}");
+
+            if (!string.IsNullOrWhiteSpace(_criteriaSpecification?.Description))
+                description.Append(" MUST {_criteriaSpecification.Description}");
+
+            return description.ToString();
         }
     }
 }

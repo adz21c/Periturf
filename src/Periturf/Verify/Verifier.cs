@@ -54,40 +54,39 @@ namespace Periturf.Verify
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
             {
                 var results = new List<ExpectationResult>(_expectations.Count);
-                var expectations = new List<Task<ExpectationResult>>(_expectations.Count);
+                var expectations = new List<(ExpectationEvaluator evaluator, Task<ExpectationResult> task)>(_expectations.Count);
 
                 try
                 {
-                    expectations.AddRange(_expectations.Select(x => x.EvaluateAsync(cancellationTokenSource.Token)));
+                    expectations.AddRange(_expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
 
                     if (_shortCircuit)
                     {
                         while (expectations.Any())
                         {
-                            await Task.WhenAny(expectations);
-                            var completed = expectations.Where(x => x.IsCompleted).ToList();
+                            await Task.WhenAny(expectations.Select(x => x.task));
+                            var completed = expectations.Where(x => x.task.IsCompleted).ToList();
 
                             expectations.RemoveAll(x => completed.Contains(x));
-                            results.AddRange(completed.Select(x => x.Result));
+                            results.AddRange(completed.Select(x => x.task.Result));
 
                             // If any failed then lets break and cancel the rest
-                            if (completed.Any(x => !(x.Result.Met ?? false)))
+                            if (completed.Any(x => !(x.task.Result.Met ?? false)))
                             {
                                 cancellationTokenSource.Cancel();   // Cancel remaining tasks
                                 // Pass over remaining incomplete tasks
                                 results.AddRange(
                                     expectations.Select(x => new ExpectationResult(
-                                        // TODO: Pass on description
-                                        null)));
+                                        null,
+                                        x.evaluator.Description)));
                                 break;
                             }
                         }
-
                     }
                     else
                     {
-                        await Task.WhenAll(expectations);
-                        results.AddRange(expectations.Select(x => x.Result));
+                        await Task.WhenAll(expectations.Select(x => x.task));
+                        results.AddRange(expectations.Select(x => x.task.Result));
                         expectations.Clear();
                     }
                 }

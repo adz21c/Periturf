@@ -36,13 +36,17 @@ namespace Periturf.Verify
             TimeSpan timeout,
             IComponentConditionEvaluator componentConditionEvaluator,
             List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> filters,
-            IExpectationCriteriaEvaluatorFactory criteria)
+            IExpectationCriteriaEvaluatorFactory criteria,
+            string description = "")
         {
             Timeout = timeout;
             _componentConditionEvaluator = componentConditionEvaluator;
             _filters = filters;
             _criteria = criteria;
+            Description = description;
         }
+
+        public string Description { get; }
 
         public TimeSpan Timeout { get; }
 
@@ -103,7 +107,9 @@ namespace Periturf.Verify
         private async Task<ExpectationResult> CompleteExpectationAsync(IExpectationCriteriaEvaluator criteriaEvaluator)
         {
             await DisposeDependenciesAsync();
-            return _result = new ExpectationResult(!criteriaEvaluator.Completed ? null : criteriaEvaluator.Met);
+            return _result = new ExpectationResult(
+                !criteriaEvaluator.Completed ? null : criteriaEvaluator.Met,
+                Description);
         }
 
         private async ValueTask DisposeDependenciesAsync()

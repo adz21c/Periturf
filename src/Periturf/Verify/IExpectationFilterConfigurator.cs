@@ -24,9 +24,17 @@ namespace Periturf
     public interface IExpectationFilterConfigurator
     {
         /// <summary>
+        /// Describes the filter.
+        /// </summary>
+        /// <param name="description">The description.</param>
+        /// <returns></returns>
+        IExpectationFilterConfigurator Description(string description);
+
+        /// <summary>
         /// Adds a filter specification to the expectation.
         /// </summary>
         /// <param name="specification">The specification.</param>
-        void AddSpecification(IExpectationFilterSpecification specification);
+        /// <returns></returns>
+        IExpectationFilterConfigurator AddSpecification(IExpectationFilterSpecification specification);
     }
 }

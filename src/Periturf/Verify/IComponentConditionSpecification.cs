@@ -25,6 +25,14 @@ namespace Periturf.Verify
     public interface IComponentConditionSpecification
     {
         /// <summary>
+        /// Gets the component condition description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        string Description { get; }
+
+        /// <summary>
         /// Constructs an <see cref="IComponentConditionEvaluator"/>.
         /// When called multiple times builds a reference count to monitor the condition 
         /// across multiple streams.

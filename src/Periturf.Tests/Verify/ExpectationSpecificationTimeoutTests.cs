@@ -52,7 +52,7 @@ namespace Periturf.Tests.Verify
             var criteriaTimeout = TimeSpan.FromMilliseconds(500);
             A.CallTo(() => _criteriaSpec.Timeout).Returns(criteriaTimeout);
 
-            var evaluator = _spec.Build(verifierTimeout, _componentEvaluator);
+            var evaluator = _spec.Build(verifierTimeout, _componentEvaluator, string.Empty);
 
             Assert.AreEqual(criteriaTimeout, evaluator.Timeout);
             Assert.AreNotEqual(verifierTimeout, evaluator.Timeout);
@@ -63,7 +63,7 @@ namespace Periturf.Tests.Verify
         {
             var verifierTimeout = TimeSpan.FromMilliseconds(1000);
 
-            var evaluator = _spec.Build(verifierTimeout, _componentEvaluator);
+            var evaluator = _spec.Build(verifierTimeout, _componentEvaluator, string.Empty);
 
             Assert.AreEqual(verifierTimeout, evaluator.Timeout);
         }

@@ -23,7 +23,12 @@ namespace Periturf
     /// </summary>
     public interface IExpectationConfigurator
     {
-        //IExpectationConfigurator Description(string description);
+        /// <summary>
+        /// Sets a description for the expectation.
+        /// </summary>
+        /// <param name="description">The description.</param>
+        /// <returns></returns>
+        IExpectationConfigurator Description(string description);
 
         /// <summary>
         /// Filters applied to condition instances prior to evaluator by criteria.

@@ -379,7 +379,7 @@ namespace Periturf
                 var expectations = _specs.Select(async x =>
                 {
                     var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(ct);
-                    return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator);
+                    return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator, x.ComponentSpec.Description);
                 }).ToList();
 
                 await Task.WhenAll(expectations);

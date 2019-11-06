@@ -31,6 +31,14 @@ namespace Periturf.Verify
         TimeSpan? Timeout { get; }
 
         /// <summary>
+        /// Gets the criteria description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        string Description { get; }
+
+        /// <summary>
         /// Convert the specification into an evaluator that tests the criteria is met.
         /// </summary>
         /// <returns></returns>

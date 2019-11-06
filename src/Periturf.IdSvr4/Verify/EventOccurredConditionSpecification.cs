@@ -33,6 +33,8 @@ namespace Periturf.IdSvr4.Verify
             _condition = condition;
         }
 
+        public string Description => throw new NotImplementedException();
+
         public Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default)
         {
             var evaluator = new EventOccurredConditionEvaluator<TEvent>(_condition);

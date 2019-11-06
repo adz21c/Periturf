@@ -64,7 +64,7 @@ namespace Periturf.Tests.Verify
             var spec = new ExpectationSpecification();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => spec.Build(TimeSpan.FromMilliseconds(1), null));
+            Assert.Throws<ArgumentNullException>(() => spec.Build(TimeSpan.FromMilliseconds(1), null, string.Empty));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace Periturf.Tests.Verify
             var component = A.Dummy<IComponentConditionEvaluator>();
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => spec.Build(TimeSpan.FromMilliseconds(1), component));
+            Assert.Throws<InvalidOperationException>(() => spec.Build(TimeSpan.FromMilliseconds(1), component, string.Empty));
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace Periturf.Tests.Verify
             config.Where(c => c.AddSpecification(filterSpec))
                 .Must(criteriaSpec);
 
-            var evaluator = spec.Build(verifierTimeout, componentEvaluator);
+            var evaluator = spec.Build(verifierTimeout, componentEvaluator, string.Empty);
 
             var result = await evaluator.EvaluateAsync();
 
