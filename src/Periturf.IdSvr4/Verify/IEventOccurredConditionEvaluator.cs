@@ -16,11 +16,14 @@
 using IdentityServer4.Events;
 using Periturf.Verify;
 using System;
+using System.Threading.Tasks;
 
 namespace Periturf.IdSvr4.Verify
 {
-    interface IEventOccurredConditionEvaluator : IComponentConditionEvaluator
+    interface IEventOccurredConditionEvaluator
     {
-        void CheckEvent(Event @event);
+        Guid Id { get; }
+
+        Task CheckEventAsync(Event @event);
     }
 }

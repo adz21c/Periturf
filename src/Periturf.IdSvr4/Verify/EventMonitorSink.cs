@@ -34,13 +34,13 @@ namespace Periturf.IdSvr4.Verify
         void IEventMonitorSink.AddEvaluator(Type eventType, IEventOccurredConditionEvaluator evaluator)
         {
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
-            //eventTypeEvaluators.TryAdd(evaluator.Id, evaluator);
+            eventTypeEvaluators.TryAdd(evaluator.Id, evaluator);
         }
 
         void IEventMonitorSink.RemoveEvaluator(Type eventType, IEventOccurredConditionEvaluator evaluator)
         {
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
-            //eventTypeEvaluators.TryRemove(evaluator.Id, out var _);
+            eventTypeEvaluators.TryRemove(evaluator.Id, out var _);
         }
 
         async Task IEventSink.PersistAsync(Event evt)
@@ -51,7 +51,8 @@ namespace Periturf.IdSvr4.Verify
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
 
             foreach (var evaluator in eventTypeEvaluators.Values)
-                evaluator.CheckEvent(evt);
+                await evaluator.CheckEventAsync(evt);
         }
     }
+
 }

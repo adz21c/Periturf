@@ -18,6 +18,7 @@ using IdentityServer4.Events;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Hosting;
 using NUnit.Framework;
+using Periturf.Verify.Criterias;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -70,7 +71,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             var verifier = await env.VerifyAsync(c => 
                 c.Expect(
                     c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
-                    e => e.Must(null)));
+                    e => e.Must(new MinCountCriteriaSpecification(1, TimeSpan.FromMilliseconds(500)))));
 
             var idSvr4Client = env.IdSvr4Client();
 
@@ -81,10 +82,12 @@ namespace Periturf.Tests.Integration.IdSvr4
                 Scope = Scope
             });
 
-            await verifier.VerifyAsync();
+            var verificationResult = await verifier.VerifyAsync();
 
             await env.RemoveConfigurationAsync(configId);
             await env.StopAsync();
+
+            Assert.IsTrue(verificationResult.ExpectationsMet);
         }
     }
 }

@@ -13,48 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using IdentityServer4.Events;
-using Periturf.Verify;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using IdentityServer4.Events;
+using Periturf.Verify;
 
 namespace Periturf.IdSvr4.Verify
 {
-    class EventOccurredConditionEvaluator<TEvent> : IEventOccurredConditionEvaluator where TEvent : Event
+    class EventOccurredConditionSpecification<TEvent> : IComponentConditionSpecification
+        where TEvent : Event
     {
-        private readonly Func<TEvent, bool> _checker;
-        private readonly BlockingCollection<TimeSpan> _collection = new BlockingCollection<TimeSpan>();
+        private readonly ConditionInstanceFeedManager<TEvent> _feedManager;
 
-        public EventOccurredConditionEvaluator(Func<TEvent, bool> checker)
+        public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition)
         {
-            _checker = checker;
+            _feedManager = new ConditionInstanceFeedManager<TEvent>(eventMonitorSink, condition);
         }
 
-        public void CheckEvent(Event @event)
-        {
-            var upcastEvent = (TEvent) @event;
+        public string Description => "";
 
-            if (_checker(upcastEvent))
-                _collection.Add(TimeSpan.Zero);
+        public Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default)
+        {
+            return Task.FromResult<IComponentConditionEvaluator>(
+                new LifetimeManager(
+                    _feedManager.CreateFeed(),
+                    _feedManager));
         }
 
-        async IAsyncEnumerable<ConditionInstance> IComponentConditionEvaluator.GetInstancesAsync(CancellationToken ct)
+        class LifetimeManager : IComponentConditionEvaluator
         {
-            while (true)
+            private readonly ConditionInstanceFeeder _feed;
+            private readonly ConditionInstanceFeedManager<TEvent> _feedManager;
+
+            public LifetimeManager(ConditionInstanceFeeder feed, ConditionInstanceFeedManager<TEvent> feedManager)
             {
-                if (_collection.TryTake(out var instance))
-                    yield return new ConditionInstance(instance, "ID");
-                
-                await Task.Delay(1000);
+                _feed = feed;
+                _feedManager = feedManager;
             }
-        }
 
-        ValueTask IAsyncDisposable.DisposeAsync()
-        {
-            throw new NotImplementedException();
+            public ValueTask DisposeAsync()
+            {
+                _feedManager.RemoveFeed(_feed);
+                _feed.Complete();
+                return new ValueTask();
+            }
+
+            public IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default)
+            {
+                return _feed.GetInstancesAsync(ect);
+            }
         }
     }
 }
