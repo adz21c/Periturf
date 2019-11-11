@@ -37,7 +37,7 @@ namespace Periturf.IdSvr4.Verify
 
         public async IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default)
         {
-            while (!ect.IsCancellationRequested)
+            while (!ect.IsCancellationRequested && !_channel.Reader.Completion.IsCompleted)
             {
                 try
                 {
