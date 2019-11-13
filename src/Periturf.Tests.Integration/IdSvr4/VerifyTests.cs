@@ -72,21 +72,23 @@ namespace Periturf.Tests.Integration.IdSvr4
 
             var verifier = await env.VerifyAsync(c =>
             {
-                c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId), e => e.Must(new MinCountCriteriaSpecification(1, TimeSpan.FromMilliseconds(500))));
-                c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == InvalidClientId), e => e.Must(new MinCountCriteriaSpecification(1, TimeSpan.FromMilliseconds(500))));
+                c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId), e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500)));
+                c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == InvalidClientId), e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500)));
             });
 
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(TokenEndpointUrl);
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri(TokenEndpointUrl)
+            };
 
             // Assert
-            var successResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 ClientId = ClientId,
                 ClientSecret = ClientSecret,
                 Scope = Scope
             });
-            var failedResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 ClientId = InvalidClientId,
                 ClientSecret = ClientSecret,

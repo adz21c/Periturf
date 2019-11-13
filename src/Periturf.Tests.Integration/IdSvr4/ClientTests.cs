@@ -71,11 +71,11 @@ namespace Periturf.Tests.Integration.IdSvr4
             var verifier = await env.VerifyAsync(c => 
                 c.Expect(
                     c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
-                    e => e.Must(new MinCountCriteriaSpecification(1, TimeSpan.FromMilliseconds(500)))));
+                    e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500))));
 
             var idSvr4Client = env.IdSvr4Client();
 
-            var idSvr4Response = await idSvr4Client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            await idSvr4Client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 ClientId = ClientId,
                 ClientSecret = ClientSecret,

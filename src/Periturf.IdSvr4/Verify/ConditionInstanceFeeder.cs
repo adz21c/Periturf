@@ -43,7 +43,7 @@ namespace Periturf.IdSvr4.Verify
                 {
                     await _channel.Reader.WaitToReadAsync(ect);
                 }
-                catch(OperationCanceledException oce)
+                catch(OperationCanceledException)
                 {
                     break;
                 }

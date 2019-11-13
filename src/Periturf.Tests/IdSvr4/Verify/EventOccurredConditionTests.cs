@@ -60,7 +60,7 @@ namespace Periturf.Tests.IdSvr4.Verify
 
             // Act
             var evaluator = await spec.BuildAsync();
-            var evaluator2 = await spec.BuildAsync();
+            await spec.BuildAsync();
 
             await evaluator.DisposeAsync();
 
@@ -128,7 +128,7 @@ namespace Periturf.Tests.IdSvr4.Verify
         }
     }
 
-    static class G
+    static class Helper
     {
         public static async Task<List<T>> ToList<T>(this IAsyncEnumerable<T> enumerable)
         {
