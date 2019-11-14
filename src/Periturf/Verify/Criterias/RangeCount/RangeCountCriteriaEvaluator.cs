@@ -18,19 +18,20 @@ namespace Periturf.Verify.Criterias
 {
     class RangeCountCriteriaEvaluator : IExpectationCriteriaEvaluator
     {
-        private readonly int? _min;
-        private readonly int? _max;
-
         private int _count;
 
-        public RangeCountCriteriaEvaluator(int? min, int? max)
+        public RangeCountCriteriaEvaluator(int? minimum, int? maximum)
         {
-            _min = min;
-            _max = max;
+            Minimum = minimum;
+            Maximum = maximum;
 
-            if ((_min ?? 0) == 0)
+            if ((Minimum ?? 0) == 0)
                 Met = true;
         }
+
+        public int? Minimum { get; private set; }
+
+        public int? Maximum { get; private set; }
 
         public bool Completed => true;
 
@@ -40,7 +41,7 @@ namespace Periturf.Verify.Criterias
         {
             _count += 1;
 
-            Met = (!_min.HasValue || _count >= _min) && (!_max.HasValue || _count <= _max);
+            Met = (!Minimum.HasValue || _count >= Minimum) && (!Maximum.HasValue || _count <= Maximum);
         }
     }
 }
