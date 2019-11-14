@@ -27,6 +27,9 @@ namespace Periturf.Verify.Criterias
         {
             _min = min;
             _max = max;
+
+            if ((_min ?? 0) == 0)
+                Met = true;
         }
 
         public bool Completed => true;
@@ -37,8 +40,7 @@ namespace Periturf.Verify.Criterias
         {
             _count += 1;
 
-            if ((!_min.HasValue || _count >= _min) && (!_max.HasValue || _count <= _max))
-                Met = true;
+            Met = (!_min.HasValue || _count >= _min) && (!_max.HasValue || _count <= _max);
         }
     }
 }
