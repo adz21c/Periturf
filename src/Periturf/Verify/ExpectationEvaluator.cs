@@ -108,7 +108,7 @@ namespace Periturf.Verify
         {
             await DisposeDependenciesAsync();
             return _result = new ExpectationResult(
-                !criteriaEvaluator.Completed ? null : criteriaEvaluator.Met,
+                criteriaEvaluator.Met,
                 Description);
         }
 

@@ -110,7 +110,6 @@ namespace Periturf.Tests.Verify
                     failed = true;
             });
             A.CallTo(() => criteria.Met).ReturnsLazily(() => !failed);
-            A.CallTo(() => criteria.Completed).Returns(true);
 
             var criteriaFactory = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => criteriaFactory.CreateInstance()).Returns(criteria);

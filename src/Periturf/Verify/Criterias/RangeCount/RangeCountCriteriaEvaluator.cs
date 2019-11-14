@@ -33,8 +33,6 @@ namespace Periturf.Verify.Criterias
 
         public int? Maximum { get; private set; }
 
-        public bool Completed => true;
-
         public bool? Met { get; private set; } = false;
 
         public void Evaluate(ConditionInstance instance)

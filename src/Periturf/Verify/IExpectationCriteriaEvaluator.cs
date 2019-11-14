@@ -22,14 +22,6 @@ namespace Periturf.Verify
     public interface IExpectationCriteriaEvaluator
     {
         /// <summary>
-        /// Gets a value indicating whether this <see cref="IExpectationCriteriaEvaluator"/> has finished checking for its criteria.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if completed; otherwise, <c>false</c>.
-        /// </value>
-        bool Completed { get; }
-
-        /// <summary>
         /// Gets a value indicating whether the criteria has been met.
         /// </summary>
         /// <value>

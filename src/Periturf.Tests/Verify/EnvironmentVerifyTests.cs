@@ -41,7 +41,6 @@ namespace Periturf.Tests.Verify
         {
             // Expectation
             _expectationCriteria = A.Fake<IExpectationCriteriaEvaluator>();
-            A.CallTo(() => _expectationCriteria.Completed).Returns(true);
 
             var expectationCriteriaFactory = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => expectationCriteriaFactory.CreateInstance()).Returns(_expectationCriteria);

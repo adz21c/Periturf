@@ -43,7 +43,6 @@ namespace Periturf.Tests.Verify
 
             _criteriaEvaluator1 = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator1.Met).Returns(true);
-            A.CallTo(() => _criteriaEvaluator1.Completed).Returns(true);
 
             _criteriaFactory1 = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => _criteriaFactory1.CreateInstance()).Returns(_criteriaEvaluator1);
@@ -59,7 +58,6 @@ namespace Periturf.Tests.Verify
 
             _criteriaEvaluator2 = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator2.Met).Returns(true);
-            A.CallTo(() => _criteriaEvaluator2.Completed).Returns(true);
 
             _criteriaFactory2 = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => _criteriaFactory2.CreateInstance()).Returns(_criteriaEvaluator2);
@@ -161,8 +159,6 @@ namespace Periturf.Tests.Verify
                 _criteriaFactory2);
 
             A.CallTo(() => _criteriaEvaluator1.Met).Returns(false);
-            A.CallTo(() => _criteriaEvaluator1.Completed).Returns(true);
-            A.CallTo(() => _criteriaEvaluator2.Completed).Returns(false);
 
             var sut = new Verifier(new List<ExpectationEvaluator> { _expectation1, _expectation2 }, shortCircuit: true);
 

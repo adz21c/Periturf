@@ -39,7 +39,6 @@ namespace Periturf.Tests.Verify
 
             _criteriaEvaluator = A.Fake<IExpectationCriteriaEvaluator>();
             A.CallTo(() => _criteriaEvaluator.Met).Returns(true);
-            A.CallTo(() => _criteriaEvaluator.Completed).Returns(true);
 
             _criteriaFactory = A.Fake<IExpectationCriteriaEvaluatorFactory>();
             A.CallTo(() => _criteriaFactory.CreateInstance()).Returns(_criteriaEvaluator);
