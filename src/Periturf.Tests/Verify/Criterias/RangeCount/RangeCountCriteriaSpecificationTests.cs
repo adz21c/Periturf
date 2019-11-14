@@ -60,10 +60,25 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
         {
             const int minimum = 2;
             const int maximum = 1;
-            
+
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() => new RangeCountCriteriaSpecification(minimum, maximum, null));
 
             Assert.AreEqual("maximum", ex.ParamName);
+        }
+
+        [Test]
+        public void Given_NoConfig_When_Ctor_Then_Throws()
+        {
+            Assert.Throws<ArgumentException>(() => new RangeCountCriteriaSpecification(null, null, null));
+        }
+
+        [TestCase(1, null, null, ExpectedResult = "Minimum of 1 instances")]
+        [TestCase(null, 1, null, ExpectedResult = "Maximum of 1 instances")]
+        [TestCase(1, 2, null, ExpectedResult = "Between 1 and 2 instances")]
+        [TestCase(1, 2, "My Override", ExpectedResult = "My Override")]
+        public string Given_Config_When_Ctor_Then_Description(int? minimum, int? maximum, string description)
+        {
+            return new RangeCountCriteriaSpecification(minimum, maximum, null, description).Description;
         }
     }
 }

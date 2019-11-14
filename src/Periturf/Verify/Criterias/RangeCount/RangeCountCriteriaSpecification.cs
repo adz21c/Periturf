@@ -19,21 +19,40 @@ namespace Periturf.Verify.Criterias
 {
     class RangeCountCriteriaSpecification : IExpectationCriteriaSpecification
     {
-        public RangeCountCriteriaSpecification(int? minimum, int? maximum, TimeSpan? timeout)
+        public RangeCountCriteriaSpecification(int? minimum, int? maximum, TimeSpan? timeout, string description = null)
         {
+            string CreateDescription()
+            {
+                if (minimum.HasValue)
+                {
+                    if (maximum.HasValue)
+                        return $"Between {minimum} and {maximum} instances";
+                    else
+                        return $"Minimum of {minimum} instances";
+                }
+                else if (maximum.HasValue)
+                    return $"Maximum of {maximum} instances";
+                else
+                    throw new InvalidOperationException("Unexpected condition");
+            }
+
             if (minimum.HasValue && maximum.HasValue && minimum > maximum)
                 throw new ArgumentOutOfRangeException(nameof(maximum), "Maximum must be greater or equal to minimum");
+
+            if (!minimum.HasValue && !maximum.HasValue)
+                throw new ArgumentException($"A value must be supplied for either {nameof(minimum)} or {nameof(maximum)}");
 
             Minimum = minimum;
             Maximum = maximum;
             Timeout = timeout;
+            Description = description ?? CreateDescription();
         }
 
         public int? Minimum { get; }
         public int? Maximum { get; }
         public TimeSpan? Timeout { get; }
 
-        public string Description => "";
+        public string Description { get; }
 
         public IExpectationCriteriaEvaluatorFactory Build()
         {
