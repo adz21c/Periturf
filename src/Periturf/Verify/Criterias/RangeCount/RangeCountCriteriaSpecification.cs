@@ -19,23 +19,8 @@ namespace Periturf.Verify.Criterias
 {
     class RangeCountCriteriaSpecification : IExpectationCriteriaSpecification
     {
-        public RangeCountCriteriaSpecification(int? minimum, int? maximum, TimeSpan? timeout, string description = null)
+        public RangeCountCriteriaSpecification(int? minimum, int? maximum, TimeSpan? timeout, string? description = null)
         {
-            string CreateDescription()
-            {
-                if (minimum.HasValue)
-                {
-                    if (maximum.HasValue)
-                        return $"Between {minimum} and {maximum} instances";
-                    else
-                        return $"Minimum of {minimum} instances";
-                }
-                else if (maximum.HasValue)
-                    return $"Maximum of {maximum} instances";
-                else
-                    throw new InvalidOperationException("Unexpected condition");
-            }
-
             if (minimum.HasValue && maximum.HasValue && minimum > maximum)
                 throw new ArgumentOutOfRangeException(nameof(maximum), "Maximum must be greater or equal to minimum");
 
@@ -45,7 +30,21 @@ namespace Periturf.Verify.Criterias
             Minimum = minimum;
             Maximum = maximum;
             Timeout = timeout;
-            Description = description ?? CreateDescription();
+            
+            if (description != null)
+                Description = description;
+            else
+            {
+                if (minimum.HasValue)
+                {
+                    if (maximum.HasValue)
+                        Description = $"Between {minimum} and {maximum} instances";
+                    else
+                        Description = $"Minimum of {minimum} instances";
+                }
+                else
+                    Description = $"Maximum of {maximum} instances";
+            }
         }
 
         public int? Minimum { get; }
