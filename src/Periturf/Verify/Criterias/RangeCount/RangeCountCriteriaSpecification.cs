@@ -19,23 +19,25 @@ namespace Periturf.Verify.Criterias
 {
     class RangeCountCriteriaSpecification : IExpectationCriteriaSpecification
     {
-        private readonly int? _min;
-        private readonly int? _max;
-
-        public RangeCountCriteriaSpecification(int? min, int? max, TimeSpan? timeout)
+        public RangeCountCriteriaSpecification(int? minimum, int? maximum, TimeSpan? timeout)
         {
-            _min = min;
-            _max = max;
+            if (minimum.HasValue && maximum.HasValue && minimum > maximum)
+                throw new ArgumentOutOfRangeException(nameof(maximum), "Maximum must be greater or equal to minimum");
+
+            Minimum = minimum;
+            Maximum = maximum;
             Timeout = timeout;
         }
 
+        public int? Minimum { get; }
+        public int? Maximum { get; }
         public TimeSpan? Timeout { get; }
 
         public string Description => "";
 
         public IExpectationCriteriaEvaluatorFactory Build()
         {
-            return new RangeCountCriteriaEvaluatorFactory(_min, _max);
+            return new RangeCountCriteriaEvaluatorFactory(Minimum, Maximum);
         }
     }
 }

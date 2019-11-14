@@ -18,18 +18,18 @@ namespace Periturf.Verify.Criterias
 {
     class RangeCountCriteriaEvaluatorFactory : IExpectationCriteriaEvaluatorFactory
     {
-        private readonly int? _min;
-        private readonly int? _max;
-
-        public RangeCountCriteriaEvaluatorFactory(int? min, int? max)
+        public RangeCountCriteriaEvaluatorFactory(int? minimum, int? maximum)
         {
-            _min = min;
-            _max = max;
+            Minimum = minimum;
+            Maximum = maximum;
         }
+
+        public int? Minimum { get; }
+        public int? Maximum { get; }
 
         public IExpectationCriteriaEvaluator CreateInstance()
         {
-            return new RangeCountCriteriaEvaluator(_min, _max);
+            return new RangeCountCriteriaEvaluator(Minimum, Maximum);
         }
     }
 }
