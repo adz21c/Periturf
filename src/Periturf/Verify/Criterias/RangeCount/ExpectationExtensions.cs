@@ -36,7 +36,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     minimum,
                     null,
-                    null));
+                    null,
+                    $"Must occur a minimum of {minimum} times"));
             return configurator;
         }
 
@@ -54,7 +55,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     minimum,
                     null,
-                    timeScale));
+                    timeScale,
+                    $"Must occur a minimum of {minimum} times within {timeScale.TotalMilliseconds}ms"));
             return configurator;
         }
 
@@ -70,7 +72,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     null,
                     maximum,
-                    null));
+                    null,
+                    $"Must occur a maximum of {maximum} times"));
             return configurator;
         }
 
@@ -88,7 +91,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     null,
                     maximum,
-                    timeScale));
+                    timeScale,
+                    $"Must occur a maximum of {maximum} times within {timeScale.TotalMilliseconds}ms"));
             return configurator;
         }
 
@@ -103,7 +107,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     null,
                     0,
-                    null));
+                    null,
+                    "Must never occur"));
             return configurator;
         }
 
@@ -119,7 +124,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     null,
                     0,
-                    timeScale));
+                    timeScale,
+                    $"Must never occur within {timeScale.TotalMilliseconds}ms"));
             return configurator;
         }
 
@@ -134,7 +140,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     1,
                     null,
-                    null));
+                    null,
+                    "Must occur"));
             return configurator;
         }
 
@@ -150,7 +157,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     1,
                     null,
-                    timeScale));
+                    timeScale,
+                    $"Must occur within {timeScale.TotalMilliseconds }ms"));
             return configurator;
         }
 
@@ -167,7 +175,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     minimum,
                     maximum,
-                    null));
+                    null,
+                    $"Must occur between {minimum} and {maximum} times"));
             return configurator;
         }
 
@@ -185,7 +194,8 @@ namespace Periturf
                 new RangeCountCriteriaSpecification(
                     minimum,
                     maximum,
-                    timeScale));
+                    timeScale,
+                    $"Must occur between {minimum} and {maximum} times within {timeScale.TotalMilliseconds}ms"));
             return configurator;
         }
     }

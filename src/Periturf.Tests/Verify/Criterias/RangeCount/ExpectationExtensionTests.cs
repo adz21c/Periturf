@@ -51,6 +51,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(0, _spec.Maximum);
             Assert.IsNull(_spec.Minimum);
             Assert.IsNull(_spec.Timeout);
+            Assert.AreEqual("Must never occur", _spec.Description);
         }
 
         [Test]
@@ -63,6 +64,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(0, _spec.Maximum);
             Assert.IsNull(_spec.Minimum);
             Assert.AreEqual(timeout, _spec.Timeout);
+            Assert.AreEqual($"Must never occur within {timeout.TotalMilliseconds}ms", _spec.Description);
         }
 
         [Test]
@@ -74,6 +76,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(1, _spec.Minimum);
             Assert.IsNull(_spec.Maximum);
             Assert.IsNull(_spec.Timeout);
+            Assert.AreEqual("Must occur", _spec.Description);
         }
 
         [Test]
@@ -86,6 +89,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(1, _spec.Minimum);
             Assert.IsNull(_spec.Maximum);
             Assert.AreEqual(timeout, _spec.Timeout);
+            Assert.AreEqual($"Must occur within {timeout.TotalMilliseconds}ms", _spec.Description);
         }
 
         [Test]
@@ -100,6 +104,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(minimum, _spec.Minimum);
             Assert.AreEqual(maximum, _spec.Maximum);
             Assert.IsNull(_spec.Timeout);
+            Assert.AreEqual($"Must occur between {minimum} and {maximum} times", _spec.Description);
         }
 
         [Test]
@@ -115,6 +120,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(minimum, _spec.Minimum);
             Assert.AreEqual(maximum, _spec.Maximum);
             Assert.AreEqual(timeout, _spec.Timeout);
+            Assert.AreEqual($"Must occur between {minimum} and {maximum} times within {timeout.TotalMilliseconds}ms", _spec.Description);
         }
 
         [Test]
@@ -128,6 +134,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.IsNull(_spec.Minimum);
             Assert.AreEqual(maximum, _spec.Maximum);
             Assert.IsNull(_spec.Timeout);
+            Assert.AreEqual($"Must occur a maximum of {maximum} times", _spec.Description);
         }
 
         [Test]
@@ -142,6 +149,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.IsNull(_spec.Minimum);
             Assert.AreEqual(maximum, _spec.Maximum);
             Assert.AreEqual(timeout, _spec.Timeout);
+            Assert.AreEqual($"Must occur a maximum of {maximum} times within {timeout.TotalMilliseconds}ms", _spec.Description);
         }
 
         [Test]
@@ -155,6 +163,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(minimum, _spec.Minimum);
             Assert.IsNull(_spec.Maximum);
             Assert.IsNull(_spec.Timeout);
+            Assert.AreEqual($"Must occur a minimum of {minimum} times", _spec.Description);
         }
 
         [Test]
@@ -169,6 +178,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
             Assert.AreEqual(minimum, _spec.Minimum);
             Assert.IsNull(_spec.Maximum);
             Assert.AreEqual(timeout, _spec.Timeout);
+            Assert.AreEqual($"Must occur a minimum of {minimum} times within {timeout.TotalMilliseconds}ms", _spec.Description);
         }
     }
 }
