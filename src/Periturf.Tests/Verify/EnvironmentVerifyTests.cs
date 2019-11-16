@@ -20,6 +20,7 @@ using Periturf.Verify;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -131,14 +132,44 @@ namespace Periturf.Tests.Verify
 
         [TestCase(true)]
         [TestCase(false)]
-        public async Task Given_ShortCircuit_When_Verify_Then_Matches(bool enabled)
+        public async Task Given_GlobalShortCircuit_When_Verify_Then_Matches(bool enabled)
         {
             // Act & Assert
-            var verifier = await _environment.VerifyAsync(c => c.ShortCircuit(enabled));
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.ShortCircuit(enabled);
+                c.Expect(
+                    c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(ComponentName).CreateCondition(),
+                    e => e.Must(_expectationSpecification));
+            });
             var typedVerifier = verifier as Verifier;
 
             Assert.IsNotNull(typedVerifier);
             Assert.AreEqual(enabled, typedVerifier.ShortCircuit);
+        }
+
+        [Test]
+        public async Task Given_GlobalTimeout_When_Verify_Then_Matches()
+        {
+            var globalTimeout = TimeSpan.FromMilliseconds(5000);
+            // Block out other timeouts
+            A.CallTo(() => _expectationSpecification.Timeout).Returns(null);
+
+
+            // Act & Assert
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.Timeout(globalTimeout);
+                c.Expect(
+                    c.GetComponentConditionBuilder<ITestComponentConditionBuilder>(ComponentName).CreateCondition(),
+                    e => e.Must(_expectationSpecification));
+            });
+
+            var typedVerifier = verifier as Verifier;
+
+            Assert.IsNotNull(typedVerifier);
+            Assert.AreEqual(1, typedVerifier.Expectations.Count);
+            Assert.AreEqual(globalTimeout, typedVerifier.Expectations.Single().Timeout);
         }
     }
 }

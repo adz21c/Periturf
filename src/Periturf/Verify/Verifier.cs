@@ -23,7 +23,6 @@ namespace Periturf.Verify
 {
     class Verifier : IVerifier
     {
-        private readonly List<ExpectationEvaluator> _expectations;
 
         private VerificationResult? _result;
 
@@ -33,11 +32,12 @@ namespace Periturf.Verify
 
         public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
         {
-            _expectations = expectations;
+            Expectations = expectations;
             ShortCircuit = shortCircuit;
         }
 
         public bool ShortCircuit { get; }
+        public List<ExpectationEvaluator> Expectations { get; }
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
@@ -54,12 +54,12 @@ namespace Periturf.Verify
 
             using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
             {
-                var results = new List<ExpectationResult>(_expectations.Count);
-                var expectations = new List<(ExpectationEvaluator evaluator, Task<ExpectationResult> task)>(_expectations.Count);
+                var results = new List<ExpectationResult>(Expectations.Count);
+                var expectations = new List<(ExpectationEvaluator evaluator, Task<ExpectationResult> task)>(Expectations.Count);
 
                 try
                 {
-                    expectations.AddRange(_expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
+                    expectations.AddRange(Expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
 
                     if (ShortCircuit)
                     {
@@ -118,7 +118,7 @@ namespace Periturf.Verify
             if (_dependenciesDisposed)
                 return;
 
-            await Task.WhenAll(_expectations.Select(x => x.DisposeAsync().AsTask()));
+            await Task.WhenAll(Expectations.Select(x => x.DisposeAsync().AsTask()));
             _dependenciesDisposed = true;
         }
     }
