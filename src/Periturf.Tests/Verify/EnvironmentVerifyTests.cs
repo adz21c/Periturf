@@ -128,5 +128,17 @@ namespace Periturf.Tests.Verify
 
             Assert.AreEqual("timeout", exception.ParamName);
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task Given_ShortCircuit_When_Verify_Then_Matches(bool enabled)
+        {
+            // Act & Assert
+            var verifier = await _environment.VerifyAsync(c => c.ShortCircuit(enabled));
+            var typedVerifier = verifier as Verifier;
+
+            Assert.IsNotNull(typedVerifier);
+            Assert.AreEqual(enabled, typedVerifier.ShortCircuit);
+        }
     }
 }

@@ -24,7 +24,6 @@ namespace Periturf.Verify
     class Verifier : IVerifier
     {
         private readonly List<ExpectationEvaluator> _expectations;
-        private readonly bool _shortCircuit;
 
         private VerificationResult? _result;
 
@@ -35,8 +34,10 @@ namespace Periturf.Verify
         public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
         {
             _expectations = expectations;
-            _shortCircuit = shortCircuit;
+            ShortCircuit = shortCircuit;
         }
+
+        public bool ShortCircuit { get; }
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
@@ -60,7 +61,7 @@ namespace Periturf.Verify
                 {
                     expectations.AddRange(_expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
 
-                    if (_shortCircuit)
+                    if (ShortCircuit)
                     {
                         while (expectations.Any())
                         {
