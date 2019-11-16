@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 using IdentityServer4.Events;
-using Periturf.Verify;
 using System;
 using System.Threading.Tasks;
 

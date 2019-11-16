@@ -26,7 +26,7 @@ namespace Periturf.Tests.Verify.Criterias.RangeCount
     class ExpectationExtensionTests
     {
         private readonly IExpectationConfigurator _expectationConfigurator = A.Fake<IExpectationConfigurator>();
-        private RangeCountCriteriaSpecification? _spec;
+        private RangeCountCriteriaSpecification _spec;
 
         [OneTimeSetUp]
         public void OneTimeSetup()

@@ -61,7 +61,7 @@ namespace Periturf.IdSvr4.Verify
                 return new ValueTask();
             }
 
-            public IAsyncEnumerable<ConditionInstance> GetInstancesAsync([EnumeratorCancellation] CancellationToken ect = default)
+            public IAsyncEnumerable<ConditionInstance> GetInstancesAsync(CancellationToken ect = default)
             {
                 return _feed.GetInstancesAsync(ect);
             }
