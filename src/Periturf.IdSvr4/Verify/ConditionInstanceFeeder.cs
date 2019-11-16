@@ -39,14 +39,7 @@ namespace Periturf.IdSvr4.Verify
         {
             while (!ect.IsCancellationRequested && !_channel.Reader.Completion.IsCompleted)
             {
-                try
-                {
-                    await _channel.Reader.WaitToReadAsync(ect);
-                }
-                catch(OperationCanceledException)
-                {
-                    break;
-                }
+                await _channel.Reader.WaitToReadAsync(ect);
 
                 while (_channel.Reader.TryRead(out var conditionInstance))
                     yield return conditionInstance;
