@@ -33,6 +33,7 @@ namespace Periturf.Verify
         /// Evaluates the specified condition instance.
         /// </summary>
         /// <param name="instance">The instance.</param>
-        void Evaluate(ConditionInstance instance);
+        /// <returns><c>true</c> if the evaluator has completed evaluation early, else <c>false</c></returns>
+        bool Evaluate(ConditionInstance instance);
     }
 }

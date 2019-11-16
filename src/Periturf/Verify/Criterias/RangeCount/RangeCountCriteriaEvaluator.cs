@@ -35,11 +35,19 @@ namespace Periturf.Verify.Criterias
 
         public bool? Met { get; private set; } = false;
 
-        public void Evaluate(ConditionInstance instance)
+        public bool Evaluate(ConditionInstance instance)
         {
             _count += 1;
 
             Met = (!Minimum.HasValue || _count >= Minimum) && (!Maximum.HasValue || _count <= Maximum);
+
+            if (Maximum.HasValue && _count > Maximum)
+                return true;
+
+            if (Minimum.HasValue && !Maximum.HasValue && _count >= Minimum)
+                return true;
+
+            return false;
         }
     }
 }
