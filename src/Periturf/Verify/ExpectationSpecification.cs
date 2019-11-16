@@ -93,10 +93,10 @@ namespace Periturf.Verify
             var description = new StringBuilder(componentConditionDescription);
 
             if (!string.IsNullOrWhiteSpace(filterDescription))
-                description.Append(" WHERE {filterDescription}");
+                description.Append($" WHERE {filterDescription}");
 
             if (!string.IsNullOrWhiteSpace(_criteriaSpecification?.Description))
-                description.Append(" MUST {_criteriaSpecification.Description}");
+                description.Append($" MUST {_criteriaSpecification.Description}");
 
             return description.ToString();
         }
