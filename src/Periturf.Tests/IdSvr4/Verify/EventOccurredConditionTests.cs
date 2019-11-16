@@ -14,6 +14,17 @@ namespace Periturf.Tests.IdSvr4.Verify
     class EventOccurredConditionTests
     {
         [Test]
+        public void Given_Evaluator_When_Description_Then_EventTypeName()
+        {
+            var eventMonitorSink = A.Dummy<IEventMonitorSink>();
+            var condition = A.Dummy<Func<Event, bool>>();
+
+            var spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
+
+            Assert.AreEqual(typeof(Event).Name, spec.Description);
+        }
+
+        [Test]
         public async Task Given_SingleEvaluator_When_Build_Then_MonitorSingleEvaluator()
         {
             var eventMonitorSink = A.Fake<IEventMonitorSink>();

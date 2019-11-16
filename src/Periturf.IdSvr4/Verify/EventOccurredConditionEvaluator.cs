@@ -33,7 +33,7 @@ namespace Periturf.IdSvr4.Verify
             _feedManager = new ConditionInstanceFeedManager<TEvent>(eventMonitorSink, condition);
         }
 
-        public string Description => "";
+        public string Description => typeof(TEvent).Name;
 
         public Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default)
         {
