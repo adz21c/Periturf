@@ -34,6 +34,7 @@ namespace Periturf.Hosting.Setup
 
         public Dictionary<string, IComponent> Components { get; } = new Dictionary<string, IComponent>();
 
+        [ExcludeFromCodeCoverage]   // Passthrough code
         public IDictionary<object, object> Properties => _builder.Properties;
 
         public void AddComponent(string componentName, IComponent component)
