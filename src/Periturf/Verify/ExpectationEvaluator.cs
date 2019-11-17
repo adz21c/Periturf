@@ -78,7 +78,9 @@ namespace Periturf.Verify
                 {
                     await foreach (var instance in conditions.WithCancellation(cancellationTokenSource.Token))
                     {
-                        criteriaEvaluator.Evaluate(instance);
+                        var done = criteriaEvaluator.Evaluate(instance);
+                        if (done)
+                            break;
                     }
                 }
                 catch (TaskCanceledException) when (expectationTimeout.IsCancellationRequested)

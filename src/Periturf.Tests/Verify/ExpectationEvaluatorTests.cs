@@ -19,6 +19,7 @@ using Periturf.Verify;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -185,6 +186,29 @@ namespace Periturf.Tests.Verify
         {
             await _sut.DisposeAsync();
             Assert.ThrowsAsync<ObjectDisposedException>(() => _sut.EvaluateAsync());
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public async Task Given_CriteriaMetEarly_When_Evaluate_Then_StopCheckingInstances(int incompleteCount)
+        {
+            var results = new List<bool>();
+            results.AddRange(Enumerable.Repeat(false, incompleteCount));
+            results.Add(true);
+
+            A.CallTo(() => _criteriaEvaluator.Evaluate(A<ConditionInstance>._)).ReturnsNextFromSequence(results.ToArray());
+
+            _componentEvaluator = new MockComponentEvaluator(TimeSpan.FromMilliseconds(10), 5);
+            _sut = new ExpectationEvaluator(
+                TimeSpan.FromMilliseconds(1000),
+                _componentEvaluator,
+                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
+                _criteriaFactory);
+
+            await _sut.EvaluateAsync();
+
+            Assert.AreEqual(incompleteCount + 1, _componentEvaluator.InstanceCount);
         }
 
         private void TestDependenciesCleanUp()

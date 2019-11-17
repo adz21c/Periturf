@@ -33,11 +33,14 @@ namespace Periturf.Tests.Verify
             _numberOfInstances = numberOfInstances;
         }
 
+        public int InstanceCount { get; private set; }
+
         public bool DisposeCalled { get; private set; }
 
         public void ResetCalls()
         {
             DisposeCalled = false;
+            InstanceCount = 0;
         }
 
         public ValueTask DisposeAsync()
@@ -51,6 +54,7 @@ namespace Periturf.Tests.Verify
             for (int i = 0; !ect.IsCancellationRequested && (!_numberOfInstances.HasValue || i < _numberOfInstances); ++i)
             {
                 await Task.Delay(_delays, ect);
+                InstanceCount += 1;
                 yield return new ConditionInstance(TimeSpan.FromMilliseconds(i * 50), $"ID-{i}");
             }
         }
