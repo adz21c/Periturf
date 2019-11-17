@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Events;
+using Periturf.Verify;
 
 namespace Periturf.IdSvr4.Verify
 {
@@ -27,11 +28,13 @@ namespace Periturf.IdSvr4.Verify
         private readonly List<ConditionInstance> _history = new List<ConditionInstance>();
         private readonly Func<TEvent, bool> _condition;
         private readonly IEventMonitorSink _sink;
+        private readonly IConditionInstanceTimeSpanFactory _timeSpanFactory;
 
-        public ConditionInstanceFeedManager(IEventMonitorSink sink, Func<TEvent, bool> condition)
+        public ConditionInstanceFeedManager(IEventMonitorSink sink, Func<TEvent, bool> condition, IConditionInstanceTimeSpanFactory timeSpanFactory)
         {
             _sink = sink;
             _condition = condition;
+            _timeSpanFactory = timeSpanFactory;
         }
 
         public Guid Id { get; } = Guid.NewGuid();
@@ -60,8 +63,11 @@ namespace Periturf.IdSvr4.Verify
         {
             if (@event is TEvent tEvent && _condition(tEvent))
             {
-                // TODO: Complete instance data
-                var instance = new ConditionInstance(TimeSpan.FromMilliseconds(1), "ID");
+                var when = _timeSpanFactory.Create(@event.TimeStamp); 
+                var instance = new ConditionInstance(
+                    when,
+                    $"{@event.EventType}-{when.TotalMilliseconds}");
+
                 var instanceTasks = _feeders.Select(x => x.PushInstanceAsync(instance).AsTask()).ToList();
                 await Task.WhenAll(instanceTasks);
                 _history.Add(instance);

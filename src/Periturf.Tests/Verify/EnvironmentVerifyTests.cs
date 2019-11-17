@@ -52,7 +52,7 @@ namespace Periturf.Tests.Verify
 
             // Component
             var componentConditionSpecification = A.Fake<IComponentConditionSpecification>();
-            A.CallTo(() => componentConditionSpecification.BuildAsync(A<CancellationToken>._)).Returns(new MockComponentEvaluator(TimeSpan.FromMilliseconds(10), 5));
+            A.CallTo(() => componentConditionSpecification.BuildAsync(A<IConditionInstanceTimeSpanFactory>._, A<CancellationToken>._)).Returns(new MockComponentEvaluator(TimeSpan.FromMilliseconds(10), 5));
             
             var componentConditionBuilder = A.Fake<ITestComponentConditionBuilder>();
             A.CallTo(() => componentConditionBuilder.CreateCondition()).Returns(componentConditionSpecification);

@@ -25,17 +25,31 @@ namespace Periturf.IdSvr4.Verify
     class EventOccurredConditionSpecification<TEvent> : IComponentConditionSpecification
         where TEvent : Event
     {
-        private readonly ConditionInstanceFeedManager<TEvent> _feedManager;
+        private readonly IEventMonitorSink _eventMonitorSink;
+        private readonly Func<TEvent, bool> _condition;
+
+        private readonly object _feedManagerLock = new object();
+        private ConditionInstanceFeedManager<TEvent>? _feedManager;
 
         public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition)
         {
-            _feedManager = new ConditionInstanceFeedManager<TEvent>(eventMonitorSink, condition);
+            _eventMonitorSink = eventMonitorSink;
+            _condition = condition;
         }
 
         public string Description => typeof(TEvent).Name;
 
-        public Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default)
+        public Task<IComponentConditionEvaluator> BuildAsync(IConditionInstanceTimeSpanFactory timespanFactory, CancellationToken ct = default)
         {
+            if (_feedManager == null)
+            {
+                lock (_feedManagerLock)
+                {
+                    if (_feedManager == null)
+                        _feedManager = new ConditionInstanceFeedManager<TEvent>(_eventMonitorSink, _condition, timespanFactory);
+                }
+            }
+
             return Task.FromResult<IComponentConditionEvaluator>(
                 new LifetimeManager(
                     _feedManager.CreateFeed(),

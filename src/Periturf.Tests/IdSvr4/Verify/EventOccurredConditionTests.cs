@@ -17,6 +17,7 @@ using FakeItEasy;
 using IdentityServer4.Events;
 using NUnit.Framework;
 using Periturf.IdSvr4.Verify;
+using Periturf.Verify;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace Periturf.Tests.IdSvr4.Verify
     [TestFixture]
     class EventOccurredConditionTests
     {
+        private readonly IConditionInstanceTimeSpanFactory _timeSpanFactory = A.Dummy<IConditionInstanceTimeSpanFactory>();
+
         [Test]
         public void Given_Evaluator_When_Description_Then_EventTypeName()
         {
@@ -47,7 +50,7 @@ namespace Periturf.Tests.IdSvr4.Verify
             var spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
 
             // Act
-            var evaluator = await spec.BuildAsync();
+            var evaluator = await spec.BuildAsync(_timeSpanFactory);
 
             // Assert
             Assert.IsNotNull(evaluator);
@@ -64,8 +67,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             var spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
 
             // Act
-            var evaluator = await spec.BuildAsync();
-            var evaluator2 = await spec.BuildAsync();
+            var evaluator = await spec.BuildAsync(_timeSpanFactory);
+            var evaluator2 = await spec.BuildAsync(_timeSpanFactory);
 
             // Assert
             Assert.IsNotNull(evaluator);
@@ -84,8 +87,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             var spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
 
             // Act
-            var evaluator = await spec.BuildAsync();
-            await spec.BuildAsync();
+            var evaluator = await spec.BuildAsync(_timeSpanFactory);
+            await spec.BuildAsync(_timeSpanFactory);
 
             await evaluator.DisposeAsync();
 
@@ -103,8 +106,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             var spec = new EventOccurredConditionSpecification<Event>(eventMonitorSink, condition);
 
             // Act
-            var evaluator = await spec.BuildAsync();
-            var evaluator2 = await spec.BuildAsync();
+            var evaluator = await spec.BuildAsync(_timeSpanFactory);
+            var evaluator2 = await spec.BuildAsync(_timeSpanFactory);
 
             await evaluator.DisposeAsync();
             await evaluator2.DisposeAsync();
@@ -131,8 +134,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             var evt2 = A.Dummy<Event>();
 
             // Act
-            var evaluator = await spec.BuildAsync();
-            var evaluator2 = await spec.BuildAsync();
+            var evaluator = await spec.BuildAsync(_timeSpanFactory);
+            var evaluator2 = await spec.BuildAsync(_timeSpanFactory);
 
             await eventOccurredEvaluator.CheckEventAsync(evt1);
             await eventOccurredEvaluator.CheckEventAsync(evt2);

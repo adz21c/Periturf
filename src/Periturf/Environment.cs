@@ -375,10 +375,12 @@ namespace Periturf
                     .Select(x => x.ExpectationSpec.Timeout ?? TimeSpan.Zero)
                     .Concat(new[] { _expectationTimeout ?? _env._defaultExpectationTimeout })
                     .Max();
+
+                var timespanFactory = new ConditionInstanceTimeSpanFactory(DateTime.Now);
                 
                 var expectations = _specs.Select(async x =>
                 {
-                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(ct);
+                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(timespanFactory, ct);
                     return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator, x.ComponentSpec.Description);
                 }).ToList();
 

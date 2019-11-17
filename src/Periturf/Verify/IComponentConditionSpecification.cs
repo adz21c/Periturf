@@ -37,8 +37,9 @@ namespace Periturf.Verify
         /// When called multiple times builds a reference count to monitor the condition 
         /// across multiple streams.
         /// </summary>
-        /// <param name="ct">The ct.</param>
+        /// <param name="timespanFactory">The timespan factory.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        Task<IComponentConditionEvaluator> BuildAsync(CancellationToken ct = default);
+        Task<IComponentConditionEvaluator> BuildAsync(IConditionInstanceTimeSpanFactory timespanFactory, CancellationToken ct = default);
     }
 }
