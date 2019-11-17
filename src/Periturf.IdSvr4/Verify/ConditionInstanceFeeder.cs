@@ -19,7 +19,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Periturf.Verify;
 
 namespace Periturf.IdSvr4.Verify
 {
