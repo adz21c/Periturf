@@ -20,7 +20,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Periturf.IdSvr4;
 using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;

@@ -16,7 +16,6 @@
 using Periturf.Components;
 using Periturf.IdSvr4.Configuration;
 using Periturf.IdSvr4.Verify;
-using Periturf.Verify;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
