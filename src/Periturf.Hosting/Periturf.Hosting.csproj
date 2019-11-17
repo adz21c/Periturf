@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/adz21c/Periturf</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/adz21c/Periturf</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>test;testing;hosting</PackageTags>
+    <Authors>adz21c</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <WarningsAsErrors>NU1605;CS1591;CS8618;CS8625;CS8604</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Periturf.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Periturf\Periturf.csproj" />
+  </ItemGroup>
+
+</Project>
