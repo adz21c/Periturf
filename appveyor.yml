@@ -13,8 +13,6 @@ environment:
   sonar_login:
     secure: 6qD93a8X/HlviVML1h7oaD5Z57iWiGc6BLkgizomSUHAgcNeC6eQoY8sprEtlHtN
   
-  TestResults_output: "%APPVEYOR_BUILD_FOLDER%/TestResults"
-  
   CODECOV_TOKEN:
     secure: qpg2oUby8/m76bjOwVR+hoiGl5/k2CzSDtXnXoog0eZvvgC8k34Yj+IAUedg0yOM
   
@@ -46,7 +44,7 @@ build_script:
     
     dotnet build src --no-restore -c Release
     
-    dotnet test src --collect:"XPlat Code Coverage" --results-directory:"$env:TestResults_output" --no-build -c Release
+    dotnet test src --collect:"XPlat Code Coverage" --no-build -c Release --settings src/CodeCoverage.runsettings
 
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     

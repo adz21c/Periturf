@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{823AA835-4391-4868-B529-0E33A326F4E8}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
+		CodeCoverage.runsettings = CodeCoverage.runsettings
 		..\GitVersion.yml = ..\GitVersion.yml
 		..\README.md = ..\README.md
 	EndProjectSection
@@ -20,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests", "Periturf.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests.Integration", "Periturf.Tests.Integration\Periturf.Tests.Integration.csproj", "{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Periturf.Hosting", "Periturf.Hosting\Periturf.Hosting.csproj", "{36440711-34FA-4DDE-A769-6570320F7C57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Hosting", "Periturf.Hosting\Periturf.Hosting.csproj", "{36440711-34FA-4DDE-A769-6570320F7C57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
