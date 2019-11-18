@@ -33,6 +33,8 @@ before_build:
     
     dotnet restore src
     
+    nuget install Microsoft.CodeCoverage -OutputDirectory packages -Version 16.4.0
+
 build_script:
   ps: >-
     if ("$env:APPVEYOR_PULL_REQUEST_NUMBER" -eq "")
@@ -48,7 +50,7 @@ build_script:
     
     dotnet test src --collect:"code coverage" --results-directory:"$env:testresults_output" --no-build -c Release
 
-    CodeCoverage.exe analyze /output:"$env:testresults_output/Periturf.Tests.coveragexml" "$env:testresults_output/Periturf.Tests.coverage"
+    ./packages/Microsoft.CodeCoverage-16.4.0/CodeCoverage.exe analyze /output:"$env:testresults_output/Periturf.Tests.coveragexml" "$env:testresults_output/Periturf.Tests.coverage"
     
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
