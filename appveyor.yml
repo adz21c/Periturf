@@ -13,7 +13,7 @@ environment:
   sonar_login:
     secure: 6qD93a8X/HlviVML1h7oaD5Z57iWiGc6BLkgizomSUHAgcNeC6eQoY8sprEtlHtN
   
-  testresults_output: "%APPVEYOR_BUILD_FOLDER%/TestResults"
+  TestResults_output: "%APPVEYOR_BUILD_FOLDER%/TestResults"
   
   CODECOV_TOKEN:
     secure: qpg2oUby8/m76bjOwVR+hoiGl5/k2CzSDtXnXoog0eZvvgC8k34Yj+IAUedg0yOM
@@ -32,8 +32,6 @@ before_build:
     dotnet tool install --global dotnet-sonarscanner
     
     dotnet restore src
-    
-    nuget install Microsoft.CodeCoverage -OutputDirectory packages -Version 16.4.0
 
 build_script:
   ps: >-
@@ -48,13 +46,11 @@ build_script:
     
     dotnet build src --no-restore -c Release
     
-    dotnet test src --collect:"code coverage" --results-directory:"$env:testresults_output" --no-build -c Release
+    dotnet test src --collect:"XPlat Code Coverage" --results-directory:"$env:TestResults_output" --no-build -c Release
 
-    ./packages/Microsoft.CodeCoverage.16.4.0/build/netstandard1.0/CodeCoverage/CodeCoverage.exe analyze /output:"$env:testresults_output/Periturf.Tests.coveragexml" "$env:testresults_output/Periturf.Tests.coverage"
-    
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
-    codecov -f "$env:testresults_output/Periturf.Tests.coverage" -t "$env:CODECOV_TOKEN"
+    codecov -f "$env:TestResults_output/*/coverage.cobertura.xml" -t "$env:CODECOV_TOKEN"
     
     dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
 
