@@ -318,6 +318,7 @@ namespace Periturf
         public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
         {
             var context = new VerificationContext(this);
+            context = new VerificationContext(this);
             builder(context);
 
             return await context.BuildAsync(ct);
