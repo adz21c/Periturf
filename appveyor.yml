@@ -50,7 +50,7 @@ build_script:
     
     dotnet test src --collect:"code coverage" --results-directory:"$env:testresults_output" --no-build -c Release
 
-    ./packages/Microsoft.CodeCoverage-16.4.0/CodeCoverage.exe analyze /output:"$env:testresults_output/Periturf.Tests.coveragexml" "$env:testresults_output/Periturf.Tests.coverage"
+    ./packages/Microsoft.CodeCoverage.16.4.0/build/netstandard1.0/CodeCoverage/CodeCoverage.exe analyze /output:"$env:testresults_output/Periturf.Tests.coveragexml" "$env:testresults_output/Periturf.Tests.coverage"
     
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
