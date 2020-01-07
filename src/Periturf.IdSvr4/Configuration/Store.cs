@@ -15,6 +15,7 @@
  */
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Periturf.Configuration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -36,16 +37,12 @@ namespace Periturf.IdSvr4.Configuration
         private InMemoryClientStore _clients = new InMemoryClientStore(Enumerable.Empty<Client>());
         private InMemoryResourcesStore _resources = new InMemoryResourcesStore(Enumerable.Empty<IdentityResource>(), Enumerable.Empty<ApiResource>());
 
-        public void RegisterConfiguration(Guid id, ConfigurationRegistration config)
+        public IConfigurationHandle RegisterConfiguration(ConfigurationRegistration config)
         {
+            var id = Guid.NewGuid();
             _configurations[id] = config;
             RebuildStores();
-        }
-
-        public void UnregisterConfiguration(Guid id)
-        {
-            if (_configurations.TryRemove(id, out _))
-                RebuildStores();
+            return new ConfigurationHandle(id, this);
         }
 
         private void RebuildStores()
@@ -107,5 +104,24 @@ namespace Periturf.IdSvr4.Configuration
         }
 
         #endregion
+
+        class ConfigurationHandle : IConfigurationHandle
+        {
+            private readonly Store _store;
+            private readonly Guid _id;
+
+            public ConfigurationHandle(Guid id, Store store)
+            {
+                _id = id;
+                _store = store;
+            }
+
+            public ValueTask DisposeAsync()
+            {
+                _store._configurations.TryRemove(_id, out _);
+                _store.RebuildStores();
+                return new ValueTask();
+            }
+        }
     }
 }

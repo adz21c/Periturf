@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 using IdentityServer4.Events;
-using IdentityServer4.Services;
 using Periturf.Verify;
 using System;
 
-namespace Periturf
+namespace Periturf.IdSvr4.Verify
 {
 
     /// <summary>
     /// Builds IdentityServer4 specific conditions for a component.
     /// </summary>
-    /// <seealso cref="Periturf.Verify.IComponentConditionBuilder" />
+    /// <seealso cref="IComponentConditionBuilder" />
     public interface IIdSvr4ConditionBuilder : IComponentConditionBuilder
     {
         /// <summary>
-        /// Hooks into the IdentityServer4 <see cref="IEventService"/> to identity if an event has occurred.
+        /// Hooks into the IdentityServer4 <see cref="IdentityServer4.Services.IEventService"/> to identity if an event has occurred.
         /// </summary>
         /// <typeparam name="TEvent">The type of the event.</typeparam>
         /// <param name="condition">The condition.</param>
         /// <returns></returns>
-        IConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition)
+        IComponentConditionSpecification EventOccurred<TEvent>(Func<TEvent, bool> condition)
             where TEvent : Event;
     }
 }

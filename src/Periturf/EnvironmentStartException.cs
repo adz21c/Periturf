@@ -29,7 +29,7 @@ namespace Periturf
         /// Initializes a new instance of the <see cref="EnvironmentStartException"/> class.
         /// </summary>
         /// <param name="details">The details.</param>
-        public EnvironmentStartException(HostExceptionDetails[] details = null) : base("Failed to correctly start environment")
+        public EnvironmentStartException(HostExceptionDetails[]? details = null) : base("Failed to correctly start environment")
         {
             Details = details ?? new HostExceptionDetails[] { };
         }
@@ -39,7 +39,7 @@ namespace Periturf
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="details">The details.</param>
-        public EnvironmentStartException(string message, HostExceptionDetails[] details = null) : base(message)
+        public EnvironmentStartException(string message, HostExceptionDetails[]? details = null) : base(message)
         {
             Details = details ?? new HostExceptionDetails[] { };
         }

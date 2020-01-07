@@ -51,7 +51,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             });
             await env.StartAsync();
 
-            var configId = await env.ConfigureAsync(c =>
+            await using (var configId = await env.ConfigureAsync(c =>
             {
                 c.IdSvr4(i =>
                 {
@@ -65,22 +65,25 @@ namespace Periturf.Tests.Integration.IdSvr4
                     });
                     i.ApiResource(new ApiResource(Scope, Scope));
                 });
-            });
-
-            var verifier = await env.VerifyAsync(c => c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId));
-
-            var idSvr4Client = env.IdSvr4Client();
-
-            var idSvr4Response = await idSvr4Client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            }))
             {
-                ClientId = ClientId,
-                ClientSecret = ClientSecret,
-                Scope = Scope
-            });
+                var verifier = await env.VerifyAsync(c =>
+                    c.Expect(
+                        c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
+                        e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500))));
 
-            await verifier.VerifyAndThrowAsync();
+                var idSvr4Client = env.IdSvr4Client();
 
-            await env.RemoveConfigurationAsync(configId);
+                await idSvr4Client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    ClientId = ClientId,
+                    ClientSecret = ClientSecret,
+                    Scope = Scope
+                });
+                var verificationResult = await verifier.VerifyAsync();
+                Assert.That(verificationResult.ExpectationsMet, Is.True);
+            }
+
             await env.StopAsync();
         }
     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-namespace Periturf
+namespace Periturf.Clients
 {
     /// <summary>
     /// Represents the client of a component

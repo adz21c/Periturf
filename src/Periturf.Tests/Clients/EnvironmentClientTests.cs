@@ -15,6 +15,7 @@
  */
 using FakeItEasy;
 using NUnit.Framework;
+using Periturf.Clients;
 using Periturf.Components;
 using System;
 using System.Collections.Generic;
@@ -71,8 +72,8 @@ namespace Periturf.Tests.Clients
         {
             var client = _env.CreateComponentClient(nameof(_component2));
 
-            Assert.NotNull(client);
-            Assert.AreSame(_componentClient2, client);
+            Assert.That(client, Is.Not.Null);
+            Assert.That(client, Is.SameAs(_componentClient2));
             A.CallTo(() => _component2.CreateClient()).MustHaveHappened();
             A.CallTo(() => _component1.CreateClient()).MustNotHaveHappened();
         }
@@ -83,11 +84,11 @@ namespace Periturf.Tests.Clients
             var client2 = _env.CreateComponentClient(nameof(_component2));
             var client1 = _env.CreateComponentClient(nameof(_component1));
 
-            Assert.NotNull(client1);
-            Assert.AreSame(_componentClient1, client1);
+            Assert.That(client1, Is.Not.Null);
+            Assert.That(client1, Is.SameAs(_componentClient1));
 
-            Assert.NotNull(client2);
-            Assert.AreSame(_componentClient2, client2);
+            Assert.That(client2, Is.Not.Null);
+            Assert.That(client2, Is.SameAs(_componentClient2));
 
             A.CallTo(() => _component2.CreateClient()).MustHaveHappened().Then(
                 A.CallTo(() => _component1.CreateClient()).MustHaveHappened());
@@ -100,7 +101,7 @@ namespace Periturf.Tests.Clients
         {
             var exception = Assert.Throws<ArgumentNullException>(() => _env.CreateComponentClient(componentName));
 
-            Assert.AreEqual("componentName", exception.ParamName);
+            Assert.That(exception.ParamName, Is.EqualTo("componentName"));
         }
 
         [Test]
@@ -109,7 +110,7 @@ namespace Periturf.Tests.Clients
             const string componentName = "NotAComponent";
             var exception = Assert.Throws<ComponentLocationFailedException>(() => _env.CreateComponentClient(componentName));
 
-            Assert.AreEqual(componentName, exception.ComponentName);
+            Assert.That(exception.ComponentName, Is.EqualTo(componentName));
         }
     }
 }

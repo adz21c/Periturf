@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf
+namespace Periturf.Verify
 {
     /// <summary>
     /// Evaluates if a condition has happened since creation of the instance.
     /// </summary>
-    public interface IVerifier
+    public interface IVerifier : IAsyncDisposable
     {
         /// <summary>
-        /// Verifies the condition and throws an exception on failure.
+        /// Verifies if expectations have been met.
         /// </summary>
-        /// <param name="ct">The ct.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        Task VerifyAndThrowAsync(CancellationToken ct = default);
-
-        /// <summary>
-        /// Removes associated listeners from components.
-        /// </summary>
-        /// <param name="ct">The ct.</param>
-        /// <returns></returns>
-        Task CleanUpAsync(CancellationToken ct = default);
+        Task<VerificationResult> VerifyAsync(CancellationToken ct = default);
     }
 }

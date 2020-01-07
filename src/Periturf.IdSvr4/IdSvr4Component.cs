@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Periturf.Clients;
 using Periturf.Components;
+using Periturf.Configuration;
+using Periturf.Events;
+using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;
 using Periturf.IdSvr4.Verify;
 using Periturf.Verify;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf.IdSvr4
 {
@@ -36,27 +37,20 @@ namespace Periturf.IdSvr4
             _client = client;
         }
 
-        public void RegisterConfiguration(Guid id, ConfigurationRegistration config)
-        {
-            _store.RegisterConfiguration(id, config);
-        }
-
-        public Task UnregisterConfigurationAsync(Guid id, CancellationToken ct = default)
-        {
-            _store.UnregisterConfiguration(id);
-            return Task.CompletedTask;
-        }
-
         public TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
             where TComponentConditionBuilder : IComponentConditionBuilder
         {
-            object builder = new IdSvr4ConditionBuilder(_eventMonitor);
-            return (TComponentConditionBuilder)builder;
+            return (TComponentConditionBuilder)(object)new IdSvr4ConditionBuilder(_eventMonitor);
         }
 
         public IComponentClient CreateClient()
         {
             return _client;
+        }
+
+        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventResponseContextFactory eventResponseContextFactory) where TSpecification : IConfigurationSpecification
+        {
+            return (TSpecification)(object)new IdSvr4Specification(_store);
         }
     }
 }

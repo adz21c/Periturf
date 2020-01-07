@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IdentityServer4.Models
 {
@@ -27,9 +28,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="scope">The scope.</param>
         /// <param name="name">The name.</param>
+        [ExcludeFromCodeCoverage]
         public static void UserClaim(this Scope scope, string name)
         {
-            scope.UserClaims = scope.UserClaims ?? new List<string>();
+            scope.UserClaims ??= new List<string>();
             scope.UserClaims.Add(name);
         }
     }

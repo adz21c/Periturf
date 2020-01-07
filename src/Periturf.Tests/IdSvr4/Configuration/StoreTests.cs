@@ -64,30 +64,30 @@ namespace Periturf.Tests.IdSvr4
                 });
 
             var store = new Store();
-            store.RegisterConfiguration(Guid.NewGuid(), config);
+            store.RegisterConfiguration(config);
 
             var clientStore = (IClientStore)store;
             var resourceStore = (IResourceStore)store;
 
             // Act & Assert
-            Assert.NotNull(await clientStore.FindClientByIdAsync(enabledClientId));
-            Assert.NotNull(await clientStore.FindClientByIdAsync(disabledClientId));
-            Assert.IsNull(await clientStore.FindClientByIdAsync(fakeClientId));
-            Assert.NotNull(await clientStore.FindEnabledClientByIdAsync(enabledClientId));
-            Assert.IsNull(await clientStore.FindEnabledClientByIdAsync(disabledClientId));
-            Assert.IsNull(await clientStore.FindEnabledClientByIdAsync(fakeClientId));
+            Assert.That(await clientStore.FindClientByIdAsync(enabledClientId), Is.Not.Null);
+            Assert.That(await clientStore.FindClientByIdAsync(disabledClientId), Is.Not.Null);
+            Assert.That(await clientStore.FindClientByIdAsync(fakeClientId), Is.Null);
+            Assert.That(await clientStore.FindEnabledClientByIdAsync(enabledClientId), Is.Not.Null);
+            Assert.That(await clientStore.FindEnabledClientByIdAsync(disabledClientId), Is.Null);
+            Assert.That(await clientStore.FindEnabledClientByIdAsync(fakeClientId), Is.Null);
 
-            Assert.IsNotNull(await resourceStore.FindApiResourceAsync(apiResource));
-            Assert.IsNull(await resourceStore.FindApiResourceAsync(fakeApiResource));
-            Assert.IsNotEmpty(await resourceStore.FindApiResourcesByScopeAsync(new[] { apiScope }));
-            Assert.IsEmpty(await resourceStore.FindApiResourcesByScopeAsync(new[] { fakeApiScope }));
-            Assert.IsNotEmpty(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { idResource }));
-            Assert.IsEmpty(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { fakeIdResource }));
+            Assert.That(await resourceStore.FindApiResourceAsync(apiResource), Is.Not.Null);
+            Assert.That(await resourceStore.FindApiResourceAsync(fakeApiResource), Is.Null);
+            Assert.That(await resourceStore.FindApiResourcesByScopeAsync(new[] { apiScope }), Is.Not.Empty);
+            Assert.That(await resourceStore.FindApiResourcesByScopeAsync(new[] { fakeApiScope }), Is.Empty);
+            Assert.That(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { idResource }), Is.Not.Empty);
+            Assert.That(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { fakeIdResource }), Is.Empty);
 
             var resources = await resourceStore.GetAllResourcesAsync();
-            Assert.IsNotNull(resources);
-            Assert.IsNotEmpty(resources.IdentityResources);
-            Assert.IsNotEmpty(resources.ApiResources);
+            Assert.That(resources, Is.Not.Null);
+            Assert.That(resources.IdentityResources, Is.Not.Empty);
+            Assert.That(resources.ApiResources, Is.Not.Empty);
         }
 
         [Test]
@@ -117,8 +117,7 @@ namespace Periturf.Tests.IdSvr4
                 });
 
             var store = new Store();
-            var configId = Guid.NewGuid();
-            store.RegisterConfiguration(configId, config);
+            var configHandle = store.RegisterConfiguration(config);
 
             var clientStore = (IClientStore)store;
             var resourceStore = (IResourceStore)store;
@@ -129,13 +128,13 @@ namespace Periturf.Tests.IdSvr4
             Assume.That((await resourceStore.FindIdentityResourcesByScopeAsync(new[] { idResource })).Any());
 
             // Act
-            Assert.DoesNotThrow(() => store.UnregisterConfiguration(configId));
+            Assert.DoesNotThrowAsync(() => configHandle.DisposeAsync().AsTask());
 
             // Assert
-            Assert.IsNull(await clientStore.FindClientByIdAsync(enabledClientId));
-            Assert.IsNull(await resourceStore.FindApiResourceAsync(apiResource));
-            Assert.IsEmpty(await resourceStore.FindApiResourcesByScopeAsync(new[] { apiScope }));
-            Assert.IsEmpty(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { idResource }));
+            Assert.That(await clientStore.FindClientByIdAsync(enabledClientId), Is.Null);
+            Assert.That(await resourceStore.FindApiResourceAsync(apiResource), Is.Null);
+            Assert.That(await resourceStore.FindApiResourcesByScopeAsync(new[] { apiScope }), Is.Empty);
+            Assert.That(await resourceStore.FindIdentityResourcesByScopeAsync(new[] { idResource }), Is.Empty);
         }
     }
 }

@@ -15,7 +15,8 @@
  */
 using FakeItEasy;
 using NUnit.Framework;
-using Periturf.Tests.Verify;
+using Periturf.IdSvr4.Verify;
+using Periturf.Verify;
 
 namespace Periturf.Tests.IdSvr4.Verify
 {
@@ -27,16 +28,16 @@ namespace Periturf.Tests.IdSvr4.Verify
         {
             const string componentName = "Component";
             var componentBuilder = A.Dummy<IIdSvr4ConditionBuilder>();
-            var context = A.Fake<IConditionContext>();
+            var context = A.Fake<IVerificationContext>();
             A.CallTo(() => context.GetComponentConditionBuilder<IIdSvr4ConditionBuilder>(componentName))
                 .Returns(componentBuilder);
-            
+
             // Act
             var builder = context.IdSvr4(componentName);
 
             // Assert
-            Assert.IsNotNull(builder);
-            Assert.AreEqual(componentBuilder, builder);
+            Assert.That(builder, Is.Not.Null);
+            Assert.That(builder, Is.EqualTo(componentBuilder));
             A.CallTo(() => context.GetComponentConditionBuilder<IIdSvr4ConditionBuilder>(componentName)).MustHaveHappened();
         }
     }

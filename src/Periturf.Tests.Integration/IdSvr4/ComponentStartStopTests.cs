@@ -64,9 +64,9 @@ namespace Periturf.Tests.Integration.IdSvr4
                 ClientId = "Client1",
                 ClientSecret = "Secret"
             });
-            Assert.IsTrue(afterStartResponse.IsError);
-            Assert.AreEqual(HttpStatusCode.BadRequest, afterStartResponse.HttpStatusCode);
-            Assert.AreEqual("invalid_client", afterStartResponse.Error);
+            Assert.That(afterStartResponse.IsError, Is.True);
+            Assert.That(afterStartResponse.HttpStatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+            Assert.That(afterStartResponse.Error, Is.EqualTo("invalid_client"));
 
             // Act
             await env.StopAsync();
@@ -79,8 +79,8 @@ namespace Periturf.Tests.Integration.IdSvr4
                 ClientId = "Client1",
                 ClientSecret = "Secret"
             });
-            Assert.IsTrue(afterStopResponse.IsError);
-            Assert.NotNull(afterStopResponse.Exception);
+            Assert.That(afterStopResponse.IsError, Is.True);
+            Assert.That(afterStopResponse.Exception, Is.Not.Null);
         }
     }
 }

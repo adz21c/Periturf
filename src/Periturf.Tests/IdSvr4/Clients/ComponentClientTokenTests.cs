@@ -165,11 +165,11 @@ namespace Periturf.Tests.IdSvr4.Clients
 
         private void AssertTokenResponse(TokenResponse response, string endpointUri)
         {
-            Assert.IsNotNull(response);
-            Assert.IsFalse(response.IsError);
-            Assert.AreEqual(AccessToken, response.AccessToken);
-            Assert.AreEqual(TokenType, response.TokenType);
-            Assert.AreEqual(ExpiresIn, response.ExpiresIn);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.IsError, Is.False);
+            Assert.That(response.AccessToken, Is.EqualTo(AccessToken));
+            Assert.That(response.TokenType, Is.EqualTo(TokenType));
+            Assert.That(response.ExpiresIn, Is.EqualTo(ExpiresIn));
             A.CallTo(_messageHandler)
                 .Where(x => x.Method.Name == "SendAsync")
                 .WhenArgumentsMatch((HttpRequestMessage r, CancellationToken ct) =>

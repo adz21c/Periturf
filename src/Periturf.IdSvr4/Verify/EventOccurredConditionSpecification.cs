@@ -14,38 +14,54 @@
  * limitations under the License.
  */
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityServer4.Events;
 using Periturf.Verify;
+using Periturf.Verify.ComponentConditions;
 
 namespace Periturf.IdSvr4.Verify
 {
-    class EventOccurredConditionSpecification<TEvent> : IConditionSpecification, IConditionEraser
+    class EventOccurredConditionSpecification<TEvent> : ComponentMonitorSpecification, IEventOccurredConditionEvaluator
         where TEvent : Event
     {
         private readonly IEventMonitorSink _eventMonitorSink;
         private readonly Func<TEvent, bool> _condition;
-        private IEventOccurredConditionEvaluator _evaluator;
+        private IConditionInstanceTimeSpanFactory? _timeSpanFactory;
 
-        public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition)
+        public EventOccurredConditionSpecification(IEventMonitorSink eventMonitorSink, Func<TEvent, bool> condition) : base()
         {
             _eventMonitorSink = eventMonitorSink;
             _condition = condition;
+            Description = typeof(TEvent).Name;
         }
 
-        Task<IConditionEvaluator> IConditionSpecification.BuildEvaluatorAsync(Guid verifierId, IConditionErasePlan erasePlan, CancellationToken ct)
+        protected override Task StartMonitorAsync(IConditionInstanceTimeSpanFactory timeSpanFactory, CancellationToken ct)
         {
-            _evaluator = new EventOccurredConditionEvaluator<TEvent>(_condition);
-            _eventMonitorSink.AddEvaluator(typeof(TEvent), _evaluator);
-            erasePlan.AddEraser(this);
-            return Task.FromResult<IConditionEvaluator>(_evaluator);
-        }
-
-        Task IConditionEraser.EraseAsync(CancellationToken ct)
-        {
-            _eventMonitorSink.RemoveEvaluator(typeof(TEvent), _evaluator);
+            _timeSpanFactory = timeSpanFactory;
+            _eventMonitorSink.AddEvaluator(typeof(TEvent), this);
             return Task.CompletedTask;
+        }
+
+        protected override Task StopMonitorAsync(CancellationToken ct)
+        {
+            _eventMonitorSink.RemoveEvaluator(typeof(TEvent), this);
+            return Task.CompletedTask;
+        }
+
+        Guid IEventOccurredConditionEvaluator.Id { get; } = Guid.NewGuid();
+
+        async Task IEventOccurredConditionEvaluator.CheckEventAsync(Event @event, CancellationToken ct)
+        {
+            Debug.Assert(_timeSpanFactory != null);
+            
+            if (@event is TEvent typedEvent && _condition(typedEvent))
+                await ConditionInstanceHandler.HandleInstanceAsync(
+                    new ConditionInstance(
+                        _timeSpanFactory.Create(typedEvent.TimeStamp),
+                        "Something"),
+                    ct).ConfigureAwait(false);
         }
     }
 }

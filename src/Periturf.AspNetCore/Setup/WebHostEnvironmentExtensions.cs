@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Periturf.AspNetCore;
 using Periturf.AspNetCore.Setup;
+using Periturf.Setup;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -31,7 +31,7 @@ namespace Periturf
         /// <param name="setupConfigurator">The setup configurator.</param>
         /// <param name="config">The configuration.</param>
         [ExcludeFromCodeCoverage]
-        public static void WebHost(this ISetupConfigurator setupConfigurator, Action<IPeriturfWebHostBuilder> config)
+        public static void WebHost(this ISetupContext setupConfigurator, Action<IPeriturfWebHostBuilder> config)
         {
             setupConfigurator.WebHost("WebHost", config);
         }
@@ -42,7 +42,7 @@ namespace Periturf
         /// <param name="setupConfigurator">The setup configurator.</param>
         /// <param name="hostName">Name of the host.</param>
         /// <param name="config">The configuration.</param>
-        public static void WebHost(this ISetupConfigurator setupConfigurator, string hostName, Action<IPeriturfWebHostBuilder> config)
+        public static void WebHost(this ISetupContext setupConfigurator, string hostName, Action<IPeriturfWebHostBuilder> config)
         {
             var builder = new PeriturfWebHostBuilder(Microsoft.AspNetCore.WebHost.CreateDefaultBuilder());
             config(builder);

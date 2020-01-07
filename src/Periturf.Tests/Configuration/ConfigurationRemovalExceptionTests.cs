@@ -35,14 +35,14 @@ namespace Periturf.Tests.Configuration
             var sut = new ConfigurationRemovalException(id);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(id, sut.Id);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.Id, Is.EqualTo(id));
             // Not host details
-            Assert.IsNotNull(sut.Details);
-            Assert.IsEmpty(sut.Details);
+            Assert.That(sut.Details, Is.Not.Null);
+            Assert.That(sut.Details, Is.Empty);
             // Has the default message
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
 
         [Test]
@@ -56,13 +56,13 @@ namespace Periturf.Tests.Configuration
             var sut = new ConfigurationRemovalException(id, componentDetails);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
+            Assert.That(sut.InnerException, Is.Null);
             // host details
-            Assert.AreEqual(componentDetails, sut.Details);
-            Assert.AreEqual(id, sut.Id);
+            Assert.That(sut.Details, Is.EqualTo(componentDetails));
+            Assert.That(sut.Id, Is.EqualTo(id));
             // Has the default message
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
         [Test]
         public void Given_CustomMessageAndNoComponentErrors_When_Ctor_Then_ExceptionCreated()
@@ -75,12 +75,12 @@ namespace Periturf.Tests.Configuration
             var sut = new ConfigurationRemovalException(message, id);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(id, sut.Id);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.Id, Is.EqualTo(id));
             // Not host details
-            Assert.IsNotNull(sut.Details);
-            Assert.IsEmpty(sut.Details);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.Details, Is.Not.Null);
+            Assert.That(sut.Details, Is.Empty);
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -95,11 +95,11 @@ namespace Periturf.Tests.Configuration
             var sut = new ConfigurationRemovalException(message, id, componentDetails);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(id, sut.Id);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.Id, Is.EqualTo(id));
             // host details
-            Assert.AreEqual(componentDetails, sut.Details);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.Details, Is.EqualTo(componentDetails));
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -120,16 +120,16 @@ namespace Periturf.Tests.Configuration
             var deserializedException = (ConfigurationRemovalException)formatter.Deserialize(ms2);
 
             // Assert
-            Assert.IsNotNull(deserializedException.Details);
-            Assert.IsNotEmpty(deserializedException.Details);
+            Assert.That(deserializedException.Details, Is.Not.Null);
+            Assert.That(deserializedException.Details, Is.Not.Empty);
 
             var orignalComponentExceptionDetails = originalException.Details.Single();
             var deserializedComponentExceptionDetails = deserializedException.Details.Single();
-            Assert.AreEqual(orignalComponentExceptionDetails.ComponentName, deserializedComponentExceptionDetails.ComponentName);
-            Assert.IsNotNull(deserializedComponentExceptionDetails.Exception);
-            Assert.AreEqual(orignalComponentExceptionDetails.Exception.Message, deserializedComponentExceptionDetails.Exception.Message);
+            Assert.That(deserializedComponentExceptionDetails.ComponentName, Is.EqualTo(orignalComponentExceptionDetails.ComponentName));
+            Assert.That(deserializedComponentExceptionDetails.Exception, Is.Not.Null);
+            Assert.That(deserializedComponentExceptionDetails.Exception.Message, Is.EqualTo(orignalComponentExceptionDetails.Exception.Message));
 
-            Assert.AreEqual(originalException.Message, deserializedException.Message);
+            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }
     }
 }

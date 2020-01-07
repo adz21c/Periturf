@@ -36,8 +36,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             var spec = builder.EventOccurred(condition);
 
             // Assert
-            Assert.IsNotNull(spec);
-            Assert.AreEqual(typeof(EventOccurredConditionSpecification<Event>), spec.GetType());
+            Assert.That(spec, Is.Not.Null);
+            Assert.That(spec.GetType(), Is.EqualTo(typeof(EventOccurredConditionSpecification<Event>)));
         }
     }
 }

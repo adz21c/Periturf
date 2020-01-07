@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Periturf.Clients;
+using Periturf.Configuration;
+using Periturf.Events;
 using Periturf.Verify;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf.Components
 {
@@ -27,14 +27,6 @@ namespace Periturf.Components
     public interface IComponent
     {
         /// <summary>
-        /// Unregisters the configuration associated with the supplied identifier.
-        /// </summary>
-        /// <param name="id">The unique identifier for the configuration.</param>
-        /// <param name="ct">The cancellation token</param>
-        /// <returns></returns>
-        Task UnregisterConfigurationAsync(Guid id, CancellationToken ct = default);
-
-        /// <summary>
         /// Creates a component specific condition builder.
         /// </summary>
         /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
@@ -42,6 +34,15 @@ namespace Periturf.Components
         TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
             where TComponentConditionBuilder : IComponentConditionBuilder;
 
+        /// <summary>
+        /// Creates a component configuration specification.
+        /// </summary>
+        /// <typeparam name="TSpecification">The type of the specification.</typeparam>
+        /// <param name="eventResponseContextFactory">The event response action context factory.</param>
+        /// <returns></returns>
+        TSpecification CreateConfigurationSpecification<TSpecification>(IEventResponseContextFactory eventResponseContextFactory)
+            where TSpecification : IConfigurationSpecification;
+        
         /// <summary>
         /// Creates a component client.
         /// </summary>

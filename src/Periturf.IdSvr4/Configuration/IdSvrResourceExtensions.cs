@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IdentityServer4.Models
 {
@@ -28,9 +29,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="name">The name.</param>
+        [ExcludeFromCodeCoverage]
         public static void UserClaim(this Resource resource, string name)
         {
-            resource.UserClaims = resource.UserClaims ?? new List<string>();
+            resource.UserClaims ??= new List<string>();
             resource.UserClaims.Add(name);
         }
 
@@ -39,6 +41,7 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="secret">The secret.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this ApiResource resource, string secret)
         {
             resource.Secret(new Secret(secret));
@@ -49,6 +52,7 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="config">The configuration.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this ApiResource resource, Action<Secret> config)
         {
             var secret = new Secret();
@@ -61,9 +65,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="secret">The secret.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this ApiResource resource, Secret secret)
         {
-            resource.ApiSecrets = resource.ApiSecrets ?? new List<Secret>();
+            resource.ApiSecrets ??= new List<Secret>();
             resource.ApiSecrets.Add(secret);
         }
 
@@ -73,6 +78,7 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="config">The configuration.</param>
+        [ExcludeFromCodeCoverage]
         public static void Scope(this ApiResource resource, Action<Scope> config)
         {
             var scope = new Scope();
@@ -85,9 +91,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="resource">The resource.</param>
         /// <param name="scope">The scope.</param>
+        [ExcludeFromCodeCoverage]
         public static void Scope(this ApiResource resource, Scope scope)
         {
-            resource.Scopes = resource.Scopes ?? new List<Scope>();
+            resource.Scopes ??= new List<Scope>();
             resource.Scopes.Add(scope);
         }
     }

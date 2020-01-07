@@ -29,7 +29,7 @@ namespace Periturf.Configuration
         /// Initializes a new instance of the <see cref="ConfigurationApplicationException"/> class.
         /// </summary>
         /// <param name="details">The component error details.</param>
-        public ConfigurationApplicationException(ComponentExceptionDetails[] details = null) : base("There was a problem while applying configuration to the environment")
+        public ConfigurationApplicationException(ComponentExceptionDetails[]? details = null) : base("There was a problem while applying configuration to the environment")
         {
             Details = details ?? new ComponentExceptionDetails[] { };
         }
@@ -39,7 +39,7 @@ namespace Periturf.Configuration
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="details">The component error details.</param>
-        public ConfigurationApplicationException(string message, ComponentExceptionDetails[] details = null) : base(message)
+        public ConfigurationApplicationException(string message, ComponentExceptionDetails[]? details = null) : base(message)
         {
             Details = details ?? new ComponentExceptionDetails[] { };
         }

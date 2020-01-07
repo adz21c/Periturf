@@ -69,9 +69,9 @@ namespace Periturf.Tests.IdSvr4.Clients
         {
             var response = await _componentClient.GetDiscoveryDocumentAsync();
 
-            Assert.IsNotNull(response);
-            Assert.IsFalse(response.IsError);
-            Assert.AreEqual(TokenEndpoint, response.TokenEndpoint);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.IsError, Is.False);
+            Assert.That(response.TokenEndpoint, Is.EqualTo(TokenEndpoint));
         }
     }
 }

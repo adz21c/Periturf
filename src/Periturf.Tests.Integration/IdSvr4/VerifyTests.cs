@@ -18,6 +18,7 @@ using IdentityServer4.Events;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Hosting;
 using NUnit.Framework;
+using Periturf.Verify.Criterias;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -53,7 +54,7 @@ namespace Periturf.Tests.Integration.IdSvr4
             });
             await env.StartAsync();
 
-            var configId = await env.ConfigureAsync(c =>
+            await using (var configId = await env.ConfigureAsync(c =>
             {
                 c.IdSvr4(i =>
                 {
@@ -67,34 +68,38 @@ namespace Periturf.Tests.Integration.IdSvr4
                     });
                     i.ApiResource(new ApiResource(Scope, Scope));
                 });
-            });
-
-            var verifier = await env.VerifyAsync(c => c.And(
-                c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId),
-                c.Not(c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == ClientId)),
-                c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == InvalidClientId),
-                c.Not(c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == InvalidClientId))));
-
-            var client = new HttpClient();
-            client.BaseAddress = new Uri(TokenEndpointUrl);
-
-            // Assert
-            var successResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            }))
             {
-                ClientId = ClientId,
-                ClientSecret = ClientSecret,
-                Scope = Scope
-            });
-            var failedResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
-            {
-                ClientId = InvalidClientId,
-                ClientSecret = ClientSecret,
-                Scope = Scope
-            });
+                var verifier = await env.VerifyAsync(c =>
+                {
+                    c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationSuccessEvent>(e => e.ClientId == ClientId), e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500)));
+                    c.Expect(c.IdSvr4().EventOccurred<ClientAuthenticationFailureEvent>(e => e.ClientId == InvalidClientId), e => e.MustOccurWithin(TimeSpan.FromMilliseconds(500)));
+                });
 
-            await verifier.VerifyAndThrowAsync();
+                var client = new HttpClient
+                {
+                    BaseAddress = new Uri(TokenEndpointUrl)
+                };
 
-            await env.RemoveConfigurationAsync(configId);
+                // Assert
+                await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    ClientId = ClientId,
+                    ClientSecret = ClientSecret,
+                    Scope = Scope
+                });
+                await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    ClientId = InvalidClientId,
+                    ClientSecret = ClientSecret,
+                    Scope = Scope
+                });
+
+                var verificationResult = await verifier.VerifyAsync();
+
+
+                Assert.That(verificationResult.ExpectationsMet, Is.True);
+            }
             await env.StopAsync();
         }
     }

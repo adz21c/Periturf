@@ -69,7 +69,7 @@ namespace Periturf.Tests.Integration.IdSvr4
                 Assume.That(assumptionResponse.Error.ToLower() == "invalid_client");
 
                 // Act
-                var configId = await env.ConfigureAsync(c =>
+                await using (var configHandle = await env.ConfigureAsync(c =>
                 {
                     c.IdSvr4("IdSvr4", i =>
                     {
@@ -83,22 +83,21 @@ namespace Periturf.Tests.Integration.IdSvr4
                         });
                         i.ApiResource(new ApiResource(Scope, Scope));
                     });
-                });
+                }))
+                {
+                    // Assert
+                    var configuredResponse = await client.RequestClientCredentialsTokenAsync(tokenRequest);
+                    Assert.That(configuredResponse.IsError, Is.False);
+                    Assert.That(configuredResponse.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
+                    Assert.That(!string.IsNullOrWhiteSpace(configuredResponse.AccessToken));
+                }
 
-                // Assert
-                var configuredResponse = await client.RequestClientCredentialsTokenAsync(tokenRequest);
-                Assert.IsFalse(configuredResponse.IsError);
-                Assert.AreEqual(HttpStatusCode.OK, configuredResponse.HttpStatusCode);
-                Assert.That(!string.IsNullOrWhiteSpace(configuredResponse.AccessToken));
-
-                // Act again
-                await env.RemoveConfigurationAsync(configId);
 
                 // Assert
                 var unconfiguredResponse = await client.RequestClientCredentialsTokenAsync(tokenRequest);
-                Assert.IsTrue(unconfiguredResponse.IsError);
-                Assert.AreEqual(HttpStatusCode.BadRequest, unconfiguredResponse.HttpStatusCode);
-                Assert.AreEqual("invalid_client", unconfiguredResponse.Error.ToLower());
+                Assert.That(unconfiguredResponse.IsError, Is.True);
+                Assert.That(unconfiguredResponse.HttpStatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+                Assert.That(unconfiguredResponse.Error.ToLower(), Is.EqualTo("invalid_client"));
             }
             finally
             {

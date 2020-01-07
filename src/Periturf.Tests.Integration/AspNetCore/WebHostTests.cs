@@ -48,8 +48,8 @@ namespace Periturf.Tests.Integration.AspNetCore
             await env.StartAsync();
 
             var afterStartResponse = await client.GetAsync(WebHostUrl);
-            Assert.AreEqual(HttpStatusCode.OK, afterStartResponse.StatusCode);
-            Assert.AreEqual(ResponseString, await afterStartResponse.Content.ReadAsStringAsync());
+            Assert.That(afterStartResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+            Assert.That(await afterStartResponse.Content.ReadAsStringAsync(), Is.EqualTo(ResponseString));
 
             await env.StopAsync();
 

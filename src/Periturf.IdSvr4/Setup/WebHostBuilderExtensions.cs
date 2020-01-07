@@ -20,10 +20,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Periturf.AspNetCore.Setup;
 using Periturf.IdSvr4;
 using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;
+using Periturf.IdSvr4.Setup;
 using Periturf.IdSvr4.Verify;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -43,7 +44,7 @@ namespace Periturf
         /// <param name="builder">The builder.</param>
         /// <param name="config">The configuration.</param>
         [ExcludeFromCodeCoverage]
-        public static void IdSvr4(this IPeriturfWebHostBuilder builder, Action<IdSvr4SetupConfigurator> config = null)
+        public static void IdSvr4(this IPeriturfWebHostBuilder builder, Action<IIdSvr4SetupConfigurator>? config = null)
         {
             builder.IdSvr4("IdSvr4", config);
         }
@@ -54,9 +55,9 @@ namespace Periturf
         /// <param name="builder">The builder.</param>
         /// <param name="name">The host name.</param>
         /// <param name="config">The configuration.</param>
-        public static void IdSvr4(this IPeriturfWebHostBuilder builder, string name, Action<IdSvr4SetupConfigurator> config = null)
+        public static void IdSvr4(this IPeriturfWebHostBuilder builder, string name, Action<IIdSvr4SetupConfigurator>? config = null)
         {
-            var configurator = new IdSvr4SetupConfigurator();
+            var configurator = new IdSvr4SetupSpecification();
             config?.Invoke(configurator);
 
             var appPath = new PathString((name.StartsWith("/") ? string.Empty : "/") + name);
@@ -77,8 +78,8 @@ namespace Periturf
                 .First();
             var uri = new Uri(new Uri(url), appPath.ToUriComponent());
 
-            var store = new Store();
             var eventMonitorSink = new EventMonitorSink();
+            var store = new Store();
 
             var httpClient = new HttpClient() { BaseAddress = uri };
             var client = new ComponentClient(

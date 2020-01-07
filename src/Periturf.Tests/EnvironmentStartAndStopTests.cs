@@ -98,8 +98,8 @@ namespace Periturf.Tests
 
             var exception = Assert.ThrowsAsync<EnvironmentStartException>(() => environment.StartAsync());
 
-            Assert.IsNotNull(exception.Details);
-            Assert.AreEqual(2, exception.Details.Length);
+            Assert.That(exception.Details, Is.Not.Null);
+            Assert.That(exception.Details.Length, Is.EqualTo(2));
 
             Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost) && x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
             Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost2) && x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
@@ -182,8 +182,8 @@ namespace Periturf.Tests
 
             var exception = Assert.ThrowsAsync<EnvironmentStopException>(() => environment.StopAsync());
 
-            Assert.IsNotNull(exception.Details);
-            Assert.AreEqual(2, exception.Details.Length);
+            Assert.That(exception.Details, Is.Not.Null);
+            Assert.That(exception.Details.Length, Is.EqualTo(2));
 
             Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost) && x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
             Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost2) && x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");

@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Periturf.AspNetCore.Setup;
+using Periturf.IdSvr4.Setup;
 using System;
 
 namespace Periturf.Tests.IdSvr4.Setup
@@ -33,12 +35,12 @@ namespace Periturf.Tests.IdSvr4.Setup
             var builder = A.Fake<IPeriturfWebHostBuilder>();
             A.CallTo(() => builder.GetSetting("urls")).Returns("http://localhost:5000/");
 
-            var config = A.Fake<Action<IdSvr4SetupConfigurator>>();
-            A.CallTo(() => config(A<IdSvr4SetupConfigurator>._))
-                .Invokes(c =>
+            var config = A.Fake<Action<IIdSvr4SetupConfigurator>>();
+            A.CallTo(() => config(A<IIdSvr4SetupConfigurator>._))
+                .Invokes((IIdSvr4SetupConfigurator c) =>
                 {
-                    c.GetArgument<IdSvr4SetupConfigurator>(0).Configure(s => { });
-                    c.GetArgument<IdSvr4SetupConfigurator>(0).Services(s => { });
+                    c.Configure(s => { });
+                    c.Services(s => { });
                 });
 
             const string componentName = "IdSvr4Test";
@@ -48,7 +50,7 @@ namespace Periturf.Tests.IdSvr4.Setup
 
             // Assert
             A.CallTo(() => builder.ConfigureServices(A<Action<IServiceCollection>>._)).MustHaveHappenedOnceOrMore();
-            A.CallTo(() => config.Invoke(A<IdSvr4SetupConfigurator>._)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => config.Invoke(A<IdSvr4SetupSpecification>._)).MustHaveHappenedOnceExactly();
         }
 
         [Test]

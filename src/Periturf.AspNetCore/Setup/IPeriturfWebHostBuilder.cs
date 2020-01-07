@@ -16,7 +16,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Periturf.Components;
 
-namespace Periturf
+namespace Periturf.AspNetCore.Setup
 {
     /// <summary>
     /// Extension of the <see cref="IWebHostBuilder"/> to include the ability to register <see cref="IComponent"/>.

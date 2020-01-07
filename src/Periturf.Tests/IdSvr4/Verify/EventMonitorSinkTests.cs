@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Periturf.IdSvr4.Verify;
 using Periturf.Verify;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Periturf.Tests.IdSvr4.Verify
@@ -54,7 +55,7 @@ namespace Periturf.Tests.IdSvr4.Verify
             await sink.PersistAsync(@event);
 
             // Assert
-            A.CallTo(() => evaluator.CheckEvent(@event)).MustHaveHappened();
+            A.CallTo(() => evaluator.CheckEventAsync(@event, A<CancellationToken>._)).MustHaveHappened();
         }
 
         [Test]
@@ -71,7 +72,7 @@ namespace Periturf.Tests.IdSvr4.Verify
             await sink.PersistAsync(@event);
 
             // Assert
-            A.CallTo(() => evaluator.CheckEvent(@event)).MustNotHaveHappened();
+            A.CallTo(() => evaluator.CheckEventAsync(@event, A<CancellationToken>._)).MustNotHaveHappened();
         }
 
         [Test]
@@ -87,7 +88,7 @@ namespace Periturf.Tests.IdSvr4.Verify
             await sink.PersistAsync(@event);
 
             // Assert
-            A.CallTo(() => evaluator.CheckEvent(@event)).MustNotHaveHappened();
+            A.CallTo(() => evaluator.CheckEventAsync(@event, A<CancellationToken>._)).MustNotHaveHappened();
         }
 
         [Test]
@@ -105,8 +106,8 @@ namespace Periturf.Tests.IdSvr4.Verify
             await sink.PersistAsync(@event);
 
             // Assert
-            A.CallTo(() => evaluator.CheckEvent(@event)).MustNotHaveHappened();
-            A.CallTo(() => evaluator2.CheckEvent(@event)).MustHaveHappened();
+            A.CallTo(() => evaluator.CheckEventAsync(@event, A<CancellationToken>._)).MustNotHaveHappened();
+            A.CallTo(() => evaluator2.CheckEventAsync(@event, A<CancellationToken>._)).MustHaveHappened();
         }
     }
 }

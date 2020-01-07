@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityModel.Client;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using IdentityModel.Client;
 
 namespace Periturf.IdSvr4.Clients
 {
@@ -31,7 +31,7 @@ namespace Periturf.IdSvr4.Clients
             _discoveryCache = discoveryCache;
         }
 
-        public async Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest request = null, CancellationToken cancellationToken = default)
+        public async Task<DiscoveryResponse> GetDiscoveryDocumentAsync(DiscoveryDocumentRequest? request = null, CancellationToken cancellationToken = default)
         {
             return await _discoveryCache.GetAsync().ConfigureAwait(false);
         }

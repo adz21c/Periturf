@@ -19,6 +19,6 @@ namespace Periturf.Tests.Verify
 {
     public interface ITestComponentConditionBuilder : IComponentConditionBuilder
     {
-        IConditionSpecification CreateSpecification();
+        IComponentConditionSpecification CreateCondition();
     }
 }

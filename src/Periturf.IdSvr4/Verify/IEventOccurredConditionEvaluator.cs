@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 using IdentityServer4.Events;
-using Periturf.Verify;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.IdSvr4.Verify
 {
-    interface IEventOccurredConditionEvaluator : IConditionEvaluator
+    interface IEventOccurredConditionEvaluator
     {
         Guid Id { get; }
 
-        void CheckEvent(Event @event);
+        Task CheckEventAsync(Event @event, CancellationToken ct = default);
     }
 }

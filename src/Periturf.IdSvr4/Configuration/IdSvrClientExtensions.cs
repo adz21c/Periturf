@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IdentityServer4.Models
 {
@@ -28,9 +29,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="uri">The URI.</param>
+        [ExcludeFromCodeCoverage]
         public static void RedirectUri(this Client client, string uri)
         {
-            client.RedirectUris = client.RedirectUris ?? new List<string>();
+            client.RedirectUris ??= new List<string>();
             client.RedirectUris.Add(uri);
         }
 
@@ -39,9 +41,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="name">The name.</param>
+        [ExcludeFromCodeCoverage]
         public static void Scope(this Client client, string name)
         {
-            client.AllowedScopes = client.AllowedScopes ?? new List<string>();
+            client.AllowedScopes ??= new List<string>();
             client.AllowedScopes.Add(name);
         }
 
@@ -50,6 +53,7 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="secret">The secret.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this Client client, string secret)
         {
             client.Secret(new Secret(secret));
@@ -60,6 +64,7 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="config">The configuration.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this Client client, Action<Secret> config)
         {
             var secret = new Secret();
@@ -72,9 +77,10 @@ namespace IdentityServer4.Models
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="secret">The secret.</param>
+        [ExcludeFromCodeCoverage]
         public static void Secret(this Client client, Secret secret)
         {
-            client.ClientSecrets = client.ClientSecrets ?? new List<Secret>();
+            client.ClientSecrets ??= new List<Secret>();
             client.ClientSecrets.Add(secret);
         }
     }

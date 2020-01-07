@@ -94,8 +94,8 @@ namespace Periturf.Tests.IdSvr4.Clients
                 Token = "Token"
             });
 
-            Assert.IsNotNull(response);
-            Assert.IsFalse(response.IsError);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.IsError, Is.False);
 
 
             A.CallTo(_messageHandler)

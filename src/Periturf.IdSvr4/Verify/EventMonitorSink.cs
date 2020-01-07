@@ -23,10 +23,10 @@ namespace Periturf.IdSvr4.Verify
 {
     class EventMonitorSink : IEventMonitorSink
     {
-        private readonly IEventSink _innerSink;
+        private readonly IEventSink? _innerSink;
         private readonly ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>> _evaluators = new ConcurrentDictionary<Type, ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>>();
 
-        public EventMonitorSink(IEventSink innerSink = null)
+        public EventMonitorSink(IEventSink? innerSink = null)
         {
             _innerSink = innerSink;
         }
@@ -51,7 +51,8 @@ namespace Periturf.IdSvr4.Verify
             var eventTypeEvaluators = _evaluators.GetOrAdd(eventType, x => new ConcurrentDictionary<Guid, IEventOccurredConditionEvaluator>());
 
             foreach (var evaluator in eventTypeEvaluators.Values)
-                evaluator.CheckEvent(evt);
+                await evaluator.CheckEventAsync(evt);
         }
     }
+
 }

@@ -17,6 +17,7 @@ using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Components;
 using Periturf.IdSvr4;
+using Periturf.IdSvr4.Clients;
 using Periturf.IdSvr4.Configuration;
 using Periturf.IdSvr4.Verify;
 using System.Collections.Generic;
@@ -66,8 +67,8 @@ namespace Periturf.Tests.IdSvr4.Clients
         {
             var client = _env.IdSvr4Client(nameof(_component));
 
-            Assert.NotNull(client);
-            Assert.AreSame(_componentClient, client);
+            Assert.That(client, Is.Not.Null);
+            Assert.That(client, Is.SameAs(_componentClient));
         }
     }
 }

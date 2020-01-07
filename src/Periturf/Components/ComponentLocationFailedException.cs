@@ -16,7 +16,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Periturf
+namespace Periturf.Components
 {
     /// <summary>
     /// Thrown when a component could not be found.

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using NUnit.Framework;
+using Periturf.Components;
 using Periturf.Configuration;
 using System;
 using System.IO;
@@ -35,10 +36,10 @@ namespace Periturf.Tests.Configuration
             var sut = new ComponentLocationFailedException(componentName);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(componentName, sut.ComponentName);
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.ComponentName, Is.EqualTo(componentName));
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
 
         [Test]
@@ -52,9 +53,9 @@ namespace Periturf.Tests.Configuration
             var sut = new ComponentLocationFailedException(componentName, message);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(componentName, sut.ComponentName);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.ComponentName, Is.EqualTo(componentName));
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -74,8 +75,8 @@ namespace Periturf.Tests.Configuration
             var deserializedException = (ComponentLocationFailedException)formatter.Deserialize(ms2);
 
             // Assert
-            Assert.AreEqual(originalException.ComponentName, deserializedException.ComponentName);
-            Assert.AreEqual(originalException.Message, deserializedException.Message);
+            Assert.That(deserializedException.ComponentName, Is.EqualTo(originalException.ComponentName));
+            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }
     }
 }

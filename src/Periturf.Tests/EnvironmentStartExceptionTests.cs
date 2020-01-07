@@ -31,13 +31,13 @@ namespace Periturf.Tests
             var sut = new EnvironmentStartException();
 
             // Assert
-            Assert.IsNull(sut.InnerException);
+            Assert.That(sut.InnerException, Is.Null);
             // Not host details
-            Assert.IsNotNull(sut.Details);
-            Assert.IsEmpty(sut.Details);
+            Assert.That(sut.Details, Is.Not.Null);
+            Assert.That(sut.Details, Is.Empty);
             // Has the default message
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
 
         [Test]
@@ -50,12 +50,12 @@ namespace Periturf.Tests
             var sut = new EnvironmentStartException(hostDetails);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
+            Assert.That(sut.InnerException, Is.Null);
             // host details
-            Assert.AreEqual(hostDetails, sut.Details);
+            Assert.That(sut.Details, Is.EqualTo(hostDetails));
             // Has the default message
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
 
         [Test]
@@ -68,11 +68,11 @@ namespace Periturf.Tests
             var sut = new EnvironmentStartException(message);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
+            Assert.That(sut.InnerException, Is.Null);
             // Not host details
-            Assert.IsNotNull(sut.Details);
-            Assert.IsEmpty(sut.Details);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.Details, Is.Not.Null);
+            Assert.That(sut.Details, Is.Empty);
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -86,10 +86,10 @@ namespace Periturf.Tests
             var sut = new EnvironmentStartException(message, hostDetails);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
+            Assert.That(sut.InnerException, Is.Null);
             // Not host details
-            Assert.AreEqual(hostDetails, sut.Details);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.Details, Is.EqualTo(hostDetails));
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -109,16 +109,16 @@ namespace Periturf.Tests
             var deserializedException = (EnvironmentStartException)formatter.Deserialize(ms2);
 
             // Assert
-            Assert.IsNotNull(deserializedException.Details);
-            Assert.IsNotEmpty(deserializedException.Details);
+            Assert.That(deserializedException.Details, Is.Not.Null);
+            Assert.That(deserializedException.Details, Is.Not.Empty);
 
             var orignalHostExceptionDetails = originalException.Details.Single();
             var deserializedHostExceptionDetails = deserializedException.Details.Single();
-            Assert.AreEqual(orignalHostExceptionDetails.HostName, deserializedHostExceptionDetails.HostName);
-            Assert.IsNotNull(deserializedHostExceptionDetails.Exception);
-            Assert.AreEqual(orignalHostExceptionDetails.Exception.Message, deserializedHostExceptionDetails.Exception.Message);
+            Assert.That(deserializedHostExceptionDetails.HostName, Is.EqualTo(orignalHostExceptionDetails.HostName));
+            Assert.That(deserializedHostExceptionDetails.Exception, Is.Not.Null);
+            Assert.That(deserializedHostExceptionDetails.Exception.Message, Is.EqualTo(orignalHostExceptionDetails.Exception.Message));
 
-            Assert.AreEqual(originalException.Message, deserializedException.Message);
+            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }
     }
 }

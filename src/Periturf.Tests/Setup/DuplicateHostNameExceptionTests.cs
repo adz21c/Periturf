@@ -33,11 +33,11 @@ namespace Periturf.Tests.Setup
             var sut = new DuplicateHostNameException(hostName);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(hostName, sut.HostName);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.HostName, Is.EqualTo(hostName));
             // Has the default message
-            Assert.IsNotNull(sut.Message);
-            Assert.IsNotEmpty(sut.Message);
+            Assert.That(sut.Message, Is.Not.Null);
+            Assert.That(sut.Message, Is.Not.Empty);
         }
 
         [Test]
@@ -51,9 +51,9 @@ namespace Periturf.Tests.Setup
             var sut = new DuplicateHostNameException(message, hostName);
 
             // Assert
-            Assert.IsNull(sut.InnerException);
-            Assert.AreEqual(hostName, sut.HostName);
-            Assert.AreEqual(message, sut.Message);
+            Assert.That(sut.InnerException, Is.Null);
+            Assert.That(sut.HostName, Is.EqualTo(hostName));
+            Assert.That(sut.Message, Is.EqualTo(message));
         }
 
         [Test]
@@ -73,8 +73,8 @@ namespace Periturf.Tests.Setup
             var deserializedException = (DuplicateHostNameException)formatter.Deserialize(ms2);
 
             // Assert
-            Assert.AreEqual(hostName, deserializedException.HostName);
-            Assert.AreEqual(originalException.Message, deserializedException.Message);
+            Assert.That(deserializedException.HostName, Is.EqualTo(hostName));
+            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }
     }
 }
