@@ -26,30 +26,30 @@ before_build:
     
     gitversion /l console /output buildserver /updateAssemblyInfo
     
-    choco install codecov
+    #choco install codecov
     
-    dotnet tool install --global dotnet-sonarscanner
+    #dotnet tool install --global dotnet-sonarscanner
     
     dotnet restore src
 
 build_script:
   ps: >-
-    if ("$env:APPVEYOR_PULL_REQUEST_NUMBER" -eq "")
-    {
-      dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.branch.name="$env:APPVEYOR_REPO_BRANCH" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-    }
-    else
-    {
-      dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.pullrequest.key="$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:sonar.pullrequest.branch="$env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" /d:sonar.pullrequest.base="$env:APPVEYOR_REPO_BRANCH" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-    }
+    #if ("$env:APPVEYOR_PULL_REQUEST_NUMBER" -eq "")
+    #{
+    #  dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.branch.name="$env:APPVEYOR_REPO_BRANCH" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+    #}
+    #else
+    #{
+    #  dotnet sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /v:"$env:GitVersion_FullSemVer" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$env:sonar_login" /d:sonar.pullrequest.key="$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:sonar.pullrequest.branch="$env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH" /d:sonar.pullrequest.base="$env:APPVEYOR_REPO_BRANCH" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+    #}
     
     dotnet build src --no-restore -c Release
     
-    dotnet test src --no-build -c Release --settings src/CodeCoverage.runsettings
+    #dotnet test src --no-build -c Release --settings src/CodeCoverage.runsettings
 
-    dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
+    #dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
-    codecov -f "$env:TestResults_output/*/coverage.cobertura.xml" -t "$env:CODECOV_TOKEN"
+    #codecov -f "$env:TestResults_output/*/coverage.cobertura.xml" -t "$env:CODECOV_TOKEN"
     
     dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
 
