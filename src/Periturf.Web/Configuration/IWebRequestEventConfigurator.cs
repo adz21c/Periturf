@@ -4,7 +4,7 @@ using System;
 
 namespace Periturf.Web.Configuration
 {
-    public interface IWebRequestEventConfigurator : IEventConfigurator<HttpRequest>
+    public interface IWebRequestEventConfigurator : IEventConfigurator<IWebRequest>
     {
         void Response(Action<IWebRequestResponseConfigurator> config);
     }

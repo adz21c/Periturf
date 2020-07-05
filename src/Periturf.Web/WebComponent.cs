@@ -39,26 +39,29 @@ namespace Periturf.Web
 
         public async Task ProcessAsync(HttpContext context)
         {
-            var config = _configurations.FirstOrDefault(x => x.Matches(context.Request));
+            var config = _configurations.FirstOrDefault(x => x.Matches(context));
             if (config == null)
+            {
+                context.Response.StatusCode = 404;
                 return;
+            }
 
             await config.WriteResponse(context);
 
-            await config.ExecuteHandlers(context.Request);
+            await config.ExecuteHandlers(context);
         }
     }
 
     class WebConfiguration
     {
-        private readonly List<Func<HttpRequest, bool>> _predicates;
+        private readonly List<Func<IWebRequest, bool>> _predicates;
         private readonly Func<IWebResponse, Task> _responseFactory;
-        private readonly List<Func<HttpRequest, Task>> _handlers;
+        private readonly List<Func<IWebRequest, Task>> _handlers;
 
         public WebConfiguration(
-            List<Func<HttpRequest, bool>> predicates,
+            List<Func<IWebRequest, bool>> predicates,
             Func<IWebResponse, Task> responseFactory,
-            List<Func<HttpRequest, Task>> handlers)
+            List<Func<IWebRequest, Task>> handlers)
         {
             Debug.Assert(predicates?.Any() == true, "predicates?.Any() == true");
             Debug.Assert(responseFactory != null, "responseFactory != null");
@@ -69,7 +72,7 @@ namespace Periturf.Web
             _handlers = handlers;
         }
 
-        public bool Matches(HttpRequest request) => _predicates.Any(x => x(request));
+        public bool Matches(HttpContext ctx) => _predicates.Any(x => x(new WebRequest(ctx.Request)));
 
         public async Task WriteResponse(HttpContext ctx)
         {
@@ -77,7 +80,23 @@ namespace Periturf.Web
             await ctx.Response.CompleteAsync();
         }
 
-        public Task ExecuteHandlers(HttpRequest request) => Task.WhenAll(_handlers.Select(x => x(request)));
+        public Task ExecuteHandlers(HttpContext ctx) => Task.WhenAll(_handlers.Select(x => x(new WebRequest(ctx.Request))));
+    }
+
+    class WebRequest : IWebRequest
+    {
+        private readonly HttpRequest _request;
+
+        public WebRequest(HttpRequest request)
+        {
+            _request = request;
+        }
+
+        public PathString Path => _request.Path;
+
+        public string Method => _request.Method;
+
+        public IDictionary<string, StringValues> Headers => _request.Headers;
     }
 
     class WebResponse : IWebResponse

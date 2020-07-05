@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Net.Http;
 
 namespace Periturf.Web.Configuration
 {
     class WebRequestEventSpecification : IWebRequestEventConfigurator
     {
-        public void Predicate(Func<HttpRequest, bool> predicate)
+        public void Predicate(Func<IWebRequest, bool> predicate)
         {
-            throw new NotImplementedException();
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            Predicates.Add(predicate);
         }
 
         public void Response(Action<IWebRequestResponseConfigurator> config)
@@ -15,6 +19,8 @@ namespace Periturf.Web.Configuration
             ResponseSpecification = new WebRequestResponseSpecification();
             config?.Invoke(ResponseSpecification);
         }
+
+        public List<Func<IWebRequest, bool>> Predicates { get; } = new List<Func<IWebRequest, bool>>();
 
         public WebRequestResponseSpecification? ResponseSpecification { get; private set; }
     }

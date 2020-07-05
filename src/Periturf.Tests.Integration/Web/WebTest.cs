@@ -42,6 +42,7 @@ namespace Periturf.Tests.Integration.Web
                     {
                         w.OnRequest(r =>
                         {
+                            r.Predicate(x => x.Method.ToLower() == "get");
                             r.Response(rs =>
                             {
                                 rs.StatusCode = HttpStatusCode.OK;
@@ -51,9 +52,12 @@ namespace Periturf.Tests.Integration.Web
                     });
                 }))
                 {
-                    var testResponse = await client.GetAsync(WebHostUrl);
-                    var testText = await testResponse.Content.ReadAsStringAsync();
-                    Assert.That(testResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+                    var testResponse = await client.PostAsync(WebHostUrl, new StringContent(""));
+                    Assert.That(testResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+
+                    var testResponse2 = await client.GetAsync(WebHostUrl);
+                    var testText2 = await testResponse2.Content.ReadAsStringAsync();
+                    Assert.That(testResponse2.StatusCode, Is.EqualTo(HttpStatusCode.OK));
                 }
             }
             finally
