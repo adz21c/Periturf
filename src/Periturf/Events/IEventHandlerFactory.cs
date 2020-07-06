@@ -13,21 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Threading.Tasks;
-
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Defines actions to be executed on identification of an event.
-    /// </summary>
-    /// <typeparam name="TEventData">The type of the event data.</typeparam>
-    public interface IEventResponseConfigurator<TEventData> where TEventData : class
+    public interface IEventHandlerFactory
     {
-        /// <summary>
-        /// The action to be executed in response to an event. Can be executed multiple times to define multiple actions.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        void Response(Func<IEventResponseContext<TEventData>, Task> response);
+        IEventHandler<TEventData> Create<TEventData>();
     }
 }

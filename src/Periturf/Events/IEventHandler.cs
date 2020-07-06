@@ -13,19 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Creates event response contexts.
-    /// </summary>
-    public interface IEventResponseContextFactory
+    public interface IEventHandler<TEventData>
     {
-        /// <summary>
-        /// Creates an event response context.
-        /// </summary>
-        /// <typeparam name="TEventData">The type of the event data.</typeparam>
-        /// <param name="eventData">The event data.</param>
-        /// <returns></returns>
-        IEventResponseContext<TEventData> Create<TEventData>(TEventData eventData) where TEventData : class;
+        Task ExecuteHandlersAsync(TEventData eventData, CancellationToken ct);
     }
 }

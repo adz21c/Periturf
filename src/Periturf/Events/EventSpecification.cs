@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
@@ -26,24 +27,24 @@ namespace Periturf.Events
     public class EventSpecification<TEventData> : IEventConfigurator<TEventData>
         where TEventData : class
     {
-        private readonly List<Func<TEventData, bool>> _predicates = new List<Func<TEventData, bool>>();
+        private readonly List<Func<IEventContext<TEventData>, Task>> _actions = new List<Func<IEventContext<TEventData>, Task>>();
 
         /// <summary>
-        /// Gets the predicates.
+        /// Gets the actions.
         /// </summary>
         /// <value>
-        /// The predicates.
+        /// The actions.
         /// </value>
-        public IReadOnlyList<Func<TEventData, bool>> Predicates => _predicates;
+        public IReadOnlyList<Func<IEventContext<TEventData>, Task>> Actions => _actions;
 
         /// <summary>
-        /// Predicates to filter the events. Can be called multiple times to define multiple possible conditions.
+        /// The action to be executed in response to an event. Can be executed multiple times to define multiple actions.
         /// </summary>
-        /// <param name="predicate">The predicate.</param>
-        /// <exception cref="System.ArgumentNullException">predicate</exception>
-        public void Predicate(Func<TEventData, bool> predicate)
+        /// <param name="response">The response.</param>
+        /// <exception cref="System.ArgumentNullException">reaction</exception>
+        public void React(Func<IEventContext<TEventData>, Task> reaction)
         {
-            _predicates.Add(predicate ?? throw new ArgumentNullException(nameof(predicate)));
+            _actions.Add(reaction ?? throw new ArgumentNullException(nameof(reaction)));
         }
     }
 }

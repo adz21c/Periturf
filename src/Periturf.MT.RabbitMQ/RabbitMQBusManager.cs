@@ -48,7 +48,7 @@ namespace Periturf.MT.RabbitMQ
 
         public IBusControl? BusControl { get; private set; }
 
-        public void Setup(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory)
+        public void Setup(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory)
         {
             BusControl = Bus.Factory.CreateUsingRabbitMq(b =>
             {
@@ -61,7 +61,7 @@ namespace Periturf.MT.RabbitMQ
             });
         }
 
-        public async Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory)
+        public async Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory)
         {
             Debug.Assert(_host != null);
 

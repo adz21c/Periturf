@@ -30,7 +30,7 @@ namespace Periturf.Setup
         /// <value>
         /// The event response action context factory.
         /// </value>
-        IEventResponseContextFactory EventResponseContextFactory { get; }
+        IEventHandlerFactory EventResponseContextFactory { get; }
 
         /// <summary>
         /// Sets the default expectation short circuit state.

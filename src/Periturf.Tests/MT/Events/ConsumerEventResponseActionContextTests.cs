@@ -31,7 +31,7 @@ namespace Periturf.Tests.MT.Events
         private readonly IMessageReceivedContext<object> _data = A.Fake<IMessageReceivedContext<object>>();
         private readonly ConsumeContext _consumeContext = A.Fake<ConsumeContext>();
         private readonly IComponentClient _otherClient = A.Dummy<IComponentClient>();
-        private readonly IEventResponseContext<IMessageReceivedContext<object>> _inner = A.Fake<IEventResponseContext<IMessageReceivedContext<Object>>>();
+        private readonly IEventReactionContext<IMessageReceivedContext<object>> _inner = A.Fake<IEventReactionContext<IMessageReceivedContext<Object>>>();
         private readonly ConsumerEventResponseContext<object> _sut;
 
         public ConsumerEventResponseActionContextTests()

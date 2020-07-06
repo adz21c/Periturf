@@ -41,7 +41,7 @@ namespace Periturf.MT
         /// </summary>
         /// <param name="specification">The specification.</param>
         /// <param name="eventResponseContextFactory">The event response action context factory.</param>
-        void Setup(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory);
+        void Setup(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory);
 
         /// <summary>
         /// Applies temporary configuration to the bus.
@@ -51,7 +51,7 @@ namespace Periturf.MT
         /// <returns>
         /// Disposable configuration handle.
         /// </returns>
-        Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory);
+        Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory);
 
         /// <summary>
         /// Applies verification setup on the bus.

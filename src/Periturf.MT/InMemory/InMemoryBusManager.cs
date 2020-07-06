@@ -37,7 +37,7 @@ namespace Periturf.MT.InMemory
 
         public IBusControl? BusControl { get; private set; }
 
-        public void Setup(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory)
+        public void Setup(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory)
         {
             BusControl = Bus.Factory.CreateUsingInMemory(b =>
             {
@@ -50,7 +50,7 @@ namespace Periturf.MT.InMemory
             });
         }
 
-        public async Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventResponseContextFactory eventResponseContextFactory)
+        public async Task<IConfigurationHandle> ApplyConfigurationAsync(IMtSpecification specification, IEventHandlerContextFactory eventResponseContextFactory)
         {
             Debug.Assert(_host != null);
 

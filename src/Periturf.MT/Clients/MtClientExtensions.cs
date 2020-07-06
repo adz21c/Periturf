@@ -41,7 +41,7 @@ namespace Periturf
         /// <param name="context">The context.</param>
         /// <param name="componentName">Name of the component for which the client belongs.</param>
         /// <returns></returns>
-        public static IMTClient MTClient<TEventData>(this IEventResponseContext<TEventData> context, string componentName = "MTBus")
+        public static IMTClient MTClient<TEventData>(this IEventReactionContext<TEventData> context, string componentName = "MTBus")
             where TEventData : class
         {
             return (IMTClient)context.CreateComponentClient(componentName);

@@ -65,7 +65,7 @@ namespace Periturf.MT
             return (TComponentConditionBuilder)(object) new MtConditionBuilder(BusManager);
         }
 
-        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventResponseContextFactory eventResponseContextFactory) where TSpecification : IConfigurationSpecification
+        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerContextFactory eventResponseContextFactory) where TSpecification : IConfigurationSpecification
         {
             return (TSpecification)(object) new MtConfigurationSpecification(BusManager, eventResponseContextFactory, _componentName);
         }

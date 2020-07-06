@@ -32,7 +32,7 @@ namespace Periturf.Tests.MT.Configuration
             const string componentName = "ComponentName";
 
             var busManager = A.Fake<IBusManager>();
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
 
             var configSpec = new MtConfigurationSpecification(busManager, factory, componentName);
             var configHandle = await configSpec.ApplyAsync(CancellationToken.None);

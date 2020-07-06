@@ -31,7 +31,7 @@ namespace Periturf.Tests.MT.Configuration
 
             var client = A.Dummy<IMTClient>();
             
-            var context = A.Fake<IEventResponseContext<Object>>();
+            var context = A.Fake<IEventReactionContext<Object>>();
             A.CallTo(() => context.CreateComponentClient(A<string>._)).Returns(client);
 
             var result = context.MTClient(componentName);

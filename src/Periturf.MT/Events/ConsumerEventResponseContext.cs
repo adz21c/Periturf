@@ -19,16 +19,16 @@ using Periturf.Events;
 
 namespace Periturf.MT.Events
 {
-    class ConsumerEventResponseContext<TReceivedMessage> : IEventResponseContext<IMessageReceivedContext<TReceivedMessage>>
+    class ConsumerEventResponseContext<TReceivedMessage> : IEventReactionContext<IMessageReceivedContext<TReceivedMessage>>
     {
         private readonly string _interceptComponentName;
         private readonly ConsumeContext _consumeContext;
-        private readonly IEventResponseContext<IMessageReceivedContext<TReceivedMessage>> _inner;
+        private readonly IEventReactionContext<IMessageReceivedContext<TReceivedMessage>> _inner;
 
         public ConsumerEventResponseContext(
             string interceptComponentName,
             ConsumeContext consumeContext,
-            IEventResponseContext<IMessageReceivedContext<TReceivedMessage>> inner)
+            IEventReactionContext<IMessageReceivedContext<TReceivedMessage>> inner)
         {
             _interceptComponentName = interceptComponentName;
             _consumeContext = consumeContext;

@@ -23,10 +23,10 @@ namespace Periturf.MT.Setup
     class BusSpecification : MtSpecification, IBusConfigurator
     {
         private readonly string _hostName;
-        private readonly IEventResponseContextFactory _eventResponseContextFactory;
+        private readonly IEventHandlerContextFactory _eventResponseContextFactory;
         private IBusManager? _busManager;
 
-        public BusSpecification(string hostName, IEventResponseContextFactory eventResponseContextFactory) : base(hostName)
+        public BusSpecification(string hostName, IEventHandlerContextFactory eventResponseContextFactory) : base(hostName)
         {
             _hostName = hostName;
             _eventResponseContextFactory = eventResponseContextFactory;

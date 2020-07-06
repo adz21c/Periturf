@@ -37,7 +37,7 @@ namespace Periturf.Tests.MT.InMemory
         [SetUp]
         public void SetUp()
         {
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
 
             _setupSpec = A.Fake<IMtSpecification>();
             _sut = new InMemoryBusManager();
@@ -56,14 +56,14 @@ namespace Periturf.Tests.MT.InMemory
         {
             var messageSpec = A.Fake<IWhenMessagePublishedSpecification>();
             var spec = A.Fake<IMtSpecification>();
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
             A.CallTo(() => spec.WhenMessagePublishedSpecifications).Returns(new List<IWhenMessagePublishedSpecification> { messageSpec });
 
             var handle = await _sut.ApplyConfigurationAsync(spec, factory);
 
             Assert.That(handle, Is.Not.Null);
             A.CallTo(() => spec.WhenMessagePublishedSpecifications).MustHaveHappened();
-            A.CallTo(() => messageSpec.Configure(A<IReceiveEndpointConfigurator>._, A<IEventResponseContextFactory>._)).MustHaveHappened();
+            A.CallTo(() => messageSpec.Configure(A<IReceiveEndpointConfigurator>._, A<IEventHandlerContextFactory>._)).MustHaveHappened();
         }
 
         [Test]

@@ -21,7 +21,7 @@ namespace Periturf.Events
     /// The context within which an action responding to an event executes.
     /// </summary>
     /// <typeparam name="TEventData">The type of the event data.</typeparam>
-    public interface IEventResponseContext<out TEventData> where TEventData : class
+    public interface IEventContext<out TEventData>
     {
         /// <summary>
         /// The event data.

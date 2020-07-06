@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using System;
+using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Configures the identification of an event.
-    /// </summary>
-    /// <typeparam name="TEventData">The type of the event data.</typeparam>
     public interface IEventConfigurator<TEventData> where TEventData : class
     {
-        /// <summary>
-        /// Predicates to filter the events. Can be called multiple times to define multiple possible conditions.
-        /// </summary>
-        /// <param name="predicate">The predicate.</param>
-        void Predicate(Func<TEventData, bool> predicate);
+        void React(Func<IEventContext<TEventData>, Task> reaction);
     }
 }

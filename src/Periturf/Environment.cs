@@ -34,13 +34,13 @@ namespace Periturf
     {
         private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
-        private readonly EventResponseContextFactory _eventResponseContextFactory;
+        private readonly EventHandlerFactory _eventHandlerFactory;
         private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
         private bool _defaultExpectationShortCircuit = false;
 
         private Environment()
         {
-            _eventResponseContextFactory = new EventResponseContextFactory(this);
+            _eventHandlerFactory = new EventHandlerFactory(this);
         }
 
         /// <summary>
@@ -153,7 +153,8 @@ namespace Periturf
                 _env = env;
             }
 
-            public IEventResponseContextFactory EventResponseContextFactory => _env._eventResponseContextFactory;
+            // TODO: Remove?
+            public IEventHandlerFactory EventResponseContextFactory => _env._eventHandlerFactory;
 
             public void DefaultExpectationTimeout(TimeSpan timeout)
             {
@@ -228,7 +229,7 @@ namespace Periturf
                 if (!_environment._components.TryGetValue(componentName, out var component))
                     throw new ComponentLocationFailedException(componentName);
 
-                return component.CreateConfigurationSpecification<TSpecification>(_environment._eventResponseContextFactory);
+                return component.CreateConfigurationSpecification<TSpecification>(_environment._eventHandlerFactory);
             }
 
             public void AddSpecification(IConfigurationSpecification specification)
@@ -268,7 +269,7 @@ namespace Periturf
             private readonly Environment _env;
             private TimeSpan? _expectationTimeout;
             private bool? _shortCircuit;
-            
+
             public VerificationContext(Environment env)
             {
                 _env = env;
@@ -316,7 +317,7 @@ namespace Periturf
                     .Max();
 
                 var timespanFactory = new ConditionInstanceTimeSpanFactory(DateTime.Now);
-                
+
                 var expectations = _specs.Select(async x =>
                 {
                     var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(timespanFactory, ct);
@@ -357,26 +358,43 @@ namespace Periturf
 
         #region Events
 
-        class EventResponseContextFactory : IEventResponseContextFactory
+        class EventHandlerFactory : IEventHandlerFactory
         {
             private readonly Environment _env;
 
-            public EventResponseContextFactory(Environment env)
+            public EventHandlerFactory(Environment env)
             {
                 _env = env;
             }
 
-            public IEventResponseContext<TEventData> Create<TEventData>(TEventData eventData) where TEventData : class
+            public IEventHandler<TEventData> Create<TEventData>()
             {
-                return new EventResponseContext<TEventData>(_env, eventData);
+                return new EventHandler<TEventData>(_env);
             }
         }
 
-        class EventResponseContext<TEventData> : IEventResponseContext<TEventData> where TEventData : class
+        class EventHandler<TEventData> : IEventHandler<TEventData>
+        {
+            private readonly Environment _env;
+            private readonly List<Func<IEventContext<TEventData>, CancellationToken, Task>> _handlers = new List<Func<IEventContext<TEventData>, CancellationToken, Task>>();
+
+            public EventHandler(Environment env)
+            {
+                _env = env;
+            }
+
+            public async Task ExecuteHandlersAsync(TEventData eventData, CancellationToken ct)
+            {
+                var eventContext = new EventContext<TEventData>(_env, eventData);
+                await Task.WhenAll(_handlers.Select(x => x(eventContext, ct)));
+            }
+        }
+
+        class EventContext<TEventData> : IEventContext<TEventData>
         {
             private readonly Environment _env;
 
-            public EventResponseContext(Environment env, TEventData eventData)
+            public EventContext(Environment env, TEventData eventData)
             {
                 _env = env;
                 Data = eventData;

@@ -31,7 +31,7 @@ namespace Periturf.MT.Configuration
 
         Type IWhenMessagePublishedSpecification.MessageType => typeof(TReceivedMessage);
 
-        void IWhenMessagePublishedSpecification.Configure(IReceiveEndpointConfigurator configurator, IEventResponseContextFactory eventResponseContextFactory)
+        void IWhenMessagePublishedSpecification.Configure(IReceiveEndpointConfigurator configurator, IEventHandlerContextFactory eventResponseContextFactory)
         {
             if (configurator == null)
                 throw new ArgumentNullException(nameof(configurator));

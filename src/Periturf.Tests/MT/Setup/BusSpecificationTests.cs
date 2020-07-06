@@ -28,7 +28,7 @@ namespace Periturf.Tests.MT.Setup
         [Test]
         public void Given_Null_When_SetBusManager_Then_Throws()
         {
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
             var spec = new BusSpecification(A.Dummy<string>(), factory);
             var ex = Assert.Throws<ArgumentNullException>(() => spec.SetBusManager(null));
             Assert.That(ex.ParamName, Is.EqualTo("busManager"));
@@ -40,7 +40,7 @@ namespace Periturf.Tests.MT.Setup
             const string componentName = "Component1";
             
             var busManager = A.Fake<IBusManager>();
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
 
             var spec = new BusSpecification(componentName, factory);
             
@@ -56,7 +56,7 @@ namespace Periturf.Tests.MT.Setup
         [Test]
         public void Given_NotConfigured_When_Build_Then_Throws()
         {
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerContextFactory>();
             var spec = new BusSpecification("Host", factory);
             var ex = Assert.Throws<InvalidOperationException>(() => spec.Build());
             Assert.That(ex.Message, Is.EqualTo("Specification not configured"));

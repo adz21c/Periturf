@@ -26,15 +26,15 @@ namespace Periturf.MT.Configuration
     class EventActionConsumer<TMessage> : IConsumer<TMessage> where TMessage : class
     {
         private readonly string _componentName;
-        private readonly IEventResponseContextFactory _eventResponseContextFactory;
+        private readonly IEventHandlerContextFactory _eventResponseContextFactory;
         private readonly IReadOnlyCollection<Func<IMessageReceivedContext<TMessage>, bool>> _predicates;
-        private readonly IReadOnlyCollection<Func<IEventResponseContext<IMessageReceivedContext<TMessage>>, Task>> _actions;
+        private readonly IReadOnlyCollection<Func<IEventReactionContext<IMessageReceivedContext<TMessage>>, Task>> _actions;
 
         public EventActionConsumer(
             string componentName,
-            IEventResponseContextFactory eventResponseContextFactory,
+            IEventHandlerContextFactory eventResponseContextFactory,
             IReadOnlyCollection<Func<IMessageReceivedContext<TMessage>, bool>> predicates,
-            IReadOnlyCollection<Func<IEventResponseContext<IMessageReceivedContext<TMessage>>, Task>> actions)
+            IReadOnlyCollection<Func<IEventReactionContext<IMessageReceivedContext<TMessage>>, Task>> actions)
         {
             _componentName = componentName;
             _eventResponseContextFactory = eventResponseContextFactory;

@@ -37,6 +37,6 @@ namespace Periturf.MT.Configuration
         /// </summary>
         /// <param name="configurator">The receive endpoint configurator.</param>
         /// <param name="eventResponseContextFactory">The event response action context factory.</param>
-        void Configure(IReceiveEndpointConfigurator configurator, IEventResponseContextFactory eventResponseContextFactory);
+        void Configure(IReceiveEndpointConfigurator configurator, IEventHandlerContextFactory eventResponseContextFactory);
     }
 }

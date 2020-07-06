@@ -22,7 +22,7 @@ namespace Periturf.MT.Configuration
 {
     class MtConfigurationSpecification : IConfigurationSpecification
     {
-        public MtConfigurationSpecification(IBusManager busManager, IEventResponseContextFactory eventResponseContextFactory, string componentName)
+        public MtConfigurationSpecification(IBusManager busManager, IEventHandlerContextFactory eventResponseContextFactory, string componentName)
         {
             BusManager = busManager;
             EventResponseContextFactory = eventResponseContextFactory;
@@ -31,7 +31,7 @@ namespace Periturf.MT.Configuration
 
         public IBusManager BusManager { get; }
 
-        public IEventResponseContextFactory EventResponseContextFactory { get; }
+        public IEventHandlerContextFactory EventResponseContextFactory { get; }
 
         public MtSpecification MtSpec { get; }
 

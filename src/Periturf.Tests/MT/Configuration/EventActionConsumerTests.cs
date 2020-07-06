@@ -32,9 +32,9 @@ namespace Periturf.Tests.MT.Configuration
         private const string componentName = "ComponentName";
         private Func<IMessageReceivedContext<ITestMessage>, bool> _predicate;
         private Func<IMessageReceivedContext<ITestMessage>, bool> _predicate2;
-        private Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task> _action;
-        private Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task> _action2;
-        private IEventResponseContextFactory _factory;
+        private Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task> _action;
+        private Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task> _action2;
+        private IEventHandlerContextFactory _factory;
         private ConsumeContext<ITestMessage> _consumeContext;
         private EventActionConsumer<ITestMessage> _consumer;
 
@@ -44,10 +44,10 @@ namespace Periturf.Tests.MT.Configuration
             _predicate = A.Fake<Func<IMessageReceivedContext<ITestMessage>, bool>>();
             _predicate2 = A.Fake<Func<IMessageReceivedContext<ITestMessage>, bool>>();
 
-            _action = A.Fake<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>>();
-            _action2 = A.Fake<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>>();
+            _action = A.Fake<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>>();
+            _action2 = A.Fake<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>>();
 
-            _factory = A.Fake<IEventResponseContextFactory>();
+            _factory = A.Fake<IEventHandlerContextFactory>();
 
             _consumeContext = A.Fake<ConsumeContext<ITestMessage>>();
 
@@ -55,7 +55,7 @@ namespace Periturf.Tests.MT.Configuration
                 componentName,
                 _factory,
                 new List<Func<IMessageReceivedContext<ITestMessage>, bool>> { _predicate, _predicate2 },
-                new List<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>> { _action, _action2 });
+                new List<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>> { _action, _action2 });
         }
 
         [Test]
@@ -68,8 +68,8 @@ namespace Periturf.Tests.MT.Configuration
 
             A.CallTo(() => _predicate.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustHaveHappened();
             A.CallTo(() => _predicate2.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustHaveHappened();
-            A.CallTo(() => _action.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustNotHaveHappened();
-            A.CallTo(() => _action2.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustNotHaveHappened();
+            A.CallTo(() => _action.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustNotHaveHappened();
+            A.CallTo(() => _action2.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustNotHaveHappened();
         }
 
         [Test]
@@ -82,8 +82,8 @@ namespace Periturf.Tests.MT.Configuration
 
             A.CallTo(() => _predicate.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustHaveHappened();
             A.CallTo(() => _predicate2.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustNotHaveHappened();
-            A.CallTo(() => _action.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
-            A.CallTo(() => _action2.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
+            A.CallTo(() => _action.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
+            A.CallTo(() => _action2.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
         }
 
         [Test]
@@ -96,8 +96,8 @@ namespace Periturf.Tests.MT.Configuration
 
             A.CallTo(() => _predicate.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustHaveHappened();
             A.CallTo(() => _predicate2.Invoke(A<IMessageReceivedContext<ITestMessage>>._)).MustHaveHappened();
-            A.CallTo(() => _action.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
-            A.CallTo(() => _action2.Invoke(A<IEventResponseContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
+            A.CallTo(() => _action.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
+            A.CallTo(() => _action2.Invoke(A<IEventReactionContext<IMessageReceivedContext<ITestMessage>>>._)).MustHaveHappened();
         }
 
 

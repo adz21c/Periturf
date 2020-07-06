@@ -31,14 +31,14 @@ namespace Periturf.Tests.MT
     {
         private const string _componentName = "Component";
         private IBusManager _busManager;
-        private IEventResponseContextFactory _factory;
+        private IEventHandlerContextFactory _factory;
         private IBusControl _busControl;
         private MtHostComponent _host;
 
         [SetUp]
         public void SetUp()
         {
-            _factory = A.Fake<IEventResponseContextFactory>();
+            _factory = A.Fake<IEventHandlerContextFactory>();
 
             _busControl = A.Fake<IBusControl>();
             _busManager = A.Fake<IBusManager>();

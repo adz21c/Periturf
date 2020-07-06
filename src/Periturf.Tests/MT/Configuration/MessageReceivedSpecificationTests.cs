@@ -43,8 +43,8 @@ namespace Periturf.Tests.MT.Configuration
             var spec = new WhenMessagePublishedSpecification<ITestMessage>(componentName);
             var ispec = (IWhenMessagePublishedSpecification)spec;
             var configurator = (IWhenMessagePublishedConfigurator<ITestMessage>)spec;
-            var action = A.Dummy<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>>();
-            var factory = A.Dummy<IEventResponseContextFactory>();
+            var action = A.Dummy<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>>();
+            var factory = A.Dummy<IEventHandlerContextFactory>();
 
             configurator.Response(action);
 
@@ -58,7 +58,7 @@ namespace Periturf.Tests.MT.Configuration
             var spec = new WhenMessagePublishedSpecification<ITestMessage>(componentName);
             var ispec = (IWhenMessagePublishedSpecification)spec;
             var configurator = (IWhenMessagePublishedConfigurator<ITestMessage>)spec;
-            var action = A.Dummy<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>>();
+            var action = A.Dummy<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>>();
             var receiveEndpointConfigurator = A.Fake<IReceiveEndpointConfigurator>();
 
             configurator.Response(action);
@@ -73,9 +73,9 @@ namespace Periturf.Tests.MT.Configuration
             var spec = new WhenMessagePublishedSpecification<ITestMessage>(componentName);
             var ispec = (IWhenMessagePublishedSpecification)spec;
             
-            var action = A.Dummy<Func<IEventResponseContext<IMessageReceivedContext<ITestMessage>>, Task>>();
+            var action = A.Dummy<Func<IEventReactionContext<IMessageReceivedContext<ITestMessage>>, Task>>();
 
-            var factory = A.Dummy<IEventResponseContextFactory>();
+            var factory = A.Dummy<IEventHandlerContextFactory>();
 
             var configurator = (IWhenMessagePublishedConfigurator<ITestMessage>)spec;
             configurator.Response(action);
