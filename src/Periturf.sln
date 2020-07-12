@@ -16,8 +16,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf", "Periturf\Peritu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.IdSvr4", "Periturf.IdSvr4\Periturf.IdSvr4.csproj", "{79E372D7-C63D-4C26-8764-D0448449FDE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.AspNetCore", "Periturf.AspNetCore\Periturf.AspNetCore.csproj", "{23D06E66-1520-4668-9BFD-8AAC7C882D8E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests", "Periturf.Tests\Periturf.Tests.csproj", "{B160C033-ADFD-4DB3-AB7B-206713A939D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests.Integration", "Periturf.Tests.Integration\Periturf.Tests.Integration.csproj", "{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}"
@@ -44,10 +42,6 @@ Global
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
