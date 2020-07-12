@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Microsoft.Extensions.Hosting;
-using Periturf.Components;
+using Periturf.Hosting.Setup;
+using Periturf.Setup;
+using System;
 
-namespace Periturf.Hosting.Setup
+namespace Periturf
 {
     /// <summary>
-    /// Extension of the <see cref="IHostBuilder"/> to include the ability to register <see cref="IComponent"/>.
+    /// 
     /// </summary>
-    /// <seealso cref="Microsoft.Extensions.Hosting.IHostBuilder" />
-    public interface IPeriturfHostBuilder : IHostBuilder
+    public static class GenericHostSetupExtensions
     {
         /// <summary>
-        /// Registers component with the generic host.
+        /// Setup a generic host.
         /// </summary>
-        /// <param name="componentName">The component name.</param>
-        /// <param name="component">The component.</param>
-        void AddComponent(string componentName, IComponent component);
+        /// <param name="setupConfigurator">The setup configurator.</param>
+        /// <param name="config">The configuration.</param>
+        public static void GenericHost(this ISetupContext setupConfigurator, Action<IGenericHostConfigurator> config)
+        {
+            var spec = new GenericHostSpecification();
+            config?.Invoke(spec);
+            setupConfigurator.AddHostSpecification(spec);
+        }
     }
 }

@@ -15,15 +15,12 @@
 
   <ItemGroup>
     <Compile Remove="AspNetCore\**" />
-    <Compile Remove="Hosting\**" />
     <Compile Remove="IdSvr4\**" />
     <Compile Remove="MT\**" />
     <EmbeddedResource Remove="AspNetCore\**" />
-    <EmbeddedResource Remove="Hosting\**" />
     <EmbeddedResource Remove="IdSvr4\**" />
     <EmbeddedResource Remove="MT\**" />
     <None Remove="AspNetCore\**" />
-    <None Remove="Hosting\**" />
     <None Remove="IdSvr4\**" />
     <None Remove="MT\**" />
   </ItemGroup>
