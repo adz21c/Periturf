@@ -26,33 +26,23 @@ namespace Periturf
     /// <summary>
     /// 
     /// </summary>
-    public static class HostBuilderExtensions
+    public static class GenericHostExtensions
     {
         [ExcludeFromCodeCoverage]
-        public static void Web(this IPeriturfHostBuilder builder, Action<IWebComponentSetupConfigurator> config)
+        public static void Web(this IGenericHostConfigurator configurator, Action<IWebComponentSetupConfigurator> config)
         {
-            builder.Web("Web", config);
+            configurator.Web("Web", config);
         }
 
-        public static void Web(this IPeriturfHostBuilder builder, string name, Action<IWebComponentSetupConfigurator> config)
+        public static void Web(this IGenericHostConfigurator configurator, string name, Action<IWebComponentSetupConfigurator> config)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
+            var spec = new WebComponentSetupSpecification(name);
+            config?.Invoke(spec);
 
-            var spec = new WebComponentSetupSpecification();
-            config(spec);
-
-            WebComponent? component = null;
-            builder.ConfigureWebHostDefaults(b =>
-            {
-                component = spec.Apply(b);
-            });
-
-            Debug.Assert(component != null, "component != null");
-            builder.AddComponent(name, component);
+            configurator.AddComponentSpecification(spec);
         }
     }
 }
