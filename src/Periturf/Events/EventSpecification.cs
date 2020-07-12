@@ -15,36 +15,30 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Implementation of <see cref="IEventConfigurator{TEventData}"/>.
-    /// </summary>
-    /// <typeparam name="TEventData">The type of the event data.</typeparam>
-    /// <seealso cref="Periturf.Events.IEventConfigurator{TEventData}" />
-    public class EventSpecification<TEventData> : IEventConfigurator<TEventData>
+    public abstract class EventSpecification<TEventData> : IEventConfigurator<TEventData>
         where TEventData : class
     {
-        private readonly List<Func<IEventContext<TEventData>, Task>> _actions = new List<Func<IEventContext<TEventData>, Task>>();
+        private readonly List<IEventHandlerSpecification<TEventData>> _handlerSpecifications = new List<IEventHandlerSpecification<TEventData>>();
+        private readonly IEventHandlerFactory _eventHandlerFactory;
 
-        /// <summary>
-        /// Gets the actions.
-        /// </summary>
-        /// <value>
-        /// The actions.
-        /// </value>
-        public IReadOnlyList<Func<IEventContext<TEventData>, Task>> Actions => _actions;
-
-        /// <summary>
-        /// The action to be executed in response to an event. Can be executed multiple times to define multiple actions.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        /// <exception cref="System.ArgumentNullException">reaction</exception>
-        public void React(Func<IEventContext<TEventData>, Task> reaction)
+        protected EventSpecification(IEventHandlerFactory eventHandlerFactory)
         {
-            _actions.Add(reaction ?? throw new ArgumentNullException(nameof(reaction)));
+            _eventHandlerFactory = eventHandlerFactory ?? throw new ArgumentNullException(nameof(eventHandlerFactory));
+        }
+
+        public IReadOnlyList<IEventHandlerSpecification<TEventData>> HandlerSpecifications => _handlerSpecifications;
+
+        public void AddHandlerSpecification(IEventHandlerSpecification<TEventData> spec)
+        {
+            _handlerSpecifications.Add(spec ?? throw new ArgumentNullException(nameof(spec)));
+        }
+
+        protected IEventHandler<TEventData> CreateHandler()
+        {
+            return _eventHandlerFactory.Create(_handlerSpecifications);
         }
     }
 }

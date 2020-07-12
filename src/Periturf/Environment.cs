@@ -367,20 +367,21 @@ namespace Periturf
                 _env = env;
             }
 
-            public IEventHandler<TEventData> Create<TEventData>()
+            public IEventHandler<TEventData> Create<TEventData>(IEnumerable<IEventHandlerSpecification<TEventData>> eventHandlerSpecifications)
             {
-                return new EventHandler<TEventData>(_env);
+                return new EventHandler<TEventData>(_env, eventHandlerSpecifications.Select(x => x.Build()).ToList());
             }
         }
 
         class EventHandler<TEventData> : IEventHandler<TEventData>
         {
             private readonly Environment _env;
-            private readonly List<Func<IEventContext<TEventData>, CancellationToken, Task>> _handlers = new List<Func<IEventContext<TEventData>, CancellationToken, Task>>();
+            private readonly List<Func<IEventContext<TEventData>, CancellationToken, Task>> _handlers;
 
-            public EventHandler(Environment env)
+            public EventHandler(Environment env, List<Func<IEventContext<TEventData>, CancellationToken, Task>> handlers)
             {
                 _env = env;
+                _handlers = handlers;
             }
 
             public async Task ExecuteHandlersAsync(TEventData eventData, CancellationToken ct)

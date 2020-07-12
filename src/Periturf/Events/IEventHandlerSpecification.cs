@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2020 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
-    public interface IEventConfigurator<TEventData>
+    public interface IEventHandlerSpecification<TEventData>
     {
-        void AddHandlerSpecification(IEventHandlerSpecification<TEventData> spec);
+        public Func<IEventContext<TEventData>, CancellationToken, Task> Build();
     }
 }

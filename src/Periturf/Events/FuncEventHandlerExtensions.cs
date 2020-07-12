@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Collections.Generic;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
-    public interface IEventHandlerFactory
+    [ExcludeFromCodeCoverage]
+    public static class FuncEventHandlerExtensions
     {
-        IEventHandler<TEventData> Create<TEventData>(IEnumerable<IEventHandlerSpecification<TEventData>> eventHandlerSpecifications);
+        public static void Handle<TEventData>(this IEventConfigurator<TEventData> configurator, Func<IEventContext<TEventData>, CancellationToken, Task> handler)
+        {
+            if (configurator is null)
+                throw new ArgumentNullException(nameof(configurator));
+
+            configurator.AddHandlerSpecification(new FuncEventHandlerSpecification<TEventData>(handler ?? throw new ArgumentNullException(nameof(handler))));
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2020 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Events;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Periturf.Tests.Events
 {
     [TestFixture]
-    class EventActionSpecificationTests
+    class FuncEventHandlerSpecificationTests
     {
         [Test]
-        public void Given_MultipleResponses_When_ResponseAction_Then_Recorded()
+        public void Given_Func_When_Build_Then_ReturnsFunc()
         {
-            var spec = new EventResponseSpecification<Object>();
+            var func = A.Dummy<Func<IEventContext<object>, CancellationToken, Task>>();
+            var spec = new FuncEventHandlerSpecification<object>(func);
 
-            var action1 = A.Dummy<Func<Object, Task>>();
-            var action2 = A.Dummy<Func<Object, Task>>();
+            var returnedFunc = spec.Build();
 
-            spec.Response(action1);
-            spec.Response(action2);
-
-            Assert.That(spec.Actions, Does.Contain(action1));
-            Assert.That(spec.Actions, Does.Contain(action2));
-
-            A.CallTo(() => action1.Invoke(A<Object>._)).MustNotHaveHappened();
-            A.CallTo(() => action2.Invoke(A<Object>._)).MustNotHaveHappened();
+            Assert.That(returnedFunc, Is.SameAs(func));
         }
     }
 }
