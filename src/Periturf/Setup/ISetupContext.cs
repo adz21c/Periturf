@@ -44,11 +44,6 @@ namespace Periturf.Setup
         /// <param name="timeout">The timeout.</param>
         void DefaultExpectationTimeout(TimeSpan timeout);
 
-        /// <summary>
-        /// Adds a host to the environment.
-        /// </summary>
-        /// <param name="name">Unique identifier for the host.</param>
-        /// <param name="host">The host.</param>
-        void Host(string name, IHost host);
+        void AddHostSpecification(IHostSpecification hostSpecification);
     }
 }

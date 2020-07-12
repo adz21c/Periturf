@@ -44,7 +44,7 @@ namespace Periturf.Tests
         public void Given_HostErrors_When_Ctor_Then_ExceptionCreated()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails("MyHost", new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
 
             // Act
             var sut = new EnvironmentStopException(hostDetails);
@@ -80,7 +80,7 @@ namespace Periturf.Tests
         {
             // Arrange
             const string message = "My Custom Error Message";
-            var hostDetails = new[] { new HostExceptionDetails("MyHost", new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
 
             // Act
             var sut = new EnvironmentStopException(message, hostDetails);
@@ -96,7 +96,7 @@ namespace Periturf.Tests
         public void Given_AnException_When_SeriaizedAndDeserialized_Then_DataMatchesTheOriginal()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails("MyHost", new Exception("MyMessage")) };
+            var hostDetails = new[] { new HostExceptionDetails(new Exception("MyMessage")) };
             var originalException = new EnvironmentStopException(hostDetails);
 
             var buffer = new byte[4096];
@@ -114,7 +114,6 @@ namespace Periturf.Tests
 
             var orignalHostExceptionDetails = originalException.Details.Single();
             var deserializedHostExceptionDetails = deserializedException.Details.Single();
-            Assert.That(deserializedHostExceptionDetails.HostName, Is.EqualTo(orignalHostExceptionDetails.HostName));
             Assert.That(deserializedHostExceptionDetails.Exception, Is.Not.Null);
             Assert.That(deserializedHostExceptionDetails.Exception.Message, Is.EqualTo(orignalHostExceptionDetails.Exception.Message));
 

@@ -38,19 +38,10 @@ namespace Periturf
         /// </summary>
         /// <param name="hostName">Name of the host.</param>
         /// <param name="exception">The exception.</param>
-        public HostExceptionDetails(string hostName, Exception exception)
+        public HostExceptionDetails(Exception exception)
         {
-            HostName = hostName;
             Exception = exception;
         }
-
-        /// <summary>
-        /// Gets the name of the host.
-        /// </summary>
-        /// <value>
-        /// The name of the host.
-        /// </value>
-        public string HostName { get; }
 
         /// <summary>
         /// Gets the exception.

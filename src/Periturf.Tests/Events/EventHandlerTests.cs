@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Periturf.Setup;
 
 namespace Periturf.Tests.Events
 {
@@ -56,10 +57,13 @@ namespace Periturf.Tests.Events
             var host = A.Dummy<IHost>();
             A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { "component", component } }));
 
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
+
             // Act
             var environment = Environment.Setup(x =>
             {
-                x.Host(nameof(host), host);
+                x.AddHostSpecification(hostSpec);
             });
 
             await using (await environment.ConfigureAsync(c =>

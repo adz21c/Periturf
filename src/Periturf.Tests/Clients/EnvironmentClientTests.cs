@@ -17,6 +17,7 @@ using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Clients;
 using Periturf.Components;
+using Periturf.Setup;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -53,9 +54,12 @@ namespace Periturf.Tests.Clients
                 { nameof(_component2), _component2 }
             });
 
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
+
             _env = Environment.Setup(s =>
             {
-                s.Host(nameof(host), host);
+                s.AddHostSpecification(hostSpec);
             });
 
             await _env.StartAsync();

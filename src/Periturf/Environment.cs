@@ -32,7 +32,7 @@ namespace Periturf
     /// </summary>
     public class Environment
     {
-        private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
+        private readonly List<IHost> _hosts = new List<IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
         private readonly EventHandlerFactory _eventHandlerFactory;
         private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
@@ -52,11 +52,11 @@ namespace Periturf
         public async Task StartAsync(CancellationToken ct = default)
         {
             // For symplicity, lets not fail fast :-/
-            Task StartHost(KeyValuePair<string, IHost> host)
+            Task StartHost(IHost host)
             {
                 try
                 {
-                    return host.Value.StartAsync(ct);
+                    return host.StartAsync(ct);
                 }
                 catch (Exception ex)
                 {
@@ -65,20 +65,19 @@ namespace Periturf
             }
 
             var startingHosts = _hosts
-                .Select(x => new { Name = x.Key, Task = StartHost(x) })
+                .Select(StartHost)
                 .ToList();
 
             try
             {
-                await Task.WhenAll(startingHosts.Select(x => x.Task));
+                await Task.WhenAll(startingHosts);
             }
             catch
             {
                 var hostDetails = startingHosts
-                    .Where(x => x.Task.IsFaulted)
+                    .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Name,
-                        x.Task.Exception.InnerExceptions.First()))
+                        x.Exception.InnerExceptions.First()))
                     .ToArray();
 
                 throw new EnvironmentStartException(hostDetails);
@@ -94,11 +93,11 @@ namespace Periturf
         public async Task StopAsync(CancellationToken ct = default)
         {
             // For symplicity, lets not fail fast :-/
-            Task StopHost(KeyValuePair<string, IHost> host)
+            Task StopHost(IHost host)
             {
                 try
                 {
-                    return host.Value.StopAsync(ct);
+                    return host.StopAsync(ct);
                 }
                 catch (Exception ex)
                 {
@@ -107,20 +106,19 @@ namespace Periturf
             }
 
             var stoppingHosts = _hosts
-                .Select(x => new { Name = x.Key, Task = StopHost(x) })
+                .Select(StopHost)
                 .ToList();
 
             try
             {
-                await Task.WhenAll(stoppingHosts.Select(x => x.Task));
+                await Task.WhenAll(stoppingHosts);
             }
             catch
             {
                 var hostDetails = stoppingHosts
-                    .Where(x => x.Task.IsFaulted)
+                    .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Name,
-                        x.Task.Exception.InnerExceptions.First()))
+                        x.Exception.InnerExceptions.First()))
                     .ToArray();
 
                 throw new EnvironmentStopException(hostDetails);
@@ -140,6 +138,7 @@ namespace Periturf
 
             var configurator = new SetupContext(env);
             config(configurator);
+            configurator.Build();
 
             return env;
         }
@@ -147,6 +146,7 @@ namespace Periturf
         class SetupContext : ISetupContext
         {
             private readonly Environment _env;
+            private readonly List<IHostSpecification> _hostSpecifications = new List<IHostSpecification>();
 
             public SetupContext(Environment env)
             {
@@ -169,24 +169,28 @@ namespace Periturf
                 _env._defaultExpectationShortCircuit = shortCircuit;
             }
 
-            public void Host(string name, IHost host)
+            public void AddHostSpecification(IHostSpecification hostSpecification)
             {
-                if (string.IsNullOrWhiteSpace(name))
-                    throw new ArgumentNullException(nameof(name));
+                _hostSpecifications.Add(hostSpecification ?? throw new ArgumentNullException(nameof(hostSpecification)));
+            }
 
-                if (host == null)
-                    throw new ArgumentNullException(nameof(host));
-
-                if (_env._hosts.ContainsKey(name))
-                    throw new DuplicateHostNameException(name);
-
-                _env._hosts.Add(name, host);
-                foreach (var comp in host.Components)
+            public void Build()
+            {
+                foreach (var hostSpec in _hostSpecifications)
                 {
-                    if (_env._components.ContainsKey(comp.Key))
-                        throw new DuplicateComponentNameException(comp.Key);
+                    // TODO: Replace a lot of this validation with validation interface
+                    var host = hostSpec.Build();
+                    if (host == null)
+                        throw new ArgumentNullException(nameof(host));
 
-                    _env._components.Add(comp.Key, comp.Value);
+                    _env._hosts.Add(host);
+                    foreach (var comp in host.Components)
+                    {
+                        if (_env._components.ContainsKey(comp.Key))
+                            throw new DuplicateComponentNameException(comp.Key);
+
+                        _env._components.Add(comp.Key, comp.Value);
+                    }
                 }
             }
         }
