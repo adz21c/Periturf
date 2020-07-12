@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Periturf.Events;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
 namespace Periturf.Web.Configuration
 {
-    class WebRequestEventSpecification : IWebRequestEventConfigurator
+    class WebRequestEventSpecification : EventSpecification<IWebRequest>, IWebRequestEventConfigurator
     {
+        public WebRequestEventSpecification(IEventHandlerFactory eventHandlerFactory) : base(eventHandlerFactory)
+        { }
+
         public void Predicate(Func<IWebRequest, bool> predicate)
         {
             if (predicate == null)

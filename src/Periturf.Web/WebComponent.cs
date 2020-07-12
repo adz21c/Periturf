@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Periturf.Web
@@ -32,9 +33,9 @@ namespace Periturf.Web
             throw new NotImplementedException();
         }
 
-        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerContextFactory eventResponseContextFactory) where TSpecification : IConfigurationSpecification
+        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerFactory eventHandlerFactory) where TSpecification : IConfigurationSpecification
         {
-            return (TSpecification)(object)new WebComponentSpecification(_configurations);
+            return (TSpecification)(object)new WebComponentSpecification(_configurations, eventHandlerFactory);
         }
 
         public async Task ProcessAsync(HttpContext context)
@@ -56,12 +57,12 @@ namespace Periturf.Web
     {
         private readonly List<Func<IWebRequest, bool>> _predicates;
         private readonly Func<IWebResponse, Task> _responseFactory;
-        private readonly List<Func<IWebRequest, Task>> _handlers;
+        private readonly IEventHandler<IWebRequest> _handlers;
 
         public WebConfiguration(
             List<Func<IWebRequest, bool>> predicates,
             Func<IWebResponse, Task> responseFactory,
-            List<Func<IWebRequest, Task>> handlers)
+            IEventHandler<IWebRequest> handlers)
         {
             Debug.Assert(predicates?.Any() == true, "predicates?.Any() == true");
             Debug.Assert(responseFactory != null, "responseFactory != null");
@@ -80,7 +81,7 @@ namespace Periturf.Web
             await ctx.Response.CompleteAsync();
         }
 
-        public Task ExecuteHandlers(HttpContext ctx) => Task.WhenAll(_handlers.Select(x => x(new WebRequest(ctx.Request))));
+        public Task ExecuteHandlers(HttpContext ctx) => _handlers.ExecuteHandlersAsync(new WebRequest(ctx.Request), CancellationToken.None);
     }
 
     class WebRequest : IWebRequest

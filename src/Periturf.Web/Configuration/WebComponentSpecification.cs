@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Periturf.Configuration;
+using Periturf.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,12 @@ namespace Periturf.Web.Configuration
     class WebComponentSpecification : IWebComponentConfigurator, IConfigurationSpecification
     {
         private readonly List<WebConfiguration> _configurations;
+        private readonly IEventHandlerFactory _eventHandlerFactory;
 
-        public WebComponentSpecification(List<WebConfiguration> configurations)
+        public WebComponentSpecification(List<WebConfiguration> configurations, IEventHandlerFactory eventHandlerFactory)
         {
             _configurations = configurations;
+            _eventHandlerFactory = eventHandlerFactory;
         }
 
         public void OnRequest(Action<IWebRequestEventConfigurator> config)
@@ -23,7 +26,7 @@ namespace Periturf.Web.Configuration
             if (config == null)
                 return;
 
-            var spec = new WebRequestEventSpecification();
+            var spec = new WebRequestEventSpecification(_eventHandlerFactory);
             config(spec);
             WebRequestSpecifications.Add(spec);
         }
@@ -35,7 +38,7 @@ namespace Periturf.Web.Configuration
             var newConfig = WebRequestSpecifications.Select(x => new WebConfiguration(
                 x.Predicates,
                 x.ResponseSpecification?.BuildFactory() ?? (x => (Task<IWebResponse>)null),
-                new List<Func<IWebRequest, Task>>())).ToList();
+                _eventHandlerFactory.Create(x.HandlerSpecifications))).ToList();
             _configurations.AddRange(newConfig);
             
             return Task.FromResult<IConfigurationHandle>(new ConfigurationHandle(newConfig, _configurations));
