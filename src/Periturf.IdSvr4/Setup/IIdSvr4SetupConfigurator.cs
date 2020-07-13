@@ -13,27 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Periturf.IdSvr4.Setup
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public interface IIdSvr4SetupConfigurator
     {
-        /// <summary>
-        /// Applies application configuration.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Configure(Action<IApplicationBuilder> config);
-
-        /// <summary>
-        /// Applies configuration to the <see cref="IIdentityServerBuilder"/>.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Services(Action<IIdentityServerBuilder> config);
+        void Options(IdentityServerMiddlewareOptions options);
     }
 }

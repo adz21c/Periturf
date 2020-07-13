@@ -34,7 +34,7 @@ namespace Periturf.Tests.Integration.IdSvr4
         public async Task GiveMeAName()
         {
             // Arrange
-            const string WebHostUrl = "http://localhost:3510";
+            const string WebHostUrl = "http://localhost:3501";
 
             const string ClientId = "ClientId";
             const string ClientSecret = "secret";
@@ -43,9 +43,8 @@ namespace Periturf.Tests.Integration.IdSvr4
 
             var env = Environment.Setup(e =>
             {
-                e.WebHost(h =>
+                e.GenericHost(h =>
                 {
-                    h.UseUrls(WebHostUrl);
                     h.IdSvr4();
                 });
             });

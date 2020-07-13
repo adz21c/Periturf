@@ -13,26 +13,89 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using IdentityModel.Client;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Periturf.Components;
+using Periturf.Hosting.Setup;
+using Periturf.IdSvr4.Clients;
+using Periturf.IdSvr4.Configuration;
+using Periturf.IdSvr4.Verify;
 using System;
+using System.Linq;
+using System.Net.Http;
 
 namespace Periturf.IdSvr4.Setup
 {
-    class IdSvr4SetupSpecification : IIdSvr4SetupConfigurator
+    class IdSvr4SetupSpecification : IGenericHostComponentSpecification, IIdSvr4SetupConfigurator
     {
-        void IIdSvr4SetupConfigurator.Configure(Action<IApplicationBuilder> config)
+        public IdSvr4SetupSpecification(string name)
         {
-            AppConfigCallback = config;
+            Name = name;
         }
 
-        public Action<IApplicationBuilder>? AppConfigCallback { get; private set; }
+        public string Name { get; }
 
-        void IIdSvr4SetupConfigurator.Services(Action<IIdentityServerBuilder> config)
+        public IdentityServerMiddlewareOptions? IdentityServerOptions { get; private set; }
+
+        public void Options(IdentityServerMiddlewareOptions options)
         {
-            ServicesCallback = config;
+            IdentityServerOptions = options;
         }
 
-        public Action<IIdentityServerBuilder>? ServicesCallback { get; private set; }
+        public IComponent Apply(IHostBuilder hostBuilder)
+        {
+            var eventMonitorSink = new EventMonitorSink();
+            var store = new Store();
+
+            hostBuilder.ConfigureServices(services =>
+            {
+                services
+                    .AddSingleton<IClientStore, Store>(sp => store)
+                    .AddSingleton<IResourceStore, Store>(sp => store)
+                    .AddSingleton<IEventSink, EventMonitorSink>(sp => eventMonitorSink);
+
+                services
+                    .AddIdentityServer(i =>
+                    {
+                        i.Events.RaiseErrorEvents = true;
+                        i.Events.RaiseFailureEvents = true;
+                        i.Events.RaiseInformationEvents = true;
+                        i.Events.RaiseSuccessEvents = true;
+                    })
+                    .AddDeveloperSigningCredential();
+            });
+
+            Uri? baseAddress = null;
+            hostBuilder.ConfigureWebHostDefaults(w =>
+            {
+                w.UseUrls("http://localhost:3501");
+                var urls = w.GetSetting("urls");
+                var url = urls.Split(';')
+                    .Select(x => x.Replace("*", "localhost"))
+                    .Select(x => new
+                    {
+                        Url = x,
+                        Rank = x.Contains("localhost") ? 0 : 1
+                    })
+                    .OrderBy(x => x.Rank)
+                    .Select(x => x.Url)
+                    .First();
+                baseAddress = new Uri(url);
+
+                w.Configure((wctx, app) => app.UseIdentityServer(IdentityServerOptions));
+            });
+
+            var httpClient = new HttpClient() { BaseAddress = baseAddress };
+            var client = new ComponentClient(
+                httpClient,
+                new DiscoveryCache(baseAddress.AbsoluteUri.ToLower(), httpClient));
+
+            return new IdSvr4Component(store, eventMonitorSink, client);
+        }
     }
 }
