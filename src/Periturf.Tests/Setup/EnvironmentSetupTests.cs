@@ -86,33 +86,6 @@ namespace Periturf.Tests.Setup
             Assert.That(environment, Is.Not.Null);
         }
 
-        [Test]
-        public void Given_MultipleComponentsWithTheSameName_When_Setup_Then_ThrowException()
-        {
-            // Arrange
-            var component = A.Dummy<IComponent>();
-            var host = A.Dummy<IHost>();
-            A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component } }));
-            var hostSpec = A.Fake<IHostSpecification>();
-            A.CallTo(() => hostSpec.Build()).Returns(host);
-
-            var component2 = A.Dummy<IComponent>();
-            var host2 = A.Dummy<IHost>();
-            A.CallTo(() => host2.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component2 } }));
-            var hostSpec2 = A.Fake<IHostSpecification>();
-            A.CallTo(() => hostSpec2.Build()).Returns(host2);
-
-            // Act
-            var exception = Assert.Throws<DuplicateComponentNameException>(() => Environment.Setup(x =>
-            {
-                x.AddHostSpecification(hostSpec);
-                x.AddHostSpecification(hostSpec2);
-            }));
-
-            // Assert
-            Assert.That(exception.ComponentName, Is.EqualTo(nameof(component)));
-        }
-
         [TestCase(-1)]
         [TestCase(0)]
         public void Given_InvalidTimeout_When_Setup_Then_Throws(int milliseconds)

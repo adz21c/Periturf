@@ -186,9 +186,6 @@ namespace Periturf
                     _env._hosts.Add(host);
                     foreach (var comp in host.Components)
                     {
-                        if (_env._components.ContainsKey(comp.Key))
-                            throw new DuplicateComponentNameException(comp.Key);
-
                         _env._components.Add(comp.Key, comp.Value);
                     }
                 }
