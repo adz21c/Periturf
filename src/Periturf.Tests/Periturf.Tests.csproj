@@ -21,10 +21,6 @@
     <None Remove="AspNetCore\**" />
     <None Remove="MT\**" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Configuration\EnvironmentConfigurationTests.cs" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="1.3.0">
