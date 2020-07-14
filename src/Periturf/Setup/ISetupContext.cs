@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Periturf.Components;
-using Periturf.Events;
 using System;
 
 namespace Periturf.Setup
@@ -25,25 +23,19 @@ namespace Periturf.Setup
     public interface ISetupContext
     {
         /// <summary>
-        /// Gets the event response action context factory.
-        /// </summary>
-        /// <value>
-        /// The event response action context factory.
-        /// </value>
-        IEventHandlerFactory EventResponseContextFactory { get; }
-
-        /// <summary>
         /// Sets the default expectation short circuit state.
         /// </summary>
-        /// <param name="shortCircuit">if set to <c>true</c> [short circuit].</param>
-        void DefaultExpectationShortCircuit(bool shortCircuit);
+        bool DefaultExpectationShortCircuit { set; }
 
         /// <summary>
         /// Sets the default expectation timeout.
         /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        void DefaultExpectationTimeout(TimeSpan timeout);
+        TimeSpan DefaultExpectationTimeout { set; }
 
+        /// <summary>
+        /// Adds a new host specification.
+        /// </summary>
+        /// <param name="hostSpecification">The host specification.</param>
         void AddHostSpecification(IHostSpecification hostSpecification);
     }
 }

@@ -14,11 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AspNetCore\**" />
     <Compile Remove="MT\**" />
-    <EmbeddedResource Remove="AspNetCore\**" />
     <EmbeddedResource Remove="MT\**" />
-    <None Remove="AspNetCore\**" />
     <None Remove="MT\**" />
   </ItemGroup>
   

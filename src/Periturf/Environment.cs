@@ -134,62 +134,17 @@ namespace Periturf
         /// <returns></returns>
         public static Environment Setup(Action<ISetupContext> config)
         {
-            var env = new Environment();
 
-            var configurator = new SetupContext(env);
-            config(configurator);
-            configurator.Build();
+            var spec = new EnvironmentSpecification();
+            config?.Invoke(spec);
+            var hosts = spec.Build();
+
+            var env = new Environment();
+            env._hosts.AddRange(hosts);
+            foreach (var component in env._hosts.SelectMany(x => x.Components))
+                env._components.Add(component.Key, component.Value);
 
             return env;
-        }
-
-        class SetupContext : ISetupContext
-        {
-            private readonly Environment _env;
-            private readonly List<IHostSpecification> _hostSpecifications = new List<IHostSpecification>();
-
-            public SetupContext(Environment env)
-            {
-                _env = env;
-            }
-
-            // TODO: Remove?
-            public IEventHandlerFactory EventResponseContextFactory => _env._eventHandlerFactory;
-
-            public void DefaultExpectationTimeout(TimeSpan timeout)
-            {
-                if (timeout <= TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(timeout));
-
-                _env._defaultExpectationTimeout = timeout;
-            }
-
-            public void DefaultExpectationShortCircuit(bool shortCircuit)
-            {
-                _env._defaultExpectationShortCircuit = shortCircuit;
-            }
-
-            public void AddHostSpecification(IHostSpecification hostSpecification)
-            {
-                _hostSpecifications.Add(hostSpecification ?? throw new ArgumentNullException(nameof(hostSpecification)));
-            }
-
-            public void Build()
-            {
-                foreach (var hostSpec in _hostSpecifications)
-                {
-                    // TODO: Replace a lot of this validation with validation interface
-                    var host = hostSpec.Build();
-                    if (host == null)
-                        throw new ArgumentNullException(nameof(host));
-
-                    _env._hosts.Add(host);
-                    foreach (var comp in host.Components)
-                    {
-                        _env._components.Add(comp.Key, comp.Value);
-                    }
-                }
-            }
         }
 
         #endregion
