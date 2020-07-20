@@ -16,7 +16,7 @@ namespace Periturf.Web.Setup
 
         public string Name { get; }
 
-        public Action<IWebHostBuilder> ConfigreBuilderAction { get; private set; }
+        public Action<IWebHostBuilder>? ConfigreBuilderAction { get; private set; }
 
         public void ConfigureBuilder(Action<IWebHostBuilder> config)
         {

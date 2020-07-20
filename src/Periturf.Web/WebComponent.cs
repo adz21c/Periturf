@@ -12,8 +12,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -109,9 +107,9 @@ namespace Periturf.Web
             _response = response;
         }
 
-        public HttpStatusCode StatusCode { set => _response.StatusCode = (int)value; }
-        public string ContentType { set => _response.ContentType = value; }
-        public long? ContentLength { set => _response.ContentLength = value; }
+        public HttpStatusCode StatusCode { get => (HttpStatusCode) _response.StatusCode; set => _response.StatusCode = (int)value; }
+        public string ContentType { get => _response.ContentType; set => _response.ContentType = value; }
+        public long? ContentLength { get => _response.ContentLength; set => _response.ContentLength = value; }
 
         public void AddCookie(string key, string value, CookieOptions? options = null)
         {

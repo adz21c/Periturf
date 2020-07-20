@@ -8,11 +8,11 @@ namespace Periturf.Web.Configuration
 {
     public interface IWebRequestResponseConfigurator
     {
-        HttpStatusCode? StatusCode { set; }
+        HttpStatusCode? StatusCode { get; set; }
 
-        string? ContentType { set; }
+        string? ContentType { get; set; }
 
-        long? ContentLength { set; }
+        long? ContentLength { get; set; }
 
         void AddHeader(string name, StringValues values);
 

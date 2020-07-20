@@ -25,12 +25,12 @@ namespace Periturf.Setup
         /// <summary>
         /// Sets the default expectation short circuit state.
         /// </summary>
-        bool DefaultExpectationShortCircuit { set; }
+        bool DefaultExpectationShortCircuit { get; set; }
 
         /// <summary>
         /// Sets the default expectation timeout.
         /// </summary>
-        TimeSpan DefaultExpectationTimeout { set; }
+        TimeSpan DefaultExpectationTimeout { get; set; }
 
         /// <summary>
         /// Adds a new host specification.

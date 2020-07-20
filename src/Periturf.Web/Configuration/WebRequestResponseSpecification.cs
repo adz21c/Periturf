@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Periturf.Web.Configuration
@@ -18,14 +16,15 @@ namespace Periturf.Web.Configuration
         public Dictionary<string, StringValues> Headers { get; } = new Dictionary<string, StringValues>();
         public string? StringBody { get; private set; }
         public object? ObjectBody { get; private set; }
-        public Func<IWebResponse, Task> DynamicWriter { get; private set; }
+        public Func<IWebResponse, Task>? DynamicWriter { get; private set; }
 
         public void AddCookie(string key, string value, CookieOptions? options = null)
         {
-            Cookies.Add(new WebCookie
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+
+            Cookies.Add(new WebCookie(key, value ?? string.Empty)
             {
-                Key = key,
-                Value = value,
                 Options = options
             });
         }

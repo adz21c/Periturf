@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Periturf.Configuration;
+﻿using Periturf.Configuration;
 using Periturf.Events;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,10 +34,14 @@ namespace Periturf.Web.Configuration
 
         public Task<IConfigurationHandle> ApplyAsync(CancellationToken ct = default)
         {
-            var newConfig = WebRequestSpecifications.Select(x => new WebConfiguration(
-                x.Predicates,
-                x.ResponseSpecification?.BuildFactory() ?? (x => (Task<IWebResponse>)null),
-                _eventHandlerFactory.Create(x.HandlerSpecifications))).ToList();
+            var newConfig = WebRequestSpecifications.Select(x =>
+            {
+                Debug.Assert(x.ResponseSpecification != null, "x.ResponseSpecification != null");
+                return new WebConfiguration(
+                  x.Predicates,
+                  x.ResponseSpecification.BuildFactory(),
+                  _eventHandlerFactory.Create(x.HandlerSpecifications));
+            }).ToList();
             _configurations.AddRange(newConfig);
             
             return Task.FromResult<IConfigurationHandle>(new ConfigurationHandle(newConfig, _configurations));
