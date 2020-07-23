@@ -14,8 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="IdSvr4\**" />
     <Compile Remove="MT\**" />
+    <EmbeddedResource Remove="IdSvr4\**" />
     <EmbeddedResource Remove="MT\**" />
+    <None Remove="IdSvr4\**" />
     <None Remove="MT\**" />
   </ItemGroup>
   
@@ -39,10 +42,6 @@
     <ProjectReference Include="..\Periturf.IdSvr4\Periturf.IdSvr4.csproj" />
     <ProjectReference Include="..\Periturf.MT\Periturf.MT.csproj" />
     <ProjectReference Include="..\Periturf\Periturf.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="IdSvr4\Setup\" />
   </ItemGroup>
 
 </Project>
