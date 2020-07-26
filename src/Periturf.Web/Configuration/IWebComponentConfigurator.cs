@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Periturf.Web.Configuration.Requests;
+using System;
 
 namespace Periturf.Web.Configuration
 {

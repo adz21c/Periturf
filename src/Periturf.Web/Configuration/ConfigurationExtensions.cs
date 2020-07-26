@@ -15,6 +15,9 @@
  */
 using Periturf.Configuration;
 using Periturf.Web.Configuration;
+using Periturf.Web.Configuration.Requests;
+using Periturf.Web.Configuration.Requests.Predicates;
+using Periturf.Web.Configuration.Requests.Responses;
 using System;
 using System.Diagnostics.CodeAnalysis;
 

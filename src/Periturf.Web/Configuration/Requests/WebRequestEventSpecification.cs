@@ -1,10 +1,12 @@
 ﻿using Periturf.Events;
+using Periturf.Web.Configuration.Requests.Predicates;
+using Periturf.Web.Configuration.Requests.Responses;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Periturf.Web.Configuration
+namespace Periturf.Web.Configuration.Requests
 {
     class WebRequestEventSpecification : EventSpecification<IWebRequest>, IWebRequestEventConfigurator
     {

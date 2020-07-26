@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Periturf.Web.Configuration;
 using System;
 
-namespace Periturf
+namespace Periturf.Web.Configuration.Requests.Predicates
 {
     class WebRequestPredicateSpecification : IWebRequestPredicateSpecification
     {
