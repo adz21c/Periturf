@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Primitives;
 using Periturf.Web.Configuration;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Web
 {
+    [ExcludeFromCodeCoverage]
     class WebRequest : IWebRequest
     {
         private readonly HttpRequest _request;

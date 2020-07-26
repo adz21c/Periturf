@@ -33,18 +33,21 @@ namespace Periturf.Web
 
         public async Task ProcessAsync(HttpContext context)
         {
+            var request = new WebRequest(context.Request);
             var config = ((IEnumerable<WebConfiguration>)_configurations)
                 .Reverse()
-                .FirstOrDefault(x => x.Matches(context));
+                .FirstOrDefault(x => x.Matches(request));
             if (config == null)
             {
                 context.Response.StatusCode = 404;
                 return;
             }
 
-            await config.WriteResponse(context);
+            var response = new WebResponse(context.Response);
+            await config.WriteResponse(response);
+            await context.Response.CompleteAsync();
 
-            await config.ExecuteHandlers(context);
+            await config.ExecuteHandlers(request);
         }
     }
 }

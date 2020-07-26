@@ -30,14 +30,13 @@ namespace Periturf.Web
             _handlers = handlers;
         }
 
-        public bool Matches(HttpContext ctx) => _predicates.Any(x => x(new WebRequest(ctx.Request)));
+        public bool Matches(IWebRequest request) => _predicates.Any(x => x(request));
 
-        public async Task WriteResponse(HttpContext ctx)
+        public async Task WriteResponse(IWebResponse response)
         {
-            await _responseFactory(new WebResponse(ctx.Response));
-            await ctx.Response.CompleteAsync();
+            await _responseFactory(response);
         }
 
-        public Task ExecuteHandlers(HttpContext ctx) => _handlers.ExecuteHandlersAsync(new WebRequest(ctx.Request), CancellationToken.None);
+        public Task ExecuteHandlers(IWebRequest request) => _handlers.ExecuteHandlersAsync(request, CancellationToken.None);
     }
 }
