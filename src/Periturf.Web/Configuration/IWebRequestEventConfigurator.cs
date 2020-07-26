@@ -6,7 +6,8 @@ namespace Periturf.Web.Configuration
 {
     public interface IWebRequestEventConfigurator : IEventConfigurator<IWebRequest>
     {
-        void Predicate(Func<IWebRequest, bool> predicate);
-        void Response(Action<IWebRequestResponseConfigurator> config);
+        void AddPredicateSpecification(IWebRequestPredicateSpecification spec);
+
+        void SetResponseSpecification(IWebRequestResponseSpecification spec);
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Periturf.Web.Configuration
 {
-    class WebRequestResponseSpecification : IWebRequestResponseConfigurator
+    class WebRequestResponseSpecification : IWebRequestResponseSpecification, IWebRequestResponseConfigurator
     {
         public HttpStatusCode? StatusCode { get; set; }
         public string? ContentType { get; set; }

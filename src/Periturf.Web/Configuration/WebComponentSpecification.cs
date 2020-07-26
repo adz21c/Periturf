@@ -34,14 +34,7 @@ namespace Periturf.Web.Configuration
 
         public Task<IConfigurationHandle> ApplyAsync(CancellationToken ct = default)
         {
-            var newConfig = WebRequestSpecifications.Select(x =>
-            {
-                Debug.Assert(x.ResponseSpecification != null, "x.ResponseSpecification != null");
-                return new WebConfiguration(
-                  x.Predicates,
-                  x.ResponseSpecification.BuildFactory(),
-                  _eventHandlerFactory.Create(x.HandlerSpecifications));
-            }).ToList();
+            var newConfig = WebRequestSpecifications.Select(x => x.Build()).ToList();
             _configurations.AddRange(newConfig);
             
             return Task.FromResult<IConfigurationHandle>(new ConfigurationHandle(newConfig, _configurations));

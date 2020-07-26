@@ -20,7 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf
 {
-    public static class ConfigurationContextExtensions
+    public static class ConfigurationExtensions
     {
         [ExcludeFromCodeCoverage]
         public static void Web(this IConfigurationContext builder, Action<IWebComponentConfigurator> config)
@@ -33,6 +33,18 @@ namespace Periturf
             var spec = builder.CreateComponentConfigSpecification<WebComponentSpecification>(name);
             config(spec);
             builder.AddSpecification(spec);
+        }
+
+        public static void Predicate(this IWebRequestEventConfigurator configurator, Func<IWebRequest, bool> predicate)
+        {
+            configurator.AddPredicateSpecification(new WebRequestPredicateSpecification(predicate));
+        }
+
+        public static void Response(this IWebRequestEventConfigurator configurator, Action<IWebRequestResponseConfigurator> config)
+        {
+            var spec = new WebRequestResponseSpecification();
+            config?.Invoke(spec);
+            configurator.SetResponseSpecification(spec);
         }
     }
 }
