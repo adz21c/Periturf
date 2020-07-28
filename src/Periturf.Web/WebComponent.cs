@@ -30,7 +30,7 @@ namespace Periturf.Web
         {
             return (TSpecification)(object)new WebComponentSpecification(_configurations, eventHandlerFactory);
         }
-
+        
         public async Task ProcessAsync(HttpContext context)
         {
             var request = new WebRequest(context.Request);
@@ -40,6 +40,7 @@ namespace Periturf.Web
             if (config == null)
             {
                 context.Response.StatusCode = 404;
+                await context.Response.CompleteAsync();
                 return;
             }
 
