@@ -10,30 +10,29 @@ namespace Periturf.Web.Configuration.Requests
 {
     class WebRequestEventSpecification : EventSpecification<IWebRequest>, IWebRequestEventConfigurator
     {
+        private readonly List<IWebRequestPredicateSpecification> _predicates = new List<IWebRequestPredicateSpecification>();
+        private IWebRequestResponseSpecification? _responseSpecification;
+
         public WebRequestEventSpecification(IEventHandlerFactory eventHandlerFactory) : base(eventHandlerFactory)
         { }
 
         public void AddPredicateSpecification(IWebRequestPredicateSpecification spec)
         {
-            Predicates.Add(spec ?? throw new ArgumentNullException(nameof(spec)));
+            _predicates.Add(spec ?? throw new ArgumentNullException(nameof(spec)));
         }
 
         public void SetResponseSpecification(IWebRequestResponseSpecification spec)
         {
-            ResponseSpecification = spec;
+            _responseSpecification = spec;
         }
-
-        public List<IWebRequestPredicateSpecification> Predicates { get; } = new List<IWebRequestPredicateSpecification>();
-
-        public IWebRequestResponseSpecification? ResponseSpecification { get; private set; }
 
         public WebConfiguration Build()
         {
-            Debug.Assert(ResponseSpecification != null, "ResponseSpecification != null");
+            Debug.Assert(_responseSpecification != null, "ResponseSpecification != null");
 
             return new WebConfiguration(
-                Predicates.Select(x => x.Build()).ToList(),
-                ResponseSpecification.BuildFactory(),
+                _predicates.Select(x => x.Build()).ToList(),
+                _responseSpecification.BuildFactory(),
                 CreateHandler());
         }
     }
