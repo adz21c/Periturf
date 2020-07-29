@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Web.Configuration.Requests.Predicates
 {
+    [ExcludeFromCodeCoverage]
     class WebRequestPredicateSpecification : IWebRequestPredicateSpecification
     {
         private readonly Func<IWebRequest, bool> _predicate;
