@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipelines;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -7,17 +9,17 @@ namespace Periturf.Web.Configuration
 {
     public interface IWebResponse
     {
-        HttpStatusCode StatusCode { set; }
+        HttpStatusCode StatusCode { get; set; }
 
-        string ContentType { set; }
-
-        long? ContentLength { set; }
+        string ContentType { get; set; }
 
         void AddHeader(string name, IEnumerable<object> values);
 
         void AddCookie(string key, string value, CookieOptions? options = null);
 
-        Task SetBodyAsync(object body);
+        Stream BodyStream { get; }
+
+        PipeWriter BodyWriter { get; }
 
         Task WriteBodyAsync(string body);
     }

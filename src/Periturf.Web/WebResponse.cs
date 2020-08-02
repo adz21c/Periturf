@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using Periturf.Web.Configuration;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -21,6 +23,7 @@ namespace Periturf.Web
         public string ContentType { get => _response.ContentType; set => _response.ContentType = value; }
         public long? ContentLength { get => _response.ContentLength; set => _response.ContentLength = value; }
 
+
         public void AddCookie(string key, string value, CookieOptions? options = null)
         {
             if (options == null)
@@ -34,12 +37,9 @@ namespace Periturf.Web
             _response.Headers.AppendList(name, values.ToList());
         }
 
-        public async Task SetBodyAsync(object body)
-        {
-            _response.ContentType = "application/json";
-            await _response.StartAsync();
-            await _response.WriteAsync(JsonConvert.SerializeObject(body));
-        }
+        public Stream BodyStream => _response.Body;
+
+        public PipeWriter BodyWriter => _response.BodyWriter;
 
         public async Task WriteBodyAsync(string body)
         {

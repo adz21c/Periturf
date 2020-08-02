@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -9,15 +10,13 @@ namespace Periturf.Web.Configuration.Requests.Responses
 {
     class WebRequestResponseSpecification : IWebRequestResponseSpecification, IWebRequestResponseConfigurator
     {
+        private IWebRequestResponseBodySpecification? _bodySpecification;
+
         public HttpStatusCode? StatusCode { get; set; }
         public string? ContentType { get; set; }
-        public long? ContentLength { get; set; }
         public List<WebCookie> Cookies { get; } = new List<WebCookie>();
         public Dictionary<string, StringValues> Headers { get; } = new Dictionary<string, StringValues>();
-        public string? StringBody { get; private set; }
-        public object? ObjectBody { get; private set; }
-        public Func<IWebResponse, Task>? DynamicWriter { get; private set; }
-
+        
         public void AddCookie(string key, string value, CookieOptions? options = null)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -34,31 +33,20 @@ namespace Periturf.Web.Configuration.Requests.Responses
             Headers[name] = values;
         }
 
-        public void SetBody(object body)
+        public void SetBodySpecification(IWebRequestResponseBodySpecification spec)
         {
-            StringBody = null;
-            ObjectBody = body;
-        }
-
-        public void SetBody(string body)
-        {
-            StringBody = body;
-            ObjectBody = null;
-        }
-
-        public void Dynamic(Func<IWebResponse, Task> writer)
-        {
-            DynamicWriter = writer;
+            _bodySpecification = spec ?? throw new ArgumentNullException(nameof(spec));
         }
 
         public Func<IWebResponse, Task> BuildFactory()
         {
+            Debug.Assert(_bodySpecification != null, "_bodySpecification != null");
+            var bodyWriter = _bodySpecification.Build();
+
             return async response =>
             {
                 if (StatusCode.HasValue)
                     response.StatusCode = StatusCode.Value;
-                if (ContentLength.HasValue)
-                    response.ContentLength = ContentLength.Value;
                 if (ContentType != null)
                     response.ContentType = ContentType;
 
@@ -68,13 +56,7 @@ namespace Periturf.Web.Configuration.Requests.Responses
                 foreach (var cookie in Cookies)
                     response.AddCookie(cookie.Key, cookie.Value, cookie.Options);
 
-                if (DynamicWriter != null)
-                    await DynamicWriter(response);
-
-                if (ObjectBody != null)
-                    await response.SetBodyAsync(ObjectBody);
-                else if (StringBody != null)
-                    await response.WriteBodyAsync(StringBody);
+                await bodyWriter(response);
             };
         }
     }

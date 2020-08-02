@@ -12,16 +12,10 @@ namespace Periturf.Web.Configuration.Requests.Responses
 
         string? ContentType { get; set; }
 
-        long? ContentLength { get; set; }
-
         void AddHeader(string name, StringValues values);
 
         void AddCookie(string key, string value, CookieOptions? options = null);
-
-        void SetBody(object body);
         
-        void SetBody(string body);
-
-        void Dynamic(Func<IWebResponse, Task> writer);
+        void SetBodySpecification(IWebRequestResponseBodySpecification spec);
     }
 }

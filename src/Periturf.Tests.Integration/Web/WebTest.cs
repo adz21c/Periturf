@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using NUnit.Framework;
 using Periturf.Events;
+using Periturf.Web.Configuration.Requests.Responses;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -47,7 +48,11 @@ namespace Periturf.Tests.Integration.Web
                             r.Response(rs =>
                             {
                                 rs.StatusCode = HttpStatusCode.OK;
-                                rs.SetBody(new { Test = "Value" });
+                                rs.ObjectBody(ob =>
+                                {
+                                    ob.Object(new { Test = "Value" });
+                                    ob.XmlSerializer();
+                                });
                             });
                             r.Handle(async (e, ct) => Console.Write("something"));
                         });
