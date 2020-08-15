@@ -5,7 +5,7 @@ using System.IO.Pipelines;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Periturf.Web.Configuration
+namespace Periturf.Web
 {
     public interface IWebResponse
     {

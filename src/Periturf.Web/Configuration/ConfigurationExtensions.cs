@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using Periturf.Configuration;
+using Periturf.Web;
 using Periturf.Web.Configuration;
 using Periturf.Web.Configuration.Requests;
 using Periturf.Web.Configuration.Requests.Predicates;
@@ -38,7 +39,7 @@ namespace Periturf
             builder.AddSpecification(spec);
         }
 
-        public static void Predicate(this IWebRequestEventConfigurator configurator, Func<IWebRequest, bool> predicate)
+        public static void Predicate(this IWebRequestEventConfigurator configurator, Func<IWebRequestEvent, bool> predicate)
         {
             configurator.AddPredicateSpecification(new WebRequestPredicateSpecification(predicate));
         }

@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Events;
+using Periturf.Web;
 using Periturf.Web.Configuration;
 using Periturf.Web.Configuration.Requests;
 using Periturf.Web.Configuration.Requests.Predicates;
@@ -20,7 +21,7 @@ namespace Periturf.Tests.Web.Configuration
         {
             var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
             
-            var predicate = A.Dummy<Func<IWebRequest, bool>>();
+            var predicate = A.Dummy<Func<IWebRequestEvent, bool>>();
             var predicateSpec = A.Fake<IWebRequestPredicateSpecification>();
             A.CallTo(() => predicateSpec.Build()).Returns(predicate);
 
@@ -37,13 +38,13 @@ namespace Periturf.Tests.Web.Configuration
 
             var config = sut.Build();
 
-            var request = A.Dummy<IWebRequest>();
+            var request = A.Dummy<IWebRequestEvent>();
             var response = A.Dummy<IWebResponse>();
 
             config.Matches(request);
             await config.WriteResponse(response);
 
-            A.CallTo(() => predicate.Invoke(A<IWebRequest>._)).MustHaveHappened();
+            A.CallTo(() => predicate.Invoke(A<IWebRequestEvent>._)).MustHaveHappened();
             A.CallTo(() => responseFactory.Invoke(A<IWebResponse>._)).MustHaveHappened();
             A.CallTo(() => eventHandlerFactory.Create(A<IEnumerable<IEventHandlerSpecification<IWebRequest>>>._)).MustHaveHappened();
 

@@ -12,12 +12,12 @@ namespace Periturf.Web
 {
     class WebConfiguration
     {
-        private readonly List<Func<IWebRequest, bool>> _predicates;
+        private readonly List<Func<IWebRequestEvent, bool>> _predicates;
         private readonly Func<IWebResponse, Task> _responseFactory;
         private readonly IEventHandler<IWebRequest> _handlers;
 
         public WebConfiguration(
-            List<Func<IWebRequest, bool>> predicates,
+            List<Func<IWebRequestEvent, bool>> predicates,
             Func<IWebResponse, Task> responseFactory,
             IEventHandler<IWebRequest> handlers)
         {
@@ -30,7 +30,7 @@ namespace Periturf.Web
             _handlers = handlers;
         }
 
-        public bool Matches(IWebRequest request) => _predicates.Any(x => x(request));
+        public bool Matches(IWebRequestEvent request) => _predicates.Any(x => x(request));
 
         public async Task WriteResponse(IWebResponse response)
         {

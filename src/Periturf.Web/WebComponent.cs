@@ -33,10 +33,12 @@ namespace Periturf.Web
         
         public async Task ProcessAsync(HttpContext context)
         {
-            var request = new WebRequest(context.Request);
+            var @event = new WebRequestEvent(
+                context.TraceIdentifier,
+                new WebRequest(context.Request));
             var config = ((IEnumerable<WebConfiguration>)_configurations)
                 .Reverse()
-                .FirstOrDefault(x => x.Matches(request));
+                .FirstOrDefault(x => x.Matches(@event));
             if (config == null)
             {
                 context.Response.StatusCode = 404;
@@ -48,7 +50,7 @@ namespace Periturf.Web
             await config.WriteResponse(response);
             await context.Response.CompleteAsync();
 
-            await config.ExecuteHandlers(request);
+            await config.ExecuteHandlers(@event.Request);
         }
     }
 }

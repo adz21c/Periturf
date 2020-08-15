@@ -7,6 +7,6 @@ namespace Periturf.Web.Configuration.Requests.Predicates
 {
     public interface IWebRequestPredicateSpecification
     {
-        Func<IWebRequest, bool> Build();
+        Func<IWebRequestEvent, bool> Build();
     }
 }

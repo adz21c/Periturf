@@ -44,14 +44,14 @@ namespace Periturf.Tests.Integration.Web
                     {
                         w.OnRequest(r =>
                         {
-                            r.Predicate(x => x.Method.ToLower() == "get");
+                            r.Predicate(x => x.Request.Method.ToLower() == "get");
                             r.Response(rs =>
                             {
                                 rs.StatusCode = HttpStatusCode.OK;
                                 rs.ObjectBody(ob =>
                                 {
                                     ob.Object(new { Test = "Value" });
-                                    ob.XmlSerializer();
+                                    ob.JsonSerializer();
                                 });
                             });
                             r.Handle(async (e, ct) => Console.Write("something"));

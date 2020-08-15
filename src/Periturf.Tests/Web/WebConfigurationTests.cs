@@ -16,11 +16,11 @@ namespace Periturf.Tests.Web
     [TestFixture]
     class WebConfigurationTests
     {
-        private readonly List<Func<IWebRequest, bool>> _predicates = new List<Func<IWebRequest, bool>>();
+        private readonly List<Func<IWebRequestEvent, bool>> _predicates = new List<Func<IWebRequestEvent, bool>>();
         private readonly Func<IWebResponse, Task> _responseFactory = A.Fake<Func<IWebResponse, Task>>();
         private readonly IEventHandler<IWebRequest> _handler = A.Fake<IEventHandler<IWebRequest>>();
         private WebConfiguration _sut;
-        private readonly IWebRequest _request = A.Dummy<IWebRequest>();
+        private readonly IWebRequestEvent _request = A.Dummy<IWebRequestEvent>();
 
         [SetUp]
         public void SetUp()
@@ -42,14 +42,14 @@ namespace Periturf.Tests.Web
         [TestCase(false)]
         public void Given_OnePredicate_When_Matches_Then_Result(bool match)
         {
-            var predicate = A.Fake<Func<IWebRequest, bool>>();
-            A.CallTo(() => predicate.Invoke(A<IWebRequest>._)).Returns(match);
+            var predicate = A.Fake<Func<IWebRequestEvent, bool>>();
+            A.CallTo(() => predicate.Invoke(A<IWebRequestEvent>._)).Returns(match);
             _predicates.Add(predicate);
 
             var result = _sut.Matches(_request);
 
             Assert.That(result, Is.EqualTo(match));
-            A.CallTo(() => predicate.Invoke(A<IWebRequest>._)).MustHaveHappened();
+            A.CallTo(() => predicate.Invoke(A<IWebRequestEvent>._)).MustHaveHappened();
         }
 
         [TestCase(false, false, false)]
@@ -58,12 +58,12 @@ namespace Periturf.Tests.Web
         [TestCase(true, true, true)]
         public void Given_MultiplePredicates_When_Matches_Then_Result(bool result1, bool result2, bool expectedResult)
         {
-            var predicate = A.Fake<Func<IWebRequest, bool>>();
-            A.CallTo(() => predicate.Invoke(A<IWebRequest>._)).Returns(result1);
+            var predicate = A.Fake<Func<IWebRequestEvent, bool>>();
+            A.CallTo(() => predicate.Invoke(A<IWebRequestEvent>._)).Returns(result1);
             _predicates.Add(predicate);
 
-            var predicate2 = A.Fake<Func<IWebRequest, bool>>();
-            A.CallTo(() => predicate2.Invoke(A<IWebRequest>._)).Returns(result2);
+            var predicate2 = A.Fake<Func<IWebRequestEvent, bool>>();
+            A.CallTo(() => predicate2.Invoke(A<IWebRequestEvent>._)).Returns(result2);
             _predicates.Add(predicate2);
 
             var result = _sut.Matches(_request);
@@ -82,7 +82,7 @@ namespace Periturf.Tests.Web
         [Test]
         public async Task Given_EventHandler_When_ExecuteHandler_Then_Executed()
         {
-            await _sut.ExecuteHandlers(_request);
+            await _sut.ExecuteHandlers(_request.Request);
 
             A.CallTo(() => _handler.ExecuteHandlersAsync(A<IWebRequest>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly();
         }

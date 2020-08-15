@@ -2,24 +2,70 @@
 using Microsoft.Extensions.Primitives;
 using Periturf.Web.Configuration;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Pipelines;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.Web
 {
     [ExcludeFromCodeCoverage]
     class WebRequest : IWebRequest
     {
-        private readonly HttpRequest _request;
-
         public WebRequest(HttpRequest request)
         {
-            _request = request;
+            Scheme = request.Scheme;
+            IsHttps = request.IsHttps;
+            Protocol = request.Protocol;
+            Host = request.Host;
+            PathBase = request.PathBase;
+            Path = request.Path;
+            QueryString = request.QueryString;
+            Query = request.Query;
+            Headers = request.Headers.ToImmutableDictionary();
+            Method = request.Method;
+            ContentType = request.ContentType;
+            ContentLength = request.ContentLength;
+            Cookies = request.Cookies;
+            Body = request.Body;
+            BodyReader = request.BodyReader;
         }
 
-        public PathString Path => _request.Path;
+        public string Scheme { get; }
 
-        public string Method => _request.Method;
+        public bool IsHttps { get; }
 
-        public IDictionary<string, StringValues> Headers => _request.Headers;
+        public string Protocol { get; }
+
+        public HostString Host { get; }
+
+        public PathString PathBase { get; }
+
+        public PathString Path { get; }
+
+        public QueryString QueryString { get; }
+
+        public IQueryCollection Query { get; }
+
+        public ImmutableDictionary<string, StringValues> Headers { get; }
+
+        public string Method { get; }
+
+        public string ContentType { get; }
+
+        public long? ContentLength { get; }
+
+        public IRequestCookieCollection Cookies { get; }
+
+        public Stream Body { get; }
+
+        public PipeReader BodyReader { get; }
+
+        public Task<TContent> GetContentAsync<TContent>(CancellationToken ct = default)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -21,14 +21,14 @@ namespace Periturf.Web.Configuration.Requests.Predicates
     [ExcludeFromCodeCoverage]
     class WebRequestPredicateSpecification : IWebRequestPredicateSpecification
     {
-        private readonly Func<IWebRequest, bool> _predicate;
+        private readonly Func<IWebRequestEvent, bool> _predicate;
         
-        public WebRequestPredicateSpecification(Func<IWebRequest, bool> predicate)
+        public WebRequestPredicateSpecification(Func<IWebRequestEvent, bool> predicate)
         {
             _predicate = predicate;
         }
 
-        public Func<IWebRequest, bool> Build()
+        public Func<IWebRequestEvent, bool> Build()
         {
             return _predicate;
         }
