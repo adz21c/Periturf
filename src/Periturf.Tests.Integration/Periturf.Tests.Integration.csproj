@@ -14,12 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="MT\**" />
-    <EmbeddedResource Remove="MT\**" />
-    <None Remove="MT\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="IdentityModel" Version="3.10.10" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="nunit" Version="3.12.0" />
