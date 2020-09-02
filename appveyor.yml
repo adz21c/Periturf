@@ -27,6 +27,8 @@ before_build:
     gitversion /l console /output buildserver /updateAssemblyInfo
     
     choco install codecov
+
+    dotnet tool install --global coverlet.console
     
     dotnet tool install --global dotnet-sonarscanner
     
@@ -45,11 +47,11 @@ build_script:
     
     dotnet build src --no-restore -c Release
     
-    dotnet test src --no-build -c Release --settings src/CodeCoverage.runsettings
+    coverlet src/Periturf.Tests/bin/Release/netcoreapp3.1/Periturf.Tests.dll --target "dotnet" --targetargs "test src --no-build -c Release" --format OpenCover
 
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
-    codecov -f "$env:TestResults_output/*/coverage.cobertura.xml" -t "$env:CODECOV_TOKEN"
+    codecov -f "coverage.OpenCover.xml" -t "$env:CODECOV_TOKEN"
     
     dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
 
