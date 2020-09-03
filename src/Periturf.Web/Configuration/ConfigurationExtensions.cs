@@ -24,9 +24,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf
 {
+    [ExcludeFromCodeCoverage]
     public static class ConfigurationExtensions
     {
-        [ExcludeFromCodeCoverage]
         public static void Web(this IConfigurationContext builder, Action<IWebComponentConfigurator> config)
         {
             builder.Web("Web", config);

@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Periturf.Web.Configuration.Requests.Responses;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace Periturf.Web.Configuration.Requests.Responses
+namespace Periturf
 {
+    [ExcludeFromCodeCoverage]
     public static class WebRequestResponseExtensions
     {
         public static void ObjectBody(this IWebRequestResponseConfigurator configurator, Action<IWebRequestResponseObjectConfigurator>? config)

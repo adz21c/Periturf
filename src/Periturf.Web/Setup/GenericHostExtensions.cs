@@ -26,9 +26,9 @@ namespace Periturf
     /// <summary>
     /// 
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class GenericHostExtensions
     {
-        [ExcludeFromCodeCoverage]
         public static void Web(this IGenericHostConfigurator configurator, Action<IWebComponentSetupConfigurator> config)
         {
             configurator.Web("Web", config);
