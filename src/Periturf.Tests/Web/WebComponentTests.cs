@@ -83,6 +83,8 @@ namespace Periturf.Tests.Web
 
             A.CallTo(() => _eventHandlerFactory.Create(A<IEnumerable<IEventHandlerSpecification<IWebRequest>>>.That.Contains(_handlerSpec))).MustHaveHappened();
 
+            Assert.That(context.Response.StatusCode, Is.EqualTo(404));
+
             A.CallTo(() => _predicate.Invoke(A<IWebRequestEvent>._)).MustHaveHappened();
             A.CallTo(() => _responseFactory.Invoke(A<IWebResponse>._)).MustNotHaveHappened();
             A.CallTo(() => _eventHandler.ExecuteHandlersAsync(A<IWebRequest>._, A<CancellationToken>._)).MustNotHaveHappened();
