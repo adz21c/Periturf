@@ -45,7 +45,9 @@ build_script:
     
     dotnet build src --no-restore -c Release
     
-    dotnet test .\src --collect:"XPlat code coverage" --settings:.\src\CodeCoverage.runsettings
+    dotnet test .\src\Periturf.Tests --collect:"XPlat code coverage" --settings:.\src\CodeCoverage.runsettings
+
+    dotnet test .\src\Periturf.Tests.Integration
 
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
