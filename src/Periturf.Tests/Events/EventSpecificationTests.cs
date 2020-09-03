@@ -25,6 +25,22 @@ namespace Periturf.Tests.Events
     class EventSpecificationTests
     {
         [Test]
+        public void Given_Null_When_Ctor_Then_Exception()
+        {
+            Assert.That(() => new TestEventSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("eventHandlerFactory"));
+        }
+
+        [Test]
+        public void Given_Null_When_AddHandlerSpec_Then_Exception()
+        {
+            var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
+
+            var spec = new TestEventSpecification(eventHandlerFactory);
+
+            Assert.That(() => spec.AddHandlerSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
+
+        [Test]
         public void Given_HandlerSpec_When_AddHandlerSpec_Then_AddedToEventSpec()
         {
             var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
