@@ -16,11 +16,33 @@ namespace Periturf.Tests.Web.Configuration
     [TestFixture]
     class WebRequestEventSpecificationTests
     {
+        private IEventHandlerFactory _eventHandlerFactory;
+        private WebRequestEventSpecification _sut;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _eventHandlerFactory = A.Fake<IEventHandlerFactory>();
+
+            _sut = new WebRequestEventSpecification(_eventHandlerFactory);
+        }
+
+        [Test]
+        public void Given_Null_When_AddPredicateSpec_Then_Exception()
+        {
+            Assert.That(() => _sut.AddPredicateSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
+
+
+        [Test]
+        public void Given_Null_When_SetResponseSpec_Then_Exception()
+        {
+            Assert.That(() => _sut.SetResponseSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
+
         [Test]
         public async Task Given_WebRequestSpec_When_Build_Then_ConfigBuilt()
         {
-            var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
-            
             var predicate = A.Dummy<Func<IWebRequestEvent, bool>>();
             var predicateSpec = A.Fake<IWebRequestPredicateSpecification>();
             A.CallTo(() => predicateSpec.Build()).Returns(predicate);
@@ -31,12 +53,11 @@ namespace Periturf.Tests.Web.Configuration
             
             var handlerSpec = A.Fake<IEventHandlerSpecification<IWebRequest>>();
 
-            var sut = new WebRequestEventSpecification(eventHandlerFactory);
-            sut.AddPredicateSpecification(predicateSpec);
-            sut.SetResponseSpecification(responseSpec);
-            sut.AddHandlerSpecification(handlerSpec);
+            _sut.AddPredicateSpecification(predicateSpec);
+            _sut.SetResponseSpecification(responseSpec);
+            _sut.AddHandlerSpecification(handlerSpec);
 
-            var config = sut.Build();
+            var config = _sut.Build();
 
             var request = A.Dummy<IWebRequestEvent>();
             var response = A.Dummy<IWebResponse>();
@@ -46,7 +67,7 @@ namespace Periturf.Tests.Web.Configuration
 
             A.CallTo(() => predicate.Invoke(A<IWebRequestEvent>._)).MustHaveHappened();
             A.CallTo(() => responseFactory.Invoke(A<IWebResponse>._)).MustHaveHappened();
-            A.CallTo(() => eventHandlerFactory.Create(A<IEnumerable<IEventHandlerSpecification<IWebRequest>>>._)).MustHaveHappened();
+            A.CallTo(() => _eventHandlerFactory.Create(A<IEnumerable<IEventHandlerSpecification<IWebRequest>>>._)).MustHaveHappened();
 
             Assert.That(config, Is.Not.Null);
         }

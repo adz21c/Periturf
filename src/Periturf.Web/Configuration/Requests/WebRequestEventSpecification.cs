@@ -23,7 +23,7 @@ namespace Periturf.Web.Configuration.Requests
 
         public void SetResponseSpecification(IWebRequestResponseSpecification spec)
         {
-            _responseSpecification = spec;
+            _responseSpecification = spec ?? throw new ArgumentNullException(nameof(spec));
         }
 
         public WebConfiguration Build()

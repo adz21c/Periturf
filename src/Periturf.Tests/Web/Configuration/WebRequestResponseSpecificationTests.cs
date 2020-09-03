@@ -14,6 +14,22 @@ namespace Periturf.Tests.Web.Configuration
     [TestFixture]
     class WebRequestResponseSpecificationTests
     {
+        [TestCase(null, Description = "NULL")]
+        [TestCase("", Description = "Empty")]
+        [TestCase(" ", Description = "Whitespace")]
+        public void Given_InvalidKey_When_AddCookie_Then_Exception(string key)
+        {
+            var sut = new WebRequestResponseSpecification();
+            Assert.That(() => sut.AddCookie(key, null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("key"));
+        }
+
+        [Test]
+        public void Given_Null_When_SetBodySpec_Then_Exception()
+        {
+            var sut = new WebRequestResponseSpecification();
+            Assert.That(() => sut.SetBodySpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
+
         [Test]
         public async Task Given_Spec_When_Build_Then_WriterCreatesResponse()
         {

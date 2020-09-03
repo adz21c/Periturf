@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Periturf.Web.Configuration;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Periturf.Web
 {
+    [ExcludeFromCodeCoverage]
     class WebResponse : IWebResponse
     {
         private readonly HttpResponse _response;
