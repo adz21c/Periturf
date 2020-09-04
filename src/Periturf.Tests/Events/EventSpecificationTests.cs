@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2020 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Events;
 using System;
+using System.Collections.Generic;
 
 namespace Periturf.Tests.Events
 {
@@ -24,21 +25,64 @@ namespace Periturf.Tests.Events
     class EventSpecificationTests
     {
         [Test]
-        public void Given_MultiplePredicates_When_Predicate_Then_Recorded()
+        public void Given_Null_When_Ctor_Then_Exception()
         {
-            var spec = new EventSpecification<Object>();
+            Assert.That(() => new TestEventSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("eventHandlerFactory"));
+        }
 
-            var predicate1 = A.Dummy<Func<Object, bool>>();
-            var predicate2 = A.Dummy<Func<Object, bool>>();
+        [Test]
+        public void Given_Null_When_AddHandlerSpec_Then_Exception()
+        {
+            var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
 
-            spec.Predicate(predicate1);
-            spec.Predicate(predicate2);
+            var spec = new TestEventSpecification(eventHandlerFactory);
 
-            Assert.That(spec.Predicates, Does.Contain(predicate1));
-            Assert.That(spec.Predicates, Does.Contain(predicate2));
+            Assert.That(() => spec.AddHandlerSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
 
-            A.CallTo(() => predicate1.Invoke(A<Object>._)).MustNotHaveHappened();
-            A.CallTo(() => predicate2.Invoke(A<Object>._)).MustNotHaveHappened();
+        [Test]
+        public void Given_HandlerSpec_When_AddHandlerSpec_Then_AddedToEventSpec()
+        {
+            var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
+
+            var spec = new TestEventSpecification(eventHandlerFactory);
+
+            var handlerSpec = A.Dummy<IEventHandlerSpecification<Object>>();
+
+            spec.AddHandlerSpecification(handlerSpec);
+
+            Assert.That(spec.HandlerSpecifications, Does.Contain(handlerSpec));
+        }
+
+        [Test]
+        public void Given_EventSpec_When_CreateHandler_Then_CallsHandlerFactory()
+        {
+            var eventHandler = A.Fake<IEventHandler<Object>>();
+
+            var eventHandlerFactory = A.Fake<IEventHandlerFactory>();
+            A.CallTo(() => eventHandlerFactory.Create<Object>(A<List<IEventHandlerSpecification<Object>>>._)).Returns(eventHandler);
+
+            var spec = new TestEventSpecification(eventHandlerFactory);
+            var handlerSpec = A.Dummy<IEventHandlerSpecification<Object>>();
+            spec.AddHandlerSpecification(handlerSpec);
+
+            var handler = spec.TestBuild();
+
+            Assert.That(handler, Is.SameAs(eventHandler));
+            A.CallTo(() => eventHandlerFactory.Create<Object>(A<List<IEventHandlerSpecification<Object>>>.That.NullCheckedMatches(
+                h => h.Contains(handlerSpec),
+                w => w.Write("HandlerSpecList")))).MustHaveHappened();
+        }
+
+        class TestEventSpecification : EventSpecification<Object>
+        {
+            public TestEventSpecification(IEventHandlerFactory eventHandlerFactory) : base(eventHandlerFactory)
+            { }
+
+            public IEventHandler<Object> TestBuild()
+            {
+                return CreateHandler();
+            }
         }
     }
 }

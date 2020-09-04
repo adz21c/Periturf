@@ -1,35 +1,41 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Periturf.Web.Configuration;
+using Microsoft.Extensions.Hosting;
+using Periturf.Components;
+using Periturf.Hosting.Setup;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Periturf.Web.Setup
 {
-    class WebComponentSetupSpecification : IWebComponentSetupConfigurator
+    class WebComponentSetupSpecification : IGenericHostComponentSpecification, IWebComponentSetupConfigurator
     {
-        public void ConfigureBuilder(Action<IWebHostBuilder> config)
+        public WebComponentSetupSpecification(string name)
         {
-            BuilderConfig = config;
+            Name = name;
         }
 
-        public Action<IWebHostBuilder>? BuilderConfig { get; private set; }
+        public string Name { get; }
 
-        public WebComponent Apply(IWebHostBuilder builder)
+        public Action<IWebHostBuilder>? ConfigreBuilderAction { get; private set; }
+
+        public void ConfigureBuilder(Action<IWebHostBuilder> config)
         {
-            BuilderConfig?.Invoke(builder);
+            ConfigreBuilderAction = config;
+        }
 
+        public IComponent Apply(IHostBuilder hostBuilder)
+        {
             var component = new WebComponent();
-            builder.Configure(app =>
+            hostBuilder.ConfigureWebHostDefaults(w =>
             {
-                app.Use(async (context, next) =>
+                ConfigreBuilderAction?.Invoke(w);
+                w.Configure(app =>
                 {
-                    await component.ProcessAsync(context);
-                    await next();
+                    app.Use(async (context, next) =>
+                    {
+                        await component.ProcessAsync(context);
+                        await next();
+                    });
                 });
             });
             

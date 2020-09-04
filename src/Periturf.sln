@@ -16,19 +16,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf", "Periturf\Peritu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.IdSvr4", "Periturf.IdSvr4\Periturf.IdSvr4.csproj", "{79E372D7-C63D-4C26-8764-D0448449FDE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.AspNetCore", "Periturf.AspNetCore\Periturf.AspNetCore.csproj", "{23D06E66-1520-4668-9BFD-8AAC7C882D8E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests", "Periturf.Tests\Periturf.Tests.csproj", "{B160C033-ADFD-4DB3-AB7B-206713A939D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests.Integration", "Periturf.Tests.Integration\Periturf.Tests.Integration.csproj", "{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Hosting", "Periturf.Hosting\Periturf.Hosting.csproj", "{36440711-34FA-4DDE-A769-6570320F7C57}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.MT", "Periturf.MT\Periturf.MT.csproj", "{BECA0CAB-780D-487B-9BFA-B67AC31C29F2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.MT.RabbitMQ", "Periturf.MT.RabbitMQ\Periturf.MT.RabbitMQ.csproj", "{30871D86-104B-4697-BBBB-EA36C7132C33}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Periturf.Web", "Periturf.Web\Periturf.Web.csproj", "{62852042-5E71-4BF0-933F-6BAD4F2FB13A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Web", "Periturf.Web\Periturf.Web.csproj", "{62852042-5E71-4BF0-933F-6BAD4F2FB13A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,10 +38,6 @@ Global
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{23D06E66-1520-4668-9BFD-8AAC7C882D8E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -60,14 +50,6 @@ Global
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BECA0CAB-780D-487B-9BFA-B67AC31C29F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BECA0CAB-780D-487B-9BFA-B67AC31C29F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BECA0CAB-780D-487B-9BFA-B67AC31C29F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BECA0CAB-780D-487B-9BFA-B67AC31C29F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{30871D86-104B-4697-BBBB-EA36C7132C33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{30871D86-104B-4697-BBBB-EA36C7132C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30871D86-104B-4697-BBBB-EA36C7132C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{30871D86-104B-4697-BBBB-EA36C7132C33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Release|Any CPU.ActiveCfg = Release|Any CPU

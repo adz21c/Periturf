@@ -32,15 +32,15 @@ namespace Periturf
     /// </summary>
     public class Environment
     {
-        private readonly Dictionary<string, IHost> _hosts = new Dictionary<string, IHost>();
+        private readonly List<IHost> _hosts = new List<IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
-        private readonly EventResponseContextFactory _eventResponseContextFactory;
+        private readonly EventHandlerFactory _eventHandlerFactory;
         private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
         private bool _defaultExpectationShortCircuit = false;
 
         private Environment()
         {
-            _eventResponseContextFactory = new EventResponseContextFactory(this);
+            _eventHandlerFactory = new EventHandlerFactory(this);
         }
 
         /// <summary>
@@ -52,11 +52,11 @@ namespace Periturf
         public async Task StartAsync(CancellationToken ct = default)
         {
             // For symplicity, lets not fail fast :-/
-            Task StartHost(KeyValuePair<string, IHost> host)
+            Task StartHost(IHost host)
             {
                 try
                 {
-                    return host.Value.StartAsync(ct);
+                    return host.StartAsync(ct);
                 }
                 catch (Exception ex)
                 {
@@ -65,20 +65,19 @@ namespace Periturf
             }
 
             var startingHosts = _hosts
-                .Select(x => new { Name = x.Key, Task = StartHost(x) })
+                .Select(StartHost)
                 .ToList();
 
             try
             {
-                await Task.WhenAll(startingHosts.Select(x => x.Task));
+                await Task.WhenAll(startingHosts);
             }
             catch
             {
                 var hostDetails = startingHosts
-                    .Where(x => x.Task.IsFaulted)
+                    .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Name,
-                        x.Task.Exception.InnerExceptions.First()))
+                        x.Exception.InnerExceptions.First()))
                     .ToArray();
 
                 throw new EnvironmentStartException(hostDetails);
@@ -94,11 +93,11 @@ namespace Periturf
         public async Task StopAsync(CancellationToken ct = default)
         {
             // For symplicity, lets not fail fast :-/
-            Task StopHost(KeyValuePair<string, IHost> host)
+            Task StopHost(IHost host)
             {
                 try
                 {
-                    return host.Value.StopAsync(ct);
+                    return host.StopAsync(ct);
                 }
                 catch (Exception ex)
                 {
@@ -107,20 +106,19 @@ namespace Periturf
             }
 
             var stoppingHosts = _hosts
-                .Select(x => new { Name = x.Key, Task = StopHost(x) })
+                .Select(StopHost)
                 .ToList();
 
             try
             {
-                await Task.WhenAll(stoppingHosts.Select(x => x.Task));
+                await Task.WhenAll(stoppingHosts);
             }
             catch
             {
                 var hostDetails = stoppingHosts
-                    .Where(x => x.Task.IsFaulted)
+                    .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Name,
-                        x.Task.Exception.InnerExceptions.First()))
+                        x.Exception.InnerExceptions.First()))
                     .ToArray();
 
                 throw new EnvironmentStopException(hostDetails);
@@ -136,58 +134,17 @@ namespace Periturf
         /// <returns></returns>
         public static Environment Setup(Action<ISetupContext> config)
         {
-            var env = new Environment();
 
-            var configurator = new SetupContext(env);
-            config(configurator);
+            var spec = new EnvironmentSpecification();
+            config?.Invoke(spec);
+            var hosts = spec.Build();
+
+            var env = new Environment();
+            env._hosts.AddRange(hosts);
+            foreach (var component in env._hosts.SelectMany(x => x.Components))
+                env._components.Add(component.Key, component.Value);
 
             return env;
-        }
-
-        class SetupContext : ISetupContext
-        {
-            private readonly Environment _env;
-
-            public SetupContext(Environment env)
-            {
-                _env = env;
-            }
-
-            public IEventResponseContextFactory EventResponseContextFactory => _env._eventResponseContextFactory;
-
-            public void DefaultExpectationTimeout(TimeSpan timeout)
-            {
-                if (timeout <= TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(timeout));
-
-                _env._defaultExpectationTimeout = timeout;
-            }
-
-            public void DefaultExpectationShortCircuit(bool shortCircuit)
-            {
-                _env._defaultExpectationShortCircuit = shortCircuit;
-            }
-
-            public void Host(string name, IHost host)
-            {
-                if (string.IsNullOrWhiteSpace(name))
-                    throw new ArgumentNullException(nameof(name));
-
-                if (host == null)
-                    throw new ArgumentNullException(nameof(host));
-
-                if (_env._hosts.ContainsKey(name))
-                    throw new DuplicateHostNameException(name);
-
-                _env._hosts.Add(name, host);
-                foreach (var comp in host.Components)
-                {
-                    if (_env._components.ContainsKey(comp.Key))
-                        throw new DuplicateComponentNameException(comp.Key);
-
-                    _env._components.Add(comp.Key, comp.Value);
-                }
-            }
         }
 
         #endregion
@@ -228,7 +185,7 @@ namespace Periturf
                 if (!_environment._components.TryGetValue(componentName, out var component))
                     throw new ComponentLocationFailedException(componentName);
 
-                return component.CreateConfigurationSpecification<TSpecification>(_environment._eventResponseContextFactory);
+                return component.CreateConfigurationSpecification<TSpecification>(_environment._eventHandlerFactory);
             }
 
             public void AddSpecification(IConfigurationSpecification specification)
@@ -268,7 +225,7 @@ namespace Periturf
             private readonly Environment _env;
             private TimeSpan? _expectationTimeout;
             private bool? _shortCircuit;
-            
+
             public VerificationContext(Environment env)
             {
                 _env = env;
@@ -316,7 +273,7 @@ namespace Periturf
                     .Max();
 
                 var timespanFactory = new ConditionInstanceTimeSpanFactory(DateTime.Now);
-                
+
                 var expectations = _specs.Select(async x =>
                 {
                     var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(timespanFactory, ct);
@@ -357,26 +314,44 @@ namespace Periturf
 
         #region Events
 
-        class EventResponseContextFactory : IEventResponseContextFactory
+        class EventHandlerFactory : IEventHandlerFactory
         {
             private readonly Environment _env;
 
-            public EventResponseContextFactory(Environment env)
+            public EventHandlerFactory(Environment env)
             {
                 _env = env;
             }
 
-            public IEventResponseContext<TEventData> Create<TEventData>(TEventData eventData) where TEventData : class
+            public IEventHandler<TEventData> Create<TEventData>(IEnumerable<IEventHandlerSpecification<TEventData>> eventHandlerSpecifications)
             {
-                return new EventResponseContext<TEventData>(_env, eventData);
+                return new EventHandler<TEventData>(_env, eventHandlerSpecifications.Select(x => x.Build()).ToList());
             }
         }
 
-        class EventResponseContext<TEventData> : IEventResponseContext<TEventData> where TEventData : class
+        class EventHandler<TEventData> : IEventHandler<TEventData>
+        {
+            private readonly Environment _env;
+            private readonly List<Func<IEventContext<TEventData>, CancellationToken, Task>> _handlers;
+
+            public EventHandler(Environment env, List<Func<IEventContext<TEventData>, CancellationToken, Task>> handlers)
+            {
+                _env = env;
+                _handlers = handlers;
+            }
+
+            public async Task ExecuteHandlersAsync(TEventData eventData, CancellationToken ct)
+            {
+                var eventContext = new EventContext<TEventData>(_env, eventData);
+                await Task.WhenAll(_handlers.Select(x => x(eventContext, ct)));
+            }
+        }
+
+        class EventContext<TEventData> : IEventContext<TEventData>
         {
             private readonly Environment _env;
 
-            public EventResponseContext(Environment env, TEventData eventData)
+            public EventContext(Environment env, TEventData eventData)
             {
                 _env = env;
                 Data = eventData;

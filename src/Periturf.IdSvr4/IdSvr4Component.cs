@@ -48,7 +48,7 @@ namespace Periturf.IdSvr4
             return _client;
         }
 
-        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventResponseContextFactory eventResponseContextFactory) where TSpecification : IConfigurationSpecification
+        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerFactory eventHandlerFactory) where TSpecification : IConfigurationSpecification
         {
             return (TSpecification)(object)new IdSvr4Specification(_store);
         }

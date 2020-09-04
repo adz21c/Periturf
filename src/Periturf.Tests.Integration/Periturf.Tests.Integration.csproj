@@ -17,15 +17,14 @@
     <PackageReference Include="IdentityModel" Version="3.10.10" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Periturf.AspNetCore\Periturf.AspNetCore.csproj" />
     <ProjectReference Include="..\Periturf.Hosting\Periturf.Hosting.csproj" />
     <ProjectReference Include="..\Periturf.IdSvr4\Periturf.IdSvr4.csproj" />
-    <ProjectReference Include="..\Periturf.MT\Periturf.MT.csproj" />
+    <!--<ProjectReference Include="..\Periturf.MT\Periturf.MT.csproj" />-->
     <ProjectReference Include="..\Periturf.Web\Periturf.Web.csproj" />
     <ProjectReference Include="..\Periturf\Periturf.csproj" />
   </ItemGroup>

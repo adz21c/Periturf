@@ -59,7 +59,7 @@ namespace Periturf.Tests.IdSvr4
 
             var component = new IdSvr4Component(store, sink, client);
 
-            var factory = A.Fake<IEventResponseContextFactory>();
+            var factory = A.Fake<IEventHandlerFactory>();
 
             // Act
             var spec = component.CreateConfigurationSpecification<IdSvr4Specification>(factory);

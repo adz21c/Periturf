@@ -18,32 +18,27 @@ using System.Collections.Generic;
 
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Implementation of <see cref="IEventConfigurator{TEventData}"/>.
-    /// </summary>
-    /// <typeparam name="TEventData">The type of the event data.</typeparam>
-    /// <seealso cref="Periturf.Events.IEventConfigurator{TEventData}" />
-    public class EventSpecification<TEventData> : IEventConfigurator<TEventData>
+    public abstract class EventSpecification<TEventData> : IEventConfigurator<TEventData>
         where TEventData : class
     {
-        private readonly List<Func<TEventData, bool>> _predicates = new List<Func<TEventData, bool>>();
+        private readonly List<IEventHandlerSpecification<TEventData>> _handlerSpecifications = new List<IEventHandlerSpecification<TEventData>>();
+        private readonly IEventHandlerFactory _eventHandlerFactory;
 
-        /// <summary>
-        /// Gets the predicates.
-        /// </summary>
-        /// <value>
-        /// The predicates.
-        /// </value>
-        public IReadOnlyList<Func<TEventData, bool>> Predicates => _predicates;
-
-        /// <summary>
-        /// Predicates to filter the events. Can be called multiple times to define multiple possible conditions.
-        /// </summary>
-        /// <param name="predicate">The predicate.</param>
-        /// <exception cref="System.ArgumentNullException">predicate</exception>
-        public void Predicate(Func<TEventData, bool> predicate)
+        protected EventSpecification(IEventHandlerFactory eventHandlerFactory)
         {
-            _predicates.Add(predicate ?? throw new ArgumentNullException(nameof(predicate)));
+            _eventHandlerFactory = eventHandlerFactory ?? throw new ArgumentNullException(nameof(eventHandlerFactory));
+        }
+
+        public IReadOnlyList<IEventHandlerSpecification<TEventData>> HandlerSpecifications => _handlerSpecifications;
+
+        public void AddHandlerSpecification(IEventHandlerSpecification<TEventData> spec)
+        {
+            _handlerSpecifications.Add(spec ?? throw new ArgumentNullException(nameof(spec)));
+        }
+
+        protected IEventHandler<TEventData> CreateHandler()
+        {
+            return _eventHandlerFactory.Create(_handlerSpecifications);
         }
     }
 }

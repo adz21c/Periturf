@@ -38,9 +38,9 @@ namespace Periturf.Components
         /// Creates a component configuration specification.
         /// </summary>
         /// <typeparam name="TSpecification">The type of the specification.</typeparam>
-        /// <param name="eventResponseContextFactory">The event response action context factory.</param>
+        /// <param name="eventHandlerFactory">The event handler factory.</param>
         /// <returns></returns>
-        TSpecification CreateConfigurationSpecification<TSpecification>(IEventResponseContextFactory eventResponseContextFactory)
+        TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerFactory eventHandlerFactory)
             where TSpecification : IConfigurationSpecification;
         
         /// <summary>

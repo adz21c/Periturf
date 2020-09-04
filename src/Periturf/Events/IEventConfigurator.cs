@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 
 namespace Periturf.Events
 {
-    /// <summary>
-    /// Configures the identification of an event.
-    /// </summary>
-    /// <typeparam name="TEventData">The type of the event data.</typeparam>
-    public interface IEventConfigurator<TEventData> where TEventData : class
+    public interface IEventConfigurator<TEventData>
     {
-        /// <summary>
-        /// Predicates to filter the events. Can be called multiple times to define multiple possible conditions.
-        /// </summary>
-        /// <param name="predicate">The predicate.</param>
-        void Predicate(Func<TEventData, bool> predicate);
+        void AddHandlerSpecification(IEventHandlerSpecification<TEventData> spec);
     }
 }

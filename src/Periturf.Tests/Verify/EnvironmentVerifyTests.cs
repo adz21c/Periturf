@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Periturf.Setup;
 
 namespace Periturf.Tests.Verify
 {
@@ -62,9 +63,12 @@ namespace Periturf.Tests.Verify
             var host1 = A.Fake<IHost>();
             A.CallTo(() => host1.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { ComponentName, component } }));
 
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host1);
+
             _environment = Environment.Setup(x =>
             {
-                x.Host(nameof(host1), host1);
+                x.AddHostSpecification(hostSpec);
             });
         }
 

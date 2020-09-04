@@ -18,6 +18,7 @@ using NUnit.Framework;
 using Periturf.Components;
 using Periturf.Configuration;
 using Periturf.Events;
+using Periturf.Setup;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -44,22 +45,26 @@ namespace Periturf.Tests.Configuration
             _configSpec1 = A.Fake<IConfigurationSpecification>();
             A.CallTo(() => _configSpec1.ApplyAsync(A<CancellationToken>._)).Returns(_configHandle1);
             _component1 = A.Fake<IComponent>();
-            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventResponseContextFactory>._)).Returns(_configSpec1);
+            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventHandlerFactory>._)).Returns(_configSpec1);
             var host1 = A.Fake<IHost>();
             A.CallTo(() => host1.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(_component1), _component1 } }));
+            var host1Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => host1Spec.Build()).Returns(host1);
 
             _configHandle2 = A.Fake<IConfigurationHandle>();
             _configSpec2 = A.Fake<IConfigurationSpecification>();
             A.CallTo(() => _configSpec2.ApplyAsync(A<CancellationToken>._)).Returns(_configHandle2);
             _component2 = A.Fake<IComponent>();
-            A.CallTo(() => _component2.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventResponseContextFactory>._)).Returns(_configSpec2);
+            A.CallTo(() => _component2.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventHandlerFactory>._)).Returns(_configSpec2);
             var host2 = A.Fake<IHost>();
             A.CallTo(() => host2.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(_component2), _component2 } }));
+            var host2Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => host2Spec.Build()).Returns(host2);
 
             _environment = Environment.Setup(x =>
             {
-                x.Host(nameof(host1), host1);
-                x.Host(nameof(host2), host2);
+                x.AddHostSpecification(host1Spec);
+                x.AddHostSpecification(host2Spec);
             });
         }
 
@@ -93,7 +98,7 @@ namespace Periturf.Tests.Configuration
             }));
 
             Assert.That(exception.ParamName, Is.EqualTo("componentName"));
-            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventResponseContextFactory>._)).MustNotHaveHappened();
+            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventHandlerFactory>._)).MustNotHaveHappened();
             A.CallTo(() => _configSpec1.ApplyAsync(A<CancellationToken>._)).MustNotHaveHappened();
         }
 
@@ -108,7 +113,7 @@ namespace Periturf.Tests.Configuration
             }));
 
             Assert.That(exception.ComponentName, Is.EqualTo(wrongComponentName));
-            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventResponseContextFactory>._)).MustNotHaveHappened();
+            A.CallTo(() => _component1.CreateConfigurationSpecification<IConfigurationSpecification>(A<IEventHandlerFactory>._)).MustNotHaveHappened();
             A.CallTo(() => _configSpec1.ApplyAsync(A<CancellationToken>._)).MustNotHaveHappened();
         }
 

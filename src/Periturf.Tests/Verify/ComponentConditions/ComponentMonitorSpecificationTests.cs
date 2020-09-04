@@ -87,6 +87,7 @@ namespace Periturf.Tests.Verify.ComponentConditions
             A.CallTo(_sut).Where(x => x.Method.Name == "StopMonitorAsync").MustNotHaveHappened();
 
             await evaluator2.DisposeAsync();
+            await Task.Delay(100);
             A.CallTo(_sut).Where(x => x.Method.Name == "StopMonitorAsync").MustHaveHappenedOnceExactly();
         }
     }

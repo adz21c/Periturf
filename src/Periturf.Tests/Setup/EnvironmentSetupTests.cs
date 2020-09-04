@@ -33,48 +33,30 @@ namespace Periturf.Tests.Setup
             var component = A.Dummy<IComponent>();
             var host = A.Dummy<IHost>();
             A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { "component", component } }));
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
 
             // Act
             var environment = Environment.Setup(x =>
             {
-                x.Host(nameof(host), host);
+                x.AddHostSpecification(hostSpec);
             });
 
             // Assert
             Assert.That(environment, Is.Not.Null);
         }
 
-        [TestCase(null, Description = "Null Host Name")]
-        [TestCase("", Description = "Empty Host Name")]
-        [TestCase(" ", Description = "Whitespace Host Name")]
-        public void Given_BadHostName_When_Setup_Then_ThrowException(string hostName)
-        {
-            // Arrange
-            var component = A.Dummy<IComponent>();
-            var host = A.Dummy<IHost>();
-            A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { "component", component } }));
-
-            // Act
-            var exception = Assert.Throws<ArgumentNullException>(() => Environment.Setup(x =>
-            {
-                x.Host(hostName, host);
-            }));
-
-            // Assert
-            Assert.That(exception.ParamName, Is.EqualTo("name"));
-        }
-
         [Test]
-        public void Given_NullHost_When_Setup_Then_ThrowException()
+        public void Given_NullSpec_When_Setup_Then_ThrowException()
         {
             // Act
             var exception = Assert.Throws<ArgumentNullException>(() => Environment.Setup(x =>
             {
-                x.Host("Host", null);
+                x.AddHostSpecification(null);
             }));
 
             // Assert
-            Assert.That(exception.ParamName, Is.EqualTo("host"));
+            Assert.That(exception.ParamName, Is.EqualTo("hostSpecification"));
         }
 
         [Test]
@@ -84,16 +66,20 @@ namespace Periturf.Tests.Setup
             var component = A.Dummy<IComponent>();
             var host = A.Dummy<IHost>();
             A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component } }));
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
 
             var component2 = A.Dummy<IComponent>();
             var host2 = A.Dummy<IHost>();
             A.CallTo(() => host2.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component2), component2 } }));
+            var hostSpec2 = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec2.Build()).Returns(host2);
 
             // Act
             var environment = Environment.Setup(x =>
             {
-                x.Host(nameof(host), host);
-                x.Host(nameof(host2), host2);
+                x.AddHostSpecification(hostSpec);
+                x.AddHostSpecification(hostSpec2);
             });
 
             // Assert
@@ -101,65 +87,9 @@ namespace Periturf.Tests.Setup
         }
 
         [Test]
-        public void Given_MultipleHostsWithTheSameName_When_Setup_Then_ThrowException()
-        {
-            // Arrange
-            var component = A.Dummy<IComponent>();
-            var host = A.Dummy<IHost>();
-            A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component } }));
-
-            var component2 = A.Dummy<IComponent>();
-            var host2 = A.Dummy<IHost>();
-            A.CallTo(() => host2.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component2), component2 } }));
-
-            // Act
-            var exception = Assert.Throws<DuplicateHostNameException>(() => Environment.Setup(x =>
-            {
-                x.Host(nameof(host), host);
-                x.Host(nameof(host), host2);
-            }));
-
-            // Assert
-            Assert.That(exception.HostName, Is.EqualTo(nameof(host)));
-        }
-
-
-        [Test]
-        public void Given_MultipleComponentsWithTheSameName_When_Setup_Then_ThrowException()
-        {
-            // Arrange
-            var component = A.Dummy<IComponent>();
-            var host = A.Dummy<IHost>();
-            A.CallTo(() => host.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component } }));
-
-            var component2 = A.Dummy<IComponent>();
-            var host2 = A.Dummy<IHost>();
-            A.CallTo(() => host2.Components).Returns(new ReadOnlyDictionary<string, IComponent>(new Dictionary<string, IComponent> { { nameof(component), component2 } }));
-
-            // Act
-            var exception = Assert.Throws<DuplicateComponentNameException>(() => Environment.Setup(x =>
-            {
-                x.Host(nameof(host), host);
-                x.Host(nameof(host2), host2);
-            }));
-
-            // Assert
-            Assert.That(exception.ComponentName, Is.EqualTo(nameof(component)));
-        }
-
-        [TestCase(-1)]
-        [TestCase(0)]
-        public void Given_InvalidTimeout_When_Setup_Then_Throws(int milliseconds)
-        {
-            var ex = Assert.Throws<ArgumentOutOfRangeException>(() => Environment.Setup(s => s.DefaultExpectationTimeout(TimeSpan.FromMilliseconds(milliseconds))));
-
-            Assert.That(ex.ParamName, Is.EqualTo("timeout"));
-        }
-
-        [Test]
         public void Given_ValidTimeout_When_Setup_Then_Created()
         {
-            var env = Environment.Setup(s => s.DefaultExpectationTimeout(TimeSpan.FromMilliseconds(1)));
+            var env = Environment.Setup(s => s.DefaultExpectationTimeout = TimeSpan.FromMilliseconds(1));
 
             Assert.That(env, Is.Not.Null);
         }
@@ -168,7 +98,7 @@ namespace Periturf.Tests.Setup
         [TestCase(true)]
         public void Given_ValidShortCircuit_When_Setup_Then_Created(bool shortCircuit)
         {
-            var env = Environment.Setup(s => s.DefaultExpectationShortCircuit(shortCircuit));
+            var env = Environment.Setup(s => s.DefaultExpectationShortCircuit = shortCircuit);
 
             Assert.That(env, Is.Not.Null);
         }

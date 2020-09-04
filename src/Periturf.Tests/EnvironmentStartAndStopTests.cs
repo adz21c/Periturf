@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Periturf.Setup;
 
 namespace Periturf.Tests
 {
@@ -33,9 +34,12 @@ namespace Periturf.Tests
             var host = A.Fake<IHost>();
             A.CallTo(() => host.StartAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
 
-            var environment = Environment.Setup(x =>
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
+
+            var environment = Environment.Setup(s =>
             {
-                x.Host("host", host);
+                s.AddHostSpecification(hostSpec);
             });
 
             // Act
@@ -51,14 +55,18 @@ namespace Periturf.Tests
             // Arrange
             var host = A.Fake<IHost>();
             A.CallTo(() => host.StartAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
 
             var host2 = A.Fake<IHost>();
             A.CallTo(() => host2.StartAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var hostSpec2 = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec2.Build()).Returns(host2);
 
-            var environment = Environment.Setup(x =>
+            var environment = Environment.Setup(s =>
             {
-                x.Host("host", host);
-                x.Host("host2", host2);
+                s.AddHostSpecification(hostSpec);
+                s.AddHostSpecification(hostSpec2);
             });
 
             // Act
@@ -74,26 +82,34 @@ namespace Periturf.Tests
         {
             var startedHost = A.Fake<IHost>();
             A.CallTo(() => startedHost.StartAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var startedHostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => startedHostSpec.Build()).Returns(startedHost);
 
             var startedHost2 = A.Fake<IHost>();
             A.CallTo(() => startedHost2.StartAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var startedHost2Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => startedHost2Spec.Build()).Returns(startedHost2);
 
             var failingHostException = new Exception();
             var failingHost = A.Fake<IHost>();
             // Throws immediately
             A.CallTo(() => failingHost.StartAsync(A<CancellationToken>._)).Throws(failingHostException);
+            var failingHostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => failingHostSpec.Build()).Returns(failingHost);
 
             var failingHostException2 = new Exception();
             var failingHost2 = A.Fake<IHost>();
             // Throws via task
             A.CallTo(() => failingHost2.StartAsync(A<CancellationToken>._)).ThrowsAsync(failingHostException2);
+            var failingHost2Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => failingHost2Spec.Build()).Returns(failingHost2);
 
             var environment = Environment.Setup(x =>
             {
-                x.Host(nameof(startedHost), startedHost);
-                x.Host(nameof(failingHost), failingHost);
-                x.Host(nameof(startedHost2), startedHost2);
-                x.Host(nameof(failingHost2), failingHost2);
+                x.AddHostSpecification(startedHostSpec);
+                x.AddHostSpecification(startedHost2Spec);
+                x.AddHostSpecification(failingHostSpec);
+                x.AddHostSpecification(failingHost2Spec);
             });
 
             var exception = Assert.ThrowsAsync<EnvironmentStartException>(() => environment.StartAsync());
@@ -101,8 +117,8 @@ namespace Periturf.Tests
             Assert.That(exception.Details, Is.Not.Null);
             Assert.That(exception.Details.Length, Is.EqualTo(2));
 
-            Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost) && x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
-            Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost2) && x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
 
             A.CallTo(() => startedHost.StartAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => startedHost2.StartAsync(A<CancellationToken>._)).MustHaveHappened();
@@ -117,9 +133,12 @@ namespace Periturf.Tests
             var host = A.Fake<IHost>();
             A.CallTo(() => host.StopAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
 
-            var environment = Environment.Setup(x =>
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
+
+            var environment = Environment.Setup(s =>
             {
-                x.Host("host", host);
+                s.AddHostSpecification(hostSpec);
             });
 
             // Act
@@ -136,13 +155,19 @@ namespace Periturf.Tests
             var host = A.Fake<IHost>();
             A.CallTo(() => host.StopAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
 
+            var hostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec.Build()).Returns(host);
+
             var host2 = A.Fake<IHost>();
             A.CallTo(() => host2.StopAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
 
-            var environment = Environment.Setup(x =>
+            var hostSpec2 = A.Fake<IHostSpecification>();
+            A.CallTo(() => hostSpec2.Build()).Returns(host2);
+
+            var environment = Environment.Setup(s =>
             {
-                x.Host("host", host);
-                x.Host("host2", host2);
+                s.AddHostSpecification(hostSpec);
+                s.AddHostSpecification(hostSpec2);
             });
 
             // Act
@@ -158,26 +183,34 @@ namespace Periturf.Tests
         {
             var stoppedHost = A.Fake<IHost>();
             A.CallTo(() => stoppedHost.StopAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var stoppedHostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => stoppedHostSpec.Build()).Returns(stoppedHost);
 
             var stoppedHost2 = A.Fake<IHost>();
             A.CallTo(() => stoppedHost2.StopAsync(A<CancellationToken>._)).Returns(Task.CompletedTask);
+            var stoppedHost2Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => stoppedHost2Spec.Build()).Returns(stoppedHost2);
 
             var failingHostException = new Exception();
             var failingHost = A.Fake<IHost>();
             // Throws immediately
             A.CallTo(() => failingHost.StopAsync(A<CancellationToken>._)).Throws(failingHostException);
+            var failingHostSpec = A.Fake<IHostSpecification>();
+            A.CallTo(() => failingHostSpec.Build()).Returns(failingHost);
 
             var failingHostException2 = new Exception();
             var failingHost2 = A.Fake<IHost>();
             // Throws via a task
             A.CallTo(() => failingHost2.StopAsync(A<CancellationToken>._)).ThrowsAsync(failingHostException2);
+            var failingHost2Spec = A.Fake<IHostSpecification>();
+            A.CallTo(() => failingHost2Spec.Build()).Returns(failingHost2);
 
             var environment = Environment.Setup(x =>
             {
-                x.Host(nameof(stoppedHost), stoppedHost);
-                x.Host(nameof(failingHost), failingHost);
-                x.Host(nameof(stoppedHost2), stoppedHost2);
-                x.Host(nameof(failingHost2), failingHost2);
+                x.AddHostSpecification(stoppedHostSpec);
+                x.AddHostSpecification(stoppedHost2Spec);
+                x.AddHostSpecification(failingHostSpec);
+                x.AddHostSpecification(failingHost2Spec);
             });
 
             var exception = Assert.ThrowsAsync<EnvironmentStopException>(() => environment.StopAsync());
@@ -185,8 +218,8 @@ namespace Periturf.Tests
             Assert.That(exception.Details, Is.Not.Null);
             Assert.That(exception.Details.Length, Is.EqualTo(2));
 
-            Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost) && x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
-            Assert.That(exception.Details.Any(x => x.HostName == nameof(failingHost2) && x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
 
             A.CallTo(() => stoppedHost.StopAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => stoppedHost2.StopAsync(A<CancellationToken>._)).MustHaveHappened();
