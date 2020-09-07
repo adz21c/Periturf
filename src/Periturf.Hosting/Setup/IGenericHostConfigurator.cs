@@ -24,7 +24,7 @@ namespace Periturf.Hosting.Setup
         /// <summary>
         /// Add a component specification.
         /// </summary>
-        /// <param name="componentSpecification">The component specification.</param>
-        void AddComponentSpecification(IGenericHostComponentSpecification componentSpecification);
+        /// <param name="spec">The component specification.</param>
+        void AddComponentSpecification(IGenericHostComponentSpecification spec);
     }
 }
