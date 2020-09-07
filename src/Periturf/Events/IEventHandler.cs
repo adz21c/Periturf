@@ -18,8 +18,18 @@ using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
+    /// <summary>
+    /// Event handlers take an event and execute all the handlers.
+    /// </summary>
+    /// <typeparam name="TEventData">The type of the event data.</typeparam>
     public interface IEventHandler<in TEventData>
     {
+        /// <summary>
+        /// Executes the handlers asynchronously.
+        /// </summary>
+        /// <param name="eventData">The event data.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns></returns>
         Task ExecuteHandlersAsync(TEventData eventData, CancellationToken ct);
     }
 }

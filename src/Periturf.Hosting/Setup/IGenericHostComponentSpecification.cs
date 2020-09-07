@@ -18,10 +18,24 @@ using Periturf.Components;
 
 namespace Periturf.Hosting.Setup
 {
+    /// <summary>
+    /// Specifies a .NET Core Generic Host component.
+    /// </summary>
     public interface IGenericHostComponentSpecification
     {
+        /// <summary>
+        /// The unique name for the component.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         string Name { get; }
 
+        /// <summary>
+        /// Creates and applies a <see cref="IComponent"/> to the provided host.
+        /// </summary>
+        /// <param name="hostBuilder">The host builder.</param>
+        /// <returns></returns>
         IComponent Apply(IHostBuilder hostBuilder);
     }
 }

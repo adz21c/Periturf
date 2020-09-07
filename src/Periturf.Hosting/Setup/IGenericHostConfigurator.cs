@@ -16,8 +16,15 @@
 
 namespace Periturf.Hosting.Setup
 {
+    /// <summary>
+    /// Gathers .NET Core generic host configuration.
+    /// </summary>
     public interface IGenericHostConfigurator
     {
+        /// <summary>
+        /// Add a component specification.
+        /// </summary>
+        /// <param name="componentSpecification">The component specification.</param>
         void AddComponentSpecification(IGenericHostComponentSpecification componentSpecification);
     }
 }

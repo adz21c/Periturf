@@ -37,8 +37,6 @@ namespace Periturf.Setup
         public List<IHost> Build()
         {
             var hosts = _hostSpecifications.Select(hs => hs.Build()).ToList();
-            if (hosts.Any(x => x == null))
-                throw new InvalidOperationException("Host not created.");
             return hosts;
         }
     }

@@ -16,8 +16,16 @@
 
 namespace Periturf.Events
 {
+    /// <summary>
+    /// Base interface for events to allow for generic event handler code.
+    /// </summary>
+    /// <typeparam name="TEventData">The type of the event data.</typeparam>
     public interface IEventConfigurator<TEventData>
     {
+        /// <summary>
+        /// Adds an event handler specification.
+        /// </summary>
+        /// <param name="spec">The spec.</param>
         void AddHandlerSpecification(IEventHandlerSpecification<TEventData> spec);
     }
 }

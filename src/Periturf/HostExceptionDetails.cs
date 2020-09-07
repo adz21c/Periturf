@@ -36,7 +36,6 @@ namespace Periturf
         /// <summary>
         /// Initializes a new instance of the <see cref="HostExceptionDetails"/> class.
         /// </summary>
-        /// <param name="hostName">Name of the host.</param>
         /// <param name="exception">The exception.</param>
         public HostExceptionDetails(Exception exception)
         {

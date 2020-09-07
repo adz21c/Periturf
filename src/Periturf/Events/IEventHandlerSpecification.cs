@@ -19,8 +19,16 @@ using System.Threading.Tasks;
 
 namespace Periturf.Events
 {
+    /// <summary>
+    /// Specification for an individual event handler
+    /// </summary>
+    /// <typeparam name="TEventData">The type of the event data.</typeparam>
     public interface IEventHandlerSpecification<TEventData>
     {
+        /// <summary>
+        /// Builds the event handler.
+        /// </summary>
+        /// <returns></returns>
         public Func<IEventContext<TEventData>, CancellationToken, Task> Build();
     }
 }

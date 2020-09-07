@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,7 +37,7 @@ namespace Periturf.Verify
         /// When called multiple times builds a reference count to monitor the condition 
         /// across multiple streams.
         /// </summary>
-        /// <param name="timespanFactory">The <see cref="TimeSpan"/> factory.</param>
+        /// <param name="timespanFactory">The <see cref="System.TimeSpan"/> factory.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
         Task<IComponentConditionEvaluator> BuildAsync(IConditionInstanceTimeSpanFactory timespanFactory, CancellationToken ct = default);

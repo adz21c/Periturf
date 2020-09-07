@@ -17,8 +17,17 @@ using System.Collections.Generic;
 
 namespace Periturf.Events
 {
+    /// <summary>
+    /// Creates instances of <see cref="IEventHandler{TEventData}"/>
+    /// </summary>
     public interface IEventHandlerFactory
     {
+        /// <summary>
+        /// Creates an event handler from the provided specifications.
+        /// </summary>
+        /// <typeparam name="TEventData">The type of the event data.</typeparam>
+        /// <param name="eventHandlerSpecifications">The event handler specifications.</param>
+        /// <returns></returns>
         IEventHandler<TEventData> Create<TEventData>(IEnumerable<IEventHandlerSpecification<TEventData>> eventHandlerSpecifications);
     }
 }

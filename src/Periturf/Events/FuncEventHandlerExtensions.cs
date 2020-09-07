@@ -13,16 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Periturf.Events;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Events
+namespace Periturf
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ExcludeFromCodeCoverage]
     public static class FuncEventHandlerExtensions
     {
+        /// <summary>
+        /// Adds a dynamic event hander.
+        /// </summary>
+        /// <typeparam name="TEventData">The type of the event data.</typeparam>
+        /// <param name="configurator">The configurator.</param>
+        /// <param name="handler">The handler.</param>
+        /// <exception cref="ArgumentNullException">
+        /// configurator
+        /// or
+        /// handler
+        /// </exception>
         public static void Handle<TEventData>(this IEventConfigurator<TEventData> configurator, Func<IEventContext<TEventData>, CancellationToken, Task> handler)
         {
             if (configurator is null)

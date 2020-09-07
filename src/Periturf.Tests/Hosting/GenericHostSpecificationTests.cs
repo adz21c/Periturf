@@ -34,12 +34,19 @@ namespace Periturf.Tests.Hosting
 
             var spec = new GenericHostSpecification();
             spec.AddComponentSpecification(componentSpecification);
-            
+
             var host = spec.Build();
 
             Assert.That(host, Is.Not.Null);
             Assert.That(host.Components, Does.ContainKey(componentName));
             Assert.That(host.Components, Does.ContainValue(component));
+        }
+
+        [Test]
+        public void Given_Null_When_AddComponentSpec_Then_Exception()
+        {
+            var spec = new GenericHostSpecification();
+            Assert.That(() => spec.AddComponentSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
         }
 
         [Test]
