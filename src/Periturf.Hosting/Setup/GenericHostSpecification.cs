@@ -25,9 +25,9 @@ namespace Periturf.Hosting.Setup
     {
         private readonly List<IGenericHostComponentSpecification> _componentSpecifications = new List<IGenericHostComponentSpecification>();
 
-        public void AddComponentSpecification(IGenericHostComponentSpecification componentSpecification)
+        public void AddComponentSpecification(IGenericHostComponentSpecification spec)
         {
-            _componentSpecifications.Add(componentSpecification ?? throw new ArgumentNullException(nameof(componentSpecification)));
+            _componentSpecifications.Add(spec ?? throw new ArgumentNullException(nameof(spec)));
         }
 
         public Components.IHost Build()
