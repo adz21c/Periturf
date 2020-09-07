@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Microsoft.Extensions.Hosting;
+using Periturf.Components;
+using System.Collections.Generic;
 
 namespace Periturf.Hosting.Setup
 {
     /// <summary>
-    /// Gathers .NET Core generic host configuration.
+    /// Specifies a .NET Core Generic Host component.
     /// </summary>
-    public interface IGenericHostConfigurator
+    public interface IGenericHostMultipleComponentSpecification
     {
         /// <summary>
-        /// Add a component specification.
+        /// Creates and applies multiple <see cref="IComponent"/> to the provided host.
         /// </summary>
-        /// <param name="spec">The component specification.</param>
-        void AddComponentSpecification(IGenericHostComponentSpecification spec);
-
-
-        /// <summary>
-        /// Add a multiple component specification.
-        /// </summary>
-        /// <param name="spec">The component specification.</param>
-        void AddMultipleComponentSpecification(IGenericHostMultipleComponentSpecification spec);
+        /// <param name="hostBuilder">The host builder.</param>
+        /// <returns></returns>
+        Dictionary<string, IComponent> Apply(IHostBuilder hostBuilder);
     }
 }

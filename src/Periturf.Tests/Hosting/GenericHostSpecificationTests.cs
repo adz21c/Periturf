@@ -16,7 +16,9 @@
 using FakeItEasy;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
+using Periturf.Components;
 using Periturf.Hosting.Setup;
+using System.Collections.Generic;
 
 namespace Periturf.Tests.Hosting
 {
@@ -32,14 +34,27 @@ namespace Periturf.Tests.Hosting
             A.CallTo(() => componentSpecification.Apply(A<IHostBuilder>._)).Returns(component);
             A.CallTo(() => componentSpecification.Name).Returns(componentName);
 
+            var component2Name = "Component2";
+            var component2 = A.Dummy<Components.IComponent>();
+            var component3Name = "Component3";
+            var component3 = A.Dummy<Components.IComponent>();
+            var multipleComponentSpecification = A.Dummy<IGenericHostMultipleComponentSpecification>();
+            A.CallTo(() => multipleComponentSpecification.Apply(A<IHostBuilder>._))
+                .Returns(new Dictionary<string, IComponent> { { component2Name, component2 }, { component3Name, component3 }  });
+
             var spec = new GenericHostSpecification();
             spec.AddComponentSpecification(componentSpecification);
+            spec.AddMultipleComponentSpecification(multipleComponentSpecification);
 
             var host = spec.Build();
 
             Assert.That(host, Is.Not.Null);
             Assert.That(host.Components, Does.ContainKey(componentName));
             Assert.That(host.Components, Does.ContainValue(component));
+            Assert.That(host.Components, Does.ContainKey(component2Name));
+            Assert.That(host.Components, Does.ContainValue(component2));
+            Assert.That(host.Components, Does.ContainKey(component3Name));
+            Assert.That(host.Components, Does.ContainValue(component3));
         }
 
         [Test]
@@ -47,6 +62,13 @@ namespace Periturf.Tests.Hosting
         {
             var spec = new GenericHostSpecification();
             Assert.That(() => spec.AddComponentSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
+        }
+
+        [Test]
+        public void Given_Null_When_AddMultipleComponentSpec_Then_Exception()
+        {
+            var spec = new GenericHostSpecification();
+            Assert.That(() => spec.AddMultipleComponentSpecification(null), Throws.ArgumentNullException.With.Property("ParamName").EqualTo("spec"));
         }
 
         [Test]
