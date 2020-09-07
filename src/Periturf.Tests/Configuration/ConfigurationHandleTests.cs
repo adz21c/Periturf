@@ -42,7 +42,7 @@ namespace Periturf.Tests.Configuration
         {
             var internalHandle1 = A.Fake<IConfigurationHandle>();
             // Force delay so the second dispose fails during dispose
-            A.CallTo(() => internalHandle1.DisposeAsync()).Invokes(async () => await Task.Delay(100));
+            A.CallTo(() => internalHandle1.DisposeAsync()).Invokes(async () => await Task.Delay(250));
 
             var handle = new ConfigurationHandle(new[] { internalHandle1 });
             var disposeTask = Task.Run(() => handle.DisposeAsync().AsTask());
