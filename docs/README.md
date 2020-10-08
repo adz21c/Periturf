@@ -1,8 +1,11 @@
 # Periturf
+
 Something
 
-# Getting Started
+## Quick Start
+
 Add a package reference to [Periturf](https://www.nuget.org/packages/Periturf).
+
 ```powershell
 dotnet add package Periturf
 ```
@@ -14,6 +17,7 @@ dotnet add package Periturf.Web
 ```
 
 Create an Environment and start it.
+
 ```csharp
 var env = Environment.Setup(e =>
 {
