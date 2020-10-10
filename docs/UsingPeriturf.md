@@ -102,7 +102,7 @@ var handle = await env.ConfigureAsync(e =>
 await handle.DisposeAsync();
 ```
 
-You can call configuration multiple times and build up multiple handles of configuration that can be disposed separately. There is no rule as to how components will behave with multiple configuration or the order of disposal. The individual components will determine how to best handle this condition, so refer to their documentation. However, a good default is to think of the configuration as a stack of filters ordered with the most recent on top and any interactions fall through until they hit a filter that hits it. For example:
+You can call configuration multiple times and build up multiple handles that can be disposed separately. There is no rule as to how components will behave with multiple configuration or the order of disposal. The individual components will determine how to best handle this condition, so refer to their documentation. However, a good default is to think of the configuration as a stack of filters ordered with the most recent on top and any interactions fall through until they hit a filter that is relevant. For example:
 
 ```csharp
 // GET 404
