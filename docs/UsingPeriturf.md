@@ -16,13 +16,13 @@ dotnet add package Periturf.Web
 
 ## Setup
 
-An *Environment* is the central entity through which any alterations of mock services will happen. Create an *Environment* by calling the static *Setup* method.
+An *environment* is the central entity through which any alterations of mock services will happen. Create an *environment* by calling the static *setup* method.
 
 ```csharp
 var env = Environment.Setup(s => { });
 ```
 
-During *Setup* you define each mock service you require, these are referred to as *Components*. These components run on *Hosts*, which are the entities that an *Environment* will *Start* to bring the mock services to life and *Stop* to remove them. In the below example we create a WebApp *Component* running on a generic host.
+During *setup* you define each mock service you require, these are referred to as *components*. These components run on *Hosts*, which are the entities that an *environment* will *start* to bring the mock services to life and *stop* to remove them. In the below example we create a WebApp *component* running on a generic host.
 
 ```csharp
 var env = Environment.Setup(e =>
@@ -38,9 +38,9 @@ var env = Environment.Setup(e =>
 });
 ```
 
-*Hosts* can run multiple *Components*, whether you should have a *Host* per *Component* or multiple *Components* per *Host* will come down to the needs of individual *Components* or your use case.
+*Hosts* can run multiple *components*, whether you should have a *host* per *component* or multiple *components* per *host* will come down to the needs of individual *components* or your use case.
 
-Finally, before doing anything else with an *Environment* you must *Start* it.
+Finally, before doing anything else with an *environment* you must *start* it.
 
 ```csharp
 await env.StartAsync();
@@ -48,7 +48,7 @@ await env.StartAsync();
 
 ## Configure
 
-Modifying the behaviour of a *Component* is achieved by *Configuring* your *Environment*. In the below example we configure the MyApp WebApp component to return a 200 response code with an object serialized to JSON for all GET requests.
+Modifying the behaviour of a component is achieved by configuring your environment. In the below example we *configure* the MyApp WebApp component to return a 200 response code with an object serialized to JSON for all GET requests.
 
 ```csharp
 var handle = await env.ConfigureAsync(e =>
@@ -72,7 +72,7 @@ var handle = await env.ConfigureAsync(e =>
 });
 ```
 
-Configuring will return a disposable handle for that configuration. Disposing of this handle will remove the configuration from the environment.
+Configuring will return a disposable *configuration handle*. Disposing of this *handle* will remove the configuration from the environment.
 
 ```csharp
 await handle.DisposeAsync();
@@ -83,7 +83,7 @@ await using (await env.ConfigureAsync(e => { }))
 }
 ```
 
-You can configure multiple components at the same time and disposing of the handle will remove the configuration from all the components at the same time.
+You can *configure* multiple components at the same time and disposing of the *handle* will remove the configuration from all the components at the same time.
 
 ```csharp
 var handle = await env.ConfigureAsync(e =>
@@ -102,7 +102,7 @@ var handle = await env.ConfigureAsync(e =>
 await handle.DisposeAsync();
 ```
 
-You can call configuration multiple times and build up multiple handles that can be disposed separately. There is no rule as to how components will behave with multiple configuration or the order of disposal. The individual components will determine how to best handle this condition, so refer to their documentation. However, a good default is to think of the configuration as a stack of filters ordered with the most recent on top and any interactions fall through until they hit a filter that is relevant. For example:
+You can *configure* multiple times and build up multiple *handles* that can be disposed separately. There is no rule as to how components will behave with multiple configuration or the order of disposal. The individual components will determine how to best handle this condition, so refer to their documentation. However, a good default is to think of the configuration as a stack of filters ordered with the most recent on top and any interactions fall through until they hit a filter that is relevant. For example:
 
 ```csharp
 // GET 404
