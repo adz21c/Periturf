@@ -132,3 +132,158 @@ await post204.DisposeAsync();
 // GET 404
 // POST 404
 ```
+
+## Discussion
+
+Envrionments can be setup and discarded as you wish, but Periturf has been designed expecting an environment to be a long running dependency of your System Under Test (SUT). Immediately after setting up your environment you will likely want to configure some default behaviour that is common for all tests, but configuration can be created and disposed per-test (or groups of tests). Depending on the purpose and implementation of your SUT this enables you to have a single running instance of your SUT, while executing multiple concurrent tests against it.
+
+### NUnit Example
+
+In the below example our SUT will be a function that checks a URL exists or not (for simplicity, in real life the SUT could be a much more complex beast). Here we create an environment that is shared by two test fixtures.
+
+```csharp
+[TestFixtureSetUp]
+public class Environment
+{
+    private static IDisposable _envConfiguration;
+
+    public static Environment Instance { get; private set; }
+
+    [OneTimeSetUp]
+    public Task SetUp()
+    {
+        Instance = Environment.Setup(e =>
+        {
+            e.GenericHost(h =>
+            {
+                h.WebApp(w =>
+                {
+                    w.Configure(wb => wb.UseUrls("http://localhost:8080"));
+                    w.WebApp("MyApp", "/MyApp");
+                });
+            });
+        });
+
+        await Instance.StartAsync();
+
+        await _envConfiguration = Instance.ConfigureAsync(c =>
+        {
+            c.WebApp(w =>
+            {
+                w.OnRequest(r =>
+                {
+                    r.Predicate(x => x.Request.Path == "/Path1");
+                    r.Response(rs => rs.StatusCode = HttpStatusCode.OK);
+                });
+            });
+        });
+    }
+
+    [OneTimeTearDown]
+    public Task TearDown()
+    {
+        await _envConfiguration.DisposeAsync();
+        await Instance.StopAsync();
+    }
+}
+
+[TestFixture]
+public class WithPath2Tests
+{
+    private IDisposable _config;
+
+    [OneTimeSetUp]
+    public async Task SetUp()
+    {
+        _config Environment.Instance.ConfigureAsync(c =>
+        {
+            c.WebApp(w =>
+            {
+                w.OnRequest(r =>
+                {
+                    r.Predicate(x => x.Request.Path == "/Path2");
+                    r.Response(rs => rs.StatusCode = HttpStatusCode.OK);
+                });
+            });
+        });
+    }
+    
+    [OneTimeTearDown]
+    public async Task TearDown()
+    {
+        await _config.DisposeAsync();
+    }
+
+    [Test]
+    public async Task Path1()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path1");
+        Assert.That(result, Is.True);
+    } 
+
+    [Test]
+    public async Task Path2()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path2");
+        Assert.That(result, Is.True);
+    }
+
+    [Test]
+    public async Task Path4()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path4");
+        Assert.That(result, Is.False);
+    }
+}
+
+[TestFixture]
+public class WithPath3Tests
+{
+    private IDisposable _config;
+
+    [OneTimeSetUp]
+    public async Task SetUp()
+    {
+        _config Environment.Instance.ConfigureAsync(c =>
+        {
+            c.WebApp(w =>
+            {
+                w.OnRequest(r =>
+                {
+                    r.Predicate(x => x.Request.Path == "/Path3");
+                    r.Response(rs => rs.StatusCode = HttpStatusCode.OK);
+                });
+            });
+        });
+    }
+    
+    [OneTimeTearDown]
+    public async Task TearDown()
+    {
+        await _config.DisposeAsync();
+    }
+
+    [Test]
+    public async Task Path1()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path1");
+        Assert.That(result, Is.True);
+    } 
+
+    [Test]
+    public async Task Path3()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path3");
+        Assert.That(result, Is.True);
+    } 
+
+    [Test]
+    public async Task Path5()
+    {
+        var result = MyApp.UrlTester("http://localhost:8080/Path5");
+        Assert.That(result, Is.False);
+    }
+}
+```
+
+This example demonstrates shared configuration and configuration for individual test fixtures. Configuring the environment as part of test setup keeps dependencies close and makes test code easier to manage. However, shared configuration also saves lots of duplicate code and execution.
