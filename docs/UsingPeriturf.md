@@ -207,7 +207,7 @@ public class WithPath2Tests
             });
         });
     }
-    
+
     [OneTimeTearDown]
     public async Task TearDown()
     {
@@ -219,7 +219,7 @@ public class WithPath2Tests
     {
         var result = MyApp.UrlTester("http://localhost:8080/Path1");
         Assert.That(result, Is.True);
-    } 
+    }
 
     [Test]
     public async Task Path2()
@@ -256,7 +256,7 @@ public class WithPath3Tests
             });
         });
     }
-    
+
     [OneTimeTearDown]
     public async Task TearDown()
     {
@@ -268,14 +268,14 @@ public class WithPath3Tests
     {
         var result = MyApp.UrlTester("http://localhost:8080/Path1");
         Assert.That(result, Is.True);
-    } 
+    }
 
     [Test]
     public async Task Path3()
     {
         var result = MyApp.UrlTester("http://localhost:8080/Path3");
         Assert.That(result, Is.True);
-    } 
+    }
 
     [Test]
     public async Task Path5()
