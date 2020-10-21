@@ -25,9 +25,9 @@ namespace Periturf.MyExtension
     {
         public string MyProperty { get; set; }
 
-        public Object OptionalFactory()
+        public InternalObject OptionalFactory()
         {
-            // do things
+            return new InternalObject(MyProperty);
         }
     }
 
@@ -43,7 +43,7 @@ namespace Periturf
     {
         public static void MyExtension(this IConfigurationContext builder, string name, Action<IMyConfigurator> config)
         {
-            var spec = builder.CreateComponentConfigSpecification<WebComponentSpecification>(name);
+            var spec = builder.CreateComponentConfigSpecification<MySpecification>(name);
             config.Invoke(spec);
             builder.AddSpecification(spec);
         }
@@ -53,7 +53,9 @@ namespace Periturf
 
 ### Extensionable Extensions
 
-It might be your extension can also work as a base to more components or have its behaviour further altered. One way to achieve this is to repeat the fluent configuration convention on top of itself. Modify your *configurator* to accept *specification* interfaces. From there other extensions can repeat the convention on top of your code. For example:
+It might be your extension can also have its behaviour altered through further extension. One way to achieve this is to repeat the fluent configuration convention on top of itself. Modify your *configurator* to accept *specification* interfaces. From there other extensions can repeat the convention on top of your code.
+
+Here we can see MyExtension has changed to also take in specifications and construct its "InternalObject" using components provided by those specifications.
 
 ```csharp
 namespace Periturf.MyExtension
@@ -64,29 +66,67 @@ namespace Periturf.MyExtension
 
         public string MyProperty { get; set; }
 
-        public void AddOtherSpecification
-
-        public Object OptionalFactory()
+        public void AddOtherSpecification(IOtherSpecification spec)
         {
-            // do things
+            _spec.Add(spec);
+        }
+
+        public InternalObject OptionalFactory()
+        {
+            return new InternalObject(
+                MyProperty
+                _specs.Select(x => x.OtherFactory()).ToList());
         }
     }
 
     public interface IMyConfigurator
     {
         string MyProperty { get; set; }
+
+        void AddOtherSpecification(IOtherSpecification spec);
+    }
+
+    public interface IOtherSpecification
+    {
+        OtherObject OtherFactory();
     }
 }
+```
 
+OtherExtension looks almost the same as MyExtension in the earlier example.
+
+```csharp
+namespace Periturf.OtherExtension
+{
+    public interface IOtherConfigurator
+    {
+        string OtherProperty { get; set ;}
+    }
+
+    class OtherSpecification : IOtherSpecification, IOtherConfigurator
+    {
+        public string OtherProperty { get; set; }
+
+        public OtherObject OtherFactory()
+        {
+            return new OtherObject(OtherProperty);
+        }
+    }
+}
+```
+
+MyExtension *entry point* remains unchanged, but the OtherExtension *entry point* is initiated off the MyExtension *configurator*.
+
+```csharp
 namespace Periturf
 {
-    public static class MyExtension
+    public static class OtherExtension
     {
-        public static void MyExtension(this IConfigurationContext builder, string name, Action<IMyConfigurator> config)
+        public static void OtherExtension(this IMyConfigurator configurator, Action<IOtherConfigurator> config)
         {
-            var spec = builder.CreateComponentConfigSpecification<WebComponentSpecification>(name);
+            var spec = new OtherSpecification();
             config.Invoke(spec);
-            builder.AddSpecification(spec);
+            configurator.AddOtherSpecification(spec);
         }
     }
 }
