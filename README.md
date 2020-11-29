@@ -14,8 +14,8 @@ Library to manage the stubbing and mocking of environment components.
 
 | | |
 |-|-|
-| Periturf         | [![Nuget](https://img.shields.io/nuget/v/periturf.svg)](https://www.nuget.org/packages/Periturf/) |
-| Periturf.Hosting | [![Nuget](https://img.shields.io/nuget/v/periturf.hosting.svg)](https://www.nuget.org/packages/Periturf.Hosting/) |
+| Periturf         | [![NuGet Badge](https://buildstats.info/nuget/periturf)](https://www.nuget.org/packages/periturf/) |
+| Periturf.Hosting | [![NuGet Badge](https://buildstats.info/nuget/periturf.hosting)](https://www.nuget.org/packages/periturf.hosting/) |
 
 ## Quick Start
 
