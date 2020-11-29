@@ -132,13 +132,11 @@ namespace Periturf
 }
 ```
 
-## Hosts
+## Setup
 
 Hosts extend *IHost* and will need to store a dictionary of *IComponents* with the key as the component name. The host is created by implementing *IHostSpecification* as a factory for the host. Following the previously discussed Fluent Configuration you will need to create a specification interface for components that others will extend.
 
-## Setup
-
-TODO
+Components extend the *IComponent* interface. The specification interface required will depend on the implementation of the host it will sit on top of.
 
 ## Configuration
 

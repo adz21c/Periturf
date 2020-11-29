@@ -1,6 +1,6 @@
 # Periturf
 
-Something
+Library to manage the stubbing and mocking of environment components. 
 
 ## Quick Start
 
