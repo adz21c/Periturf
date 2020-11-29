@@ -9,7 +9,7 @@ branches:
 skip_tags: true
 
 environment:
-  JAVA_HOME: c:/Program Files/Java/jdk1.8.0
+  JAVA_HOME: C:/Program Files/Java/jdk11
   
   sonar_login:
     secure: 6qD93a8X/HlviVML1h7oaD5Z57iWiGc6BLkgizomSUHAgcNeC6eQoY8sprEtlHtN
