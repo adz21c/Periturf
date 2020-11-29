@@ -131,3 +131,65 @@ namespace Periturf
     }
 }
 ```
+
+## Setup
+
+TODO
+
+## Configuration
+
+New configuration is created in the form of a class implementing *IConfigurationSpecification*. The configuration specification will be created via *IConfigurationContext* that will ultimately call your component to create the specification. This gives you an opportunity to inject any dependencies into your specification. The *IEventHandlerFactory* is available at this point that allows you to hook into some generic event handling. Once the specification has been configured it will need registering with *IConfigurationContext.AddSpecification*. Using the previously discussed Fluent Configuration the *entry point* will take care of all of this and expose the configuration as a *configurator* interface.
+
+```csharp
+namespace Periturf.MyExtension
+{
+    class ConfigurationSpecification : IConfigurationSpecification, IMyExtensionConfigurator
+    {
+        // ...
+    }
+
+    class MyExtensionComponent : IComponent
+    {
+        // ...
+
+        public TSpecification CreateConfigurationSpecification<TSpecification>(IEventHandlerFactory eventHandlerFactory) where TSpecification : IConfigurationSpecification
+        {
+            return (TSpecification)(object)new ConfigurationSpecification(eventHandlerFactory);
+        }
+    }
+}
+
+namespace Periturf
+{
+    public static class MyExtension
+    {
+        public static void MyExtension(this IConfigurationContext builder, string name, Action<IMyExtensionConfigurator> config)
+        {
+            var spec = builder.CreateComponentConfigSpecification<ConfigurationSpecification>(name);
+            config.Invoke(spec);
+            builder.AddSpecification(spec);
+        }
+    }
+}
+```
+
+Once your specification is created, configured, and registered then Periturf will call your specification to apply configuration. This will call the specification's *ApplyAsync* method, which will return a *IConfigurationHandle*. The configuration handle is *IDisposableAsync* that when called will rollback the configuration. 
+
+```csharp
+namespace Periturf.MyExtension
+{
+    class ConfigurationSpecification : IConfigurationSpecification, IMyExtensionConfigurator
+    {
+        public Task ApplyAsync(CancellationToken ct)
+        {
+            // do things
+            return new ConfigurationHandle(dependency);
+        }
+    }
+
+    class ConfigurationHandle : IConfigurationHandle
+    {
+        // ...
+    }
+}
+```
