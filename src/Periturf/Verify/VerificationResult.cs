@@ -13,42 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// The aggregated result expectations.
-    /// </summary>
     [ExcludeFromCodeCoverage]
     public class VerificationResult
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VerificationResult"/> class.
-        /// </summary>
-        /// <param name="expectationsMet">if set to <c>true</c> [expectations met].</param>
-        /// <param name="expectationResults">The expectation results.</param>
-        public VerificationResult(bool expectationsMet, IReadOnlyList<ExpectationResult> expectationResults)
-        {
-            ExpectationsMet = expectationsMet;
-            ExpectationResults = expectationResults;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether all expectations were met.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if all expectations were met; otherwise, <c>false</c>.
-        /// </value>
-        public bool ExpectationsMet { get; }
-
-        /// <summary>
-        /// Gets the expectation results.
-        /// </summary>
-        /// <value>
-        /// The expectation results.
-        /// </value>
-        public IReadOnlyList<ExpectationResult> ExpectationResults { get; }
+        public bool AsExpected { get; set; }
     }
 }

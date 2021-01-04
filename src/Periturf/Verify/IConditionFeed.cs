@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Periturf.Verify.ComponentConditions
+namespace Periturf.Verify
 {
     /// <summary>
-    /// Accepts a <see cref="ConditionInstance"/> to feed to multiple evaluator instances.
+    /// Feeds expectations with instances of a components expected condition.
     /// </summary>
-    public interface IConditionInstanceHandler
+    public interface IConditionFeed : IAsyncDisposable
     {
         /// <summary>
-        /// Accepts a <see cref="ConditionInstance"/> to feed to multiple evaluator instances.
+        /// Gets the instances of the expected component condition, fed asyncronously.
         /// </summary>
-        /// <param name="instance">The condition instance.</param>
-        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        ValueTask HandleInstanceAsync(ConditionInstance instance, CancellationToken ct = default);
+        Task<List<ConditionInstance>> WaitForInstancesAsync(CancellationToken ct);
     }
 }

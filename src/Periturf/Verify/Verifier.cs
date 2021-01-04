@@ -23,23 +23,24 @@ namespace Periturf.Verify
 {
     class Verifier : IVerifier
     {
+        private readonly List<(ConditionIdentifier ID, IConditionFeed Feed)> _feeds;
+        private readonly IExpectationEvaluator _expectation;
 
         private VerificationResult? _result;
 
-        private bool _verifying;
+        private bool _evaluating;
         private bool _dependenciesDisposed;
         private bool _disposed;
 
-        public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
+        public Verifier(
+            List<(ConditionIdentifier ID, IConditionFeed Feed)> feeds,
+            IExpectationEvaluator expectation)
         {
-            Expectations = expectations;
-            ShortCircuit = shortCircuit;
+            _feeds = feeds;
+            _expectation = expectation;
         }
 
-        public bool ShortCircuit { get; }
-        public List<ExpectationEvaluator> Expectations { get; }
-
-        public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
+        public async Task<VerificationResult> EvaluateAsync(CancellationToken ct = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(Verifier).FullName);
@@ -47,60 +48,49 @@ namespace Periturf.Verify
             if (_result != null)
                 return _result;
 
-            if (_verifying)
-                throw new InvalidOperationException("Already verifying");
+            if (_evaluating)
+                throw new InvalidOperationException("Already evaluating");
+            
+            _evaluating = true;
 
-            _verifying = true;
-
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
+            using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            try
             {
-                var results = new List<ExpectationResult>(Expectations.Count);
-                var expectations = new List<(ExpectationEvaluator evaluator, Task<ExpectationResult> task)>(Expectations.Count);
-
-                try
+                do
                 {
-                    expectations.AddRange(Expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
-
-                    if (ShortCircuit)
-                    {
-                        while (expectations.Any())
+                    var workers = _feeds
+                        .Select(x => new
                         {
-                            await Task.WhenAny(expectations.Select(x => x.task));
-                            var completed = expectations.Where(x => x.task.IsCompleted).ToList();
+                            Feed = x,
+                            Task = x.Feed.WaitForInstancesAsync(evaluateCt.Token)
+                        })
+                        .ToList();
 
-                            expectations.RemoveAll(x => completed.Contains(x));
-                            results.AddRange(completed.Select(x => x.task.Result));
+                    await Task.WhenAny(workers.Select(x => x.Task));
 
-                            // If any failed then lets break and cancel the rest
-                            if (completed.Any(x => !(x.task.Result.Met ?? false)))
+                    var instances = workers
+                        .Where(x => x.Task.IsCompletedSuccessfully)
+                        .SelectMany(x => x.Task.Result.Select(y => new FeedConditionInstance(x.Feed.ID, y)))
+                        .OrderBy(x => x.Instance.When)
+                        .ToList();
+
+                    foreach (var instance in instances)
+                    {
+                        var result = _expectation.Evaluate(instance);
+                        if (result.IsCompleted)
+                        {
+                            return _result = new VerificationResult
                             {
-                                cancellationTokenSource.Cancel();   // Cancel remaining tasks
-                                // Pass over remaining incomplete tasks
-                                results.AddRange(
-                                    expectations.Select(x => new ExpectationResult(
-                                        null,
-                                        x.evaluator.Description)));
-                                break;
-                            }
+                                AsExpected = result.Met
+                            };
                         }
                     }
-                    else
-                    {
-                        await Task.WhenAll(expectations.Select(x => x.task));
-                        results.AddRange(expectations.Select(x => x.task.Result));
-                        expectations.Clear();
-                    }
-                }
-                finally
-                {
-                    _verifying = false;
-                }
-
+                } while (true);
+            }
+            finally
+            {
+                evaluateCt.Cancel();
                 await DisposeDependencies();
-
-                return _result = new VerificationResult(
-                    results.All(x => x.Met ?? false),
-                    results);
             }
         }
 
@@ -118,7 +108,7 @@ namespace Periturf.Verify
             if (_dependenciesDisposed)
                 return;
 
-            await Task.WhenAll(Expectations.Select(x => x.DisposeAsync().AsTask()));
+            await Task.WhenAll(_feeds.Select(x => x.Feed.DisposeAsync().AsTask()));
             _dependenciesDisposed = true;
         }
     }

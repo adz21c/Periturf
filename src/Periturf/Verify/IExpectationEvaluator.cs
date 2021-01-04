@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// Create an evaluator.
-    /// </summary>
-    public interface IExpectationCriteriaEvaluatorFactory
+    public interface IExpectationEvaluator
     {
-        /// <summary>
-        /// Creates a stateful evaluator instance.
-        /// </summary>
-        /// <returns></returns>
-        IExpectationCriteriaEvaluator CreateInstance();
+        ExpectationResult Evaluate(FeedConditionInstance instance);
     }
 }

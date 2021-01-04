@@ -22,32 +22,5 @@ namespace Periturf.Verify
     /// </summary>
     public interface IVerificationContext
     {
-        /// <summary>
-        /// Gets a component condition builder for a specified component.
-        /// </summary>
-        /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
-        /// <param name="componentName">Name of the component.</param>
-        /// <returns></returns>
-        TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName)
-            where TComponentConditionBuilder : IComponentConditionBuilder;
-
-        /// <summary>
-        /// Defines an expectation.
-        /// </summary>
-        /// <param name="conditionSpecification">The component condition specification.</param>
-        /// <param name="config">Configures an expectation specification.</param>
-        void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config);
-
-        /// <summary>
-        /// Sets a default expectation timeout.
-        /// </summary>
-        /// <param name="timeout">The timeout.</param>
-        void Timeout(TimeSpan timeout);
-
-        /// <summary>
-        /// Fails a verification when the first expectation fails, cancelling the rest.
-        /// </summary>
-        /// <param name="shortCircuit">if set to <c>true</c> then it will short circuit.</param>
-        void ShortCircuit(bool? shortCircuit);
     }
 }
