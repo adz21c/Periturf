@@ -34,9 +34,9 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_MetExpectations_When_Evaluate_Then_ResultAsExpectedAndFeedDisposed()
+        public async Task Given_MetExpectations_When_Verify_Then_ResultAsExpectedAndFeedDisposed()
         {
-            var result = await _sut.EvaluateAsync(CancellationToken.None);
+            var result = await _sut.VerifyAsync(CancellationToken.None);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.AsExpected, Is.True);
@@ -52,9 +52,9 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_Evaluated_When_Dispose_Then_DoesNotDisposeAgain()
+        public async Task Given_Verifyd_When_Dispose_Then_DoesNotDisposeAgain()
         {
-            await _sut.EvaluateAsync(CancellationToken.None);
+            await _sut.VerifyAsync(CancellationToken.None);
             Fake.ClearRecordedCalls(_feed1);
 
             await _sut.DisposeAsync();
@@ -62,11 +62,11 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_Disposed_When_Evaluate_Then_Exception()
+        public async Task Given_Disposed_When_Verify_Then_Exception()
         {
             await _sut.DisposeAsync();
 
-            Assert.That(() => _sut.EvaluateAsync(CancellationToken.None), Throws.TypeOf<ObjectDisposedException>());
+            Assert.That(() => _sut.VerifyAsync(CancellationToken.None), Throws.TypeOf<ObjectDisposedException>());
         }
     }
 }

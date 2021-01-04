@@ -40,9 +40,9 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_MetExpectations_When_Evaluate_Then_ResultAsExpectedAndFeedDisposed()
+        public async Task Given_MetExpectations_When_Verify_Then_ResultAsExpectedAndFeedDisposed()
         {
-            var result = await _sut.EvaluateAsync(CancellationToken.None);
+            var result = await _sut.VerifyAsync(CancellationToken.None);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.AsExpected, Is.True);
@@ -52,15 +52,15 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_AlreadyEvaluated_When_Evaluate_Then_ReturnsSameResultsDoesntEvaluateAgain()
+        public async Task Given_AlreadyEvaluated_When_Verify_Then_ReturnsSameResultsDoesntEvaluateAgain()
         {
-            var result = await _sut.EvaluateAsync(CancellationToken.None);
+            var result = await _sut.VerifyAsync(CancellationToken.None);
             Assume.That(result, Is.Not.Null);
             Fake.ClearRecordedCalls(_feed1);
             Fake.ClearRecordedCalls(_feed2);
             Fake.ClearRecordedCalls(_expectationEvaluator);
 
-            var result2 = await _sut.EvaluateAsync(CancellationToken.None);
+            var result2 = await _sut.VerifyAsync(CancellationToken.None);
 
             Assert.That(result2, Is.Not.Null);
             Assert.That(result2.AsExpected, Is.EqualTo(result.AsExpected));
@@ -70,7 +70,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_MultipleFeedsAndInstances_When_Evaluate_Then_EvaluatedInOrder()
+        public async Task Given_MultipleFeedsAndInstances_When_Verify_Then_VerifydInOrder()
         {
             var instance1 = new ConditionInstance(TimeSpan.FromSeconds(1), "ID1");
             var instance2 = new ConditionInstance(TimeSpan.FromSeconds(2), "ID2");
@@ -87,7 +87,7 @@ namespace Periturf.Tests.Verify
                 new ExpectationResult { IsCompleted = false },
                 new ExpectationResult { IsCompleted = true, Met = true });
 
-            await _sut.EvaluateAsync(CancellationToken.None);
+            await _sut.VerifyAsync(CancellationToken.None);
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>.That.NullCheckedMatches(
                     i => i.Instance == instance1 && i.Identifier == _feed1Id,
                     e => e.Write("Expectation1")))).MustHaveHappenedOnceExactly()
@@ -100,7 +100,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_IncompleteTask_When_EvaluateComplete_Then_TaskCancelled()
+        public async Task Given_IncompleteTask_When_VerifyComplete_Then_TaskCancelled()
         {
             var instance1 = new ConditionInstance(TimeSpan.FromSeconds(1), "ID1");
 
@@ -115,7 +115,7 @@ namespace Periturf.Tests.Verify
                     await Task.Delay(1000, ct);
                 });
 
-            var result = await _sut.EvaluateAsync(CancellationToken.None);
+            var result = await _sut.VerifyAsync(CancellationToken.None);
 
             Assume.That(result, Is.Not.Null);
             Assume.That(result.AsExpected, Is.True);

@@ -28,7 +28,7 @@ namespace Periturf.Verify
 
         private VerificationResult? _result;
 
-        private bool _evaluating;
+        private bool _verifying;
         private bool _dependenciesDisposed;
         private bool _disposed;
 
@@ -40,7 +40,7 @@ namespace Periturf.Verify
             _expectation = expectation;
         }
 
-        public async Task<VerificationResult> EvaluateAsync(CancellationToken ct = default)
+        public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(typeof(Verifier).FullName);
@@ -48,10 +48,10 @@ namespace Periturf.Verify
             if (_result != null)
                 return _result;
 
-            if (_evaluating)
-                throw new InvalidOperationException("Already evaluating");
+            if (_verifying)
+                throw new InvalidOperationException("Already verifying");
             
-            _evaluating = true;
+            _verifying = true;
 
             using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
             try
