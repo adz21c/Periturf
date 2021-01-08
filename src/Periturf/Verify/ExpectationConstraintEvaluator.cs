@@ -13,10 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Diagnostics;
+
 namespace Periturf.Verify
 {
-    interface IExpectationEvaluator
+    class ExpectationConstraintEvaluator
     {
-        ExpectationResult Evaluate(FeedConditionInstance instance);
+        private readonly ConditionIdentifier _condition;
+
+        public ExpectationConstraintEvaluator(ConditionIdentifier condition)
+        {
+            _condition = condition;
+        }
+
+        public bool Met { get; private set; }
+
+        public void Evaluate(FeedConditionInstance instance)
+        {
+            Debug.Assert(!Met, "!Met");
+
+            if (instance.Identifier.Id == _condition.Id) // TODO: Fix equality
+                Met = true;
+        }
     }
 }

@@ -220,10 +220,23 @@ namespace Periturf
         class VerificationContext : IVerificationContext
         {
             private readonly Environment _env;
+            //private readonly List<IConditionSpecification> _conditions;
+            private ExpectationSpecification? _expectationSpecification;
 
             public VerificationContext(Environment env)
             {
                 _env = env;
+            }
+
+            public ConditionIdentifier Condition(string componentName)
+            {
+                return null;
+            }
+
+            public void Expect(Action<IExpectationConfigurator> config)
+            {
+                _expectationSpecification = new ExpectationSpecification();
+                config.Invoke(_expectationSpecification);
             }
 
             public async Task<Verifier> BuildAsync(CancellationToken ct)
