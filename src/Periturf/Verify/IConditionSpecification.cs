@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// Context within which the verification will be defined.
-    /// </summary>
-    public interface IVerificationContext
+    public interface IConditionSpecification
     {
-        ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config);
-
-        void Expect(Action<IExpectationConfigurator> config);
+        Task<IConditionFeed> BuildAsync(CancellationToken ct);
     }
 }

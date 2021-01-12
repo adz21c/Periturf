@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -217,10 +218,10 @@ namespace Periturf
             return await context.BuildAsync(ct);
         }
 
-        class VerificationContext : IVerificationContext
+        class VerificationContext : IVerificationContext, IConditionConfigurator
         {
             private readonly Environment _env;
-            //private readonly List<IConditionSpecification> _conditions;
+            private readonly Dictionary<ConditionIdentifier, IConditionSpecification> _conditions = new Dictionary<ConditionIdentifier, IConditionSpecification>();
             private ExpectationSpecification? _expectationSpecification;
 
             public VerificationContext(Environment env)
@@ -228,9 +229,12 @@ namespace Periturf
                 _env = env;
             }
 
-            public ConditionIdentifier Condition(string componentName)
+            public ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config)
             {
-                return null;
+                var spec = config(this);
+                var identifier = new ConditionIdentifier(Guid.NewGuid());
+                _conditions.Add(identifier, spec);
+                return identifier;
             }
 
             public void Expect(Action<IExpectationConfigurator> config)
@@ -241,7 +245,26 @@ namespace Periturf
 
             public async Task<Verifier> BuildAsync(CancellationToken ct)
             {
-                throw new NotImplementedException();
+                Debug.Assert(_expectationSpecification != null, "_expectationSpecification != null");
+
+                var conditionBuilds = _conditions
+                    .Select(x => new
+                    {
+                        Identifier = x.Key,
+                        Task = x.Value.BuildAsync(ct)
+                    })
+                    .ToList();
+
+                await Task.WhenAll(conditionBuilds.Select(x => x.Task));
+
+                return new Verifier(
+                    conditionBuilds.Select(x => (x.Identifier, x.Task.Result)).ToList(),
+                    _expectationSpecification.Build());
+            }
+
+            IConditionBuilder IConditionConfigurator.GetConditionBuilder(string componentName)
+            {
+                return _env._components[componentName].CreateConditionBuilder();
             }
         }
 

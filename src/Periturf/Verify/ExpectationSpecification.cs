@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Periturf.Verify
 {
     class ExpectationSpecification : IExpectationConfigurator
     {
-        private readonly List<ExpectationSpecification> _expectationSpecifications = new List<ExpectationSpecification>();
+        private ExpectationSpecification? _expectationSpecifications;
         private readonly List<ExpectationConstraintSpecification> _expectationConstraintSpecifications = new List<ExpectationConstraintSpecification>();
 
         public void Constraint(Action<IExpectationConstraintConfigurator> config)
@@ -20,7 +21,14 @@ namespace Periturf.Verify
         {
             var spec = new ExpectationSpecification();
             config(spec);
-            _expectationSpecifications.Add(spec);
+            _expectationSpecifications = spec;
+        }
+
+        public ExpectationEvaluator Build()
+        {
+            return new ExpectationEvaluator(
+                _expectationConstraintSpecifications.Select(x => x.Build()).ToList(),
+                _expectationSpecifications?.Build());
         }
     }
 }
