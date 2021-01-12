@@ -47,8 +47,6 @@ build_script:
     
     dotnet test .\src\Periturf.Tests --collect:"XPlat code coverage" --settings:.\src\CodeCoverage.runsettings
 
-    dotnet test .\src\Periturf.Tests.Integration
-
     dotnet sonarscanner end /d:sonar.login="$env:sonar_login"
     
     codecov -f "**/coverage.opencover.xml" -t "$env:CODECOV_TOKEN"
