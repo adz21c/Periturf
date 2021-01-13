@@ -99,5 +99,36 @@ namespace Periturf.Tests.Verify
             Assert.That(result2, Is.Not.Null);
             Assert.That(result2.Met, Is.True);
         }
+
+        [Test]
+        public void Given_Completed_When_Evaluate_Then_SameResult()
+        {
+            var feedInstance = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
+
+            var result = _sut.Evaluate(feedInstance);
+
+            Assume.That(result, Is.Not.Null);
+            Assume.That(result.Met, Is.True);
+
+            var feedInstance2 = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2"));
+
+            var result2 = _sut.Evaluate(feedInstance2);
+
+            Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.Met, Is.True);
+
+            var feedInstance3 = new FeedConditionInstance(
+                _condition2,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID3"));
+
+            var result3 = _sut.Evaluate(feedInstance3);
+
+            Assert.That(result3, Is.Not.Null);
+            Assert.That(result3.Met, Is.True);
+        }
     }
 }
