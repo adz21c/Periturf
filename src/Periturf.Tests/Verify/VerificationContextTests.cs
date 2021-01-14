@@ -39,7 +39,7 @@ namespace Periturf.Tests.Verify
                 .Invokes((IConditionConfigurator c) => c.GetConditionBuilder(ComponentName))
                 .Returns(conditionSpec);
             ConditionIdentifier conditionIdentifier = null;
-            
+
             var expectationConfig = A.Fake<Action<IExpectationConfigurator>>();
             A.CallTo(() => expectationConfig.Invoke(A<IExpectationConfigurator>._)).Invokes((IExpectationConfigurator e) =>
             {
@@ -58,6 +58,17 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => expectationConfig.Invoke(A<IExpectationConfigurator>._)).MustHaveHappened();
             A.CallTo(() => conditionSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => _component.CreateConditionBuilder()).MustHaveHappened();
+        }
+
+        [Test]
+        public void Given_ConditionForNonExistentComponent_When_Verify_Then_Throws()
+        {
+            var conditionConfig = A.Fake<Func<IConditionConfigurator, IConditionSpecification>>();
+            A.CallTo(() => conditionConfig.Invoke(A<IConditionConfigurator>._))
+                .Invokes((IConditionConfigurator c) => c.GetConditionBuilder("NonComponentName"));
+
+            Assert.That(() => _sut.VerifyAsync(ctx => ctx.Condition(conditionConfig)), Throws.TypeOf<ComponentLocationFailedException>());
+
         }
     }
 }
