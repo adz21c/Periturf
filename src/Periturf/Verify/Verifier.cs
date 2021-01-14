@@ -78,12 +78,7 @@ namespace Periturf.Verify
                     {
                         var result = _expectation.Evaluate(instance);
                         if (result.IsCompleted)
-                        {
-                            return _result = new VerificationResult
-                            {
-                                AsExpected = result.Met
-                            };
-                        }
+                            return _result = new VerificationResult(result.Met);
                     }
                 } while (true);
             }

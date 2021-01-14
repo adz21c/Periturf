@@ -20,14 +20,14 @@ namespace Periturf.Verify
     [ExcludeFromCodeCoverage]
     public class FeedConditionInstance
     {
-        public FeedConditionInstance(ConditionIdentifier identifier, ConditionInstance instance)
+        internal FeedConditionInstance(ConditionIdentifier identifier, ConditionInstance instance)
         {
             Identifier = identifier;
             Instance = instance;
         }
 
-        public ConditionIdentifier Identifier { get; private set; }
+        public ConditionIdentifier Identifier { get; }
 
-        public ConditionInstance Instance { get; private set; }
+        public ConditionInstance Instance { get; }
     }
 }
