@@ -12,7 +12,7 @@ namespace Periturf.Tests.Verify
     [TestFixture]
     class VerifierTestsCtorAndDispose
     {
-        private readonly ConditionIdentifier _feed1Id = new ConditionIdentifier(Guid.NewGuid());
+        private readonly ConditionIdentifier _feed1Id = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
         private IConditionFeed _feed1;
 
         private IExpectationEvaluator _expectationEvaluator;

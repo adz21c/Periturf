@@ -20,6 +20,10 @@ namespace Periturf.Verify
 {
     public interface IConditionSpecification
     {
+        string ComponentName { get; }
+
+        string ConditionDescription { get; }
+
         Task<IConditionFeed> BuildAsync(CancellationToken ct);
     }
 }

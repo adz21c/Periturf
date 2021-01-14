@@ -33,7 +33,7 @@ namespace Periturf.Verify
         {
             Debug.Assert(!Met, "!Met");
 
-            if (instance.Identifier.Id == _condition.Id) // TODO: Fix equality
+            if (instance.Identifier == _condition)
                 Met = true;
         }
     }

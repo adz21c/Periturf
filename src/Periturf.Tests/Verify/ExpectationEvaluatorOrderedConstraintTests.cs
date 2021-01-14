@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using FakeItEasy;
+using NUnit.Framework;
 using Periturf.Verify;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,8 @@ namespace Periturf.Tests.Verify
     [TestFixture]
     class ExpectationEvaluatorOrderedConstraintTests
     {
-        private readonly ConditionIdentifier _condition1 = new ConditionIdentifier(Guid.NewGuid());
-        private readonly ConditionIdentifier _condition2 = new ConditionIdentifier(Guid.NewGuid());
+        private readonly ConditionIdentifier _condition1 = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
+        private readonly ConditionIdentifier _condition2 = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
         private ExpectationEvaluator _sut;
 
         [SetUp]

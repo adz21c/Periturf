@@ -37,7 +37,7 @@ namespace Periturf.Verify
         public ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config)
         {
             var spec = config(this);
-            var identifier = new ConditionIdentifier(Guid.NewGuid());
+            var identifier = new ConditionIdentifier(spec.ComponentName, spec.ConditionDescription, Guid.NewGuid());
             _conditions.Add(identifier, spec);
             return identifier;
         }

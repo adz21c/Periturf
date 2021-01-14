@@ -12,10 +12,10 @@ namespace Periturf.Tests.Verify
     [TestFixture]
     class VerifierTestsInstanceEvaluation
     {
-        private readonly ConditionIdentifier _feed1Id = new ConditionIdentifier(Guid.NewGuid());
+        private readonly ConditionIdentifier _feed1Id = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
         private IConditionFeed _feed1;
 
-        private readonly ConditionIdentifier _feed2Id = new ConditionIdentifier(Guid.NewGuid());
+        private readonly ConditionIdentifier _feed2Id = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
         private IConditionFeed _feed2;
 
         private IExpectationEvaluator _expectationEvaluator;

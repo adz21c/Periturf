@@ -16,18 +16,54 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Periturf.Verify
 {
     [ExcludeFromCodeCoverage]
-    public class ConditionIdentifier
+    public sealed class ConditionIdentifier : IEquatable<ConditionIdentifier?>
     {
-        public Guid Id { get; private set; }
-
-        public ConditionIdentifier(Guid id)
+        internal ConditionIdentifier(string componentName, string description, Guid id)
         {
+            ComponentName = componentName;
+            Description = description;
             Id = id;
+        }
+
+        public string ComponentName { get; }
+
+        public string Description { get; }
+
+        public Guid Id { get; }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as ConditionIdentifier);
+        }
+
+        public bool Equals(ConditionIdentifier? other)
+        {
+            return other != null &&
+                   ComponentName == other.ComponentName &&
+                   Description == other.Description &&
+                   Id.Equals(other.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ComponentName, Description, Id);
+        }
+
+        public static bool operator ==(ConditionIdentifier? left, ConditionIdentifier? right)
+        {
+            // Supressed. Code generated. Generator probably doesn't take nullability into account
+#pragma warning disable CS8604 // Possible null reference argument.
+            return EqualityComparer<ConditionIdentifier>.Default.Equals(left, right);
+#pragma warning restore CS8604 // Possible null reference argument.
+        }
+
+        public static bool operator !=(ConditionIdentifier? left, ConditionIdentifier? right)
+        {
+            return !(left == right);
         }
     }
 }
