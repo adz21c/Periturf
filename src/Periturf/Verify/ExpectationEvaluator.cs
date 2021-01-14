@@ -53,18 +53,14 @@ namespace Periturf.Verify
             }
 
             if (!_constraints.All(x => x.Met))
-                return new ExpectationResult { IsCompleted = false };
+                return new ExpectationResult(false, false);
 
             if (_next == null)
             {
-                return _completedResult = new ExpectationResult
-                {
-                    IsCompleted = true,
-                    Met = true
-                };
+                return _completedResult = new ExpectationResult(true, true);
             }
             else
-                return new ExpectationResult { IsCompleted = false };
+                return new ExpectationResult(false, false);
         }
     }
 }

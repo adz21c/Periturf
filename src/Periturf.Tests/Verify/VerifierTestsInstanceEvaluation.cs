@@ -1,9 +1,23 @@
-﻿using FakeItEasy;
+﻿/*
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +46,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _feed2.WaitForInstancesAsync(A<CancellationToken>._)).Returns(new List<ConditionInstance> { new ConditionInstance(TimeSpan.FromSeconds(2), "ID") });
 
             _expectationEvaluator = A.Fake<IExpectationEvaluator>();
-            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult { IsCompleted = true, Met = true });
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
 
             _sut = new Verifier(
                 new List<(ConditionIdentifier ID, IConditionFeed Feed)> { (_feed1Id, _feed1), (_feed2Id, _feed2) },
@@ -83,9 +97,9 @@ namespace Periturf.Tests.Verify
                 .Returns(new List<ConditionInstance> { instance2 });
 
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).ReturnsNextFromSequence(
-                new ExpectationResult { IsCompleted = false },
-                new ExpectationResult { IsCompleted = false },
-                new ExpectationResult { IsCompleted = true, Met = true });
+                new ExpectationResult(false, false),
+                new ExpectationResult(false, false),
+                new ExpectationResult(true, true));
 
             await _sut.VerifyAsync(CancellationToken.None);
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>.That.NullCheckedMatches(

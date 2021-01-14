@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace Periturf.Verify
 {
     [ExcludeFromCodeCoverage]
     public class ExpectationResult
     {
-        public bool IsCompleted { get; set; }
-        public bool Met { get; set; }
+        internal ExpectationResult(bool isCompleted, bool met)
+        {
+            IsCompleted = isCompleted;
+            Met = met;
+        }
+
+        public bool IsCompleted { get; }
+
+        public bool Met { get; }
     }
 }
