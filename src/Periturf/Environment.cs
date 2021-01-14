@@ -15,7 +15,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +30,7 @@ namespace Periturf
     /// <summary>
     /// The environment which manages the assignment and removal of configuration to components.
     /// </summary>
-    public class Environment
+    public partial class Environment
     {
         private readonly List<IHost> _hosts = new List<IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
@@ -202,8 +201,6 @@ namespace Periturf
 
         #endregion
 
-        #region Verify
-
         /// <summary>
         /// Defines a verifier to establish if expectations are met.
         /// </summary>
@@ -212,63 +209,11 @@ namespace Periturf
         /// <returns></returns>
         public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
         {
-            var context = new VerificationContext(this);
+            var context = new VerificationContext(new ComponentLocator(_components));
             builder(context);
 
             return await context.BuildAsync(ct);
         }
-
-        class VerificationContext : IVerificationContext, IConditionConfigurator
-        {
-            private readonly Environment _env;
-            private readonly Dictionary<ConditionIdentifier, IConditionSpecification> _conditions = new Dictionary<ConditionIdentifier, IConditionSpecification>();
-            private ExpectationSpecification? _expectationSpecification;
-
-            public VerificationContext(Environment env)
-            {
-                _env = env;
-            }
-
-            public ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config)
-            {
-                var spec = config(this);
-                var identifier = new ConditionIdentifier(Guid.NewGuid());
-                _conditions.Add(identifier, spec);
-                return identifier;
-            }
-
-            public void Expect(Action<IExpectationConfigurator> config)
-            {
-                _expectationSpecification = new ExpectationSpecification();
-                config.Invoke(_expectationSpecification);
-            }
-
-            public async Task<Verifier> BuildAsync(CancellationToken ct)
-            {
-                Debug.Assert(_expectationSpecification != null, "_expectationSpecification != null");
-
-                var conditionBuilds = _conditions
-                    .Select(x => new
-                    {
-                        Identifier = x.Key,
-                        Task = x.Value.BuildAsync(ct)
-                    })
-                    .ToList();
-
-                await Task.WhenAll(conditionBuilds.Select(x => x.Task));
-
-                return new Verifier(
-                    conditionBuilds.Select(x => (x.Identifier, x.Task.Result)).ToList(),
-                    _expectationSpecification.Build());
-            }
-
-            IConditionBuilder IConditionConfigurator.GetConditionBuilder(string componentName)
-            {
-                return _env._components[componentName].CreateConditionBuilder();
-            }
-        }
-
-        #endregion
 
         #region Client
 
