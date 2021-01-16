@@ -31,7 +31,8 @@ namespace Periturf.Tests.Verify
         {
             var sut = new ExpectationConstraintEvaluator(_condition1);
 
-            Assert.That(sut.Met, Is.False);
+            Assert.That(sut.Completed, Is.False);
+            Assert.That(sut.Met, Is.Null);
         }
 
         [Test]
@@ -39,7 +40,8 @@ namespace Periturf.Tests.Verify
         {
             var sut = new ExpectationConstraintEvaluator(_condition1);
 
-            Assume.That(sut.Met, Is.False);
+            Assume.That(sut.Completed, Is.False);
+            Assume.That(sut.Met, Is.Null);
 
             var feedInstance = new FeedConditionInstance(
                 _condition1,
@@ -47,15 +49,17 @@ namespace Periturf.Tests.Verify
 
             sut.Evaluate(feedInstance);
 
+            Assert.That(sut.Completed, Is.True);
             Assert.That(sut.Met, Is.True);
         }
 
         [Test]
-        public void Given_NotMatchingCondition_When_Evaluate_Then_Met()
+        public void Given_NotMatchingCondition_When_Evaluate_Then_NotCompleted()
         {
             var sut = new ExpectationConstraintEvaluator(_condition1);
 
-            Assume.That(sut.Met, Is.False);
+            Assume.That(sut.Completed, Is.False);
+            Assume.That(sut.Met, Is.Null);
 
             var feedInstance = new FeedConditionInstance(
                 _condition2,
@@ -63,7 +67,8 @@ namespace Periturf.Tests.Verify
 
             sut.Evaluate(feedInstance);
 
-            Assert.That(sut.Met, Is.False);
+            Assert.That(sut.Completed, Is.False);
+            Assert.That(sut.Met, Is.Null);
         }
     }
 }

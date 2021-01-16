@@ -38,7 +38,7 @@ namespace Periturf.Verify
                 return _completedResult;
 
             // If we have another set of constraints then defer to the next set
-            if (_next != null && _constraints.All(x => x.Met))
+            if (_next != null && _constraints.All(x => x.Completed && x.Met.Value))
             {
                 var nextResult = _next.Evaluate(instance);
                 if (nextResult.IsCompleted)
@@ -47,12 +47,12 @@ namespace Periturf.Verify
                 return nextResult;
             }
 
-            foreach (var constraint in _constraints.Where(x => !x.Met))
+            foreach (var constraint in _constraints.Where(x => !x.Completed))
             {
                 constraint.Evaluate(instance);
             }
 
-            if (!_constraints.All(x => x.Met))
+            if (!_constraints.All(x => x.Completed))
                 return new ExpectationResult(false, false);
 
             if (_next == null)

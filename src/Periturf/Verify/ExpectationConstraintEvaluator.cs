@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Diagnostics;
 
 namespace Periturf.Verify
@@ -21,19 +22,59 @@ namespace Periturf.Verify
     {
         private readonly ConditionIdentifier _condition;
 
-        public ExpectationConstraintEvaluator(ConditionIdentifier condition)
+        public ExpectationConstraintEvaluator(
+            ConditionIdentifier condition,
+            TimeSpan? timeConstraintStart = null,
+            TimeSpan? timeConstraintEnd = null)
         {
             _condition = condition;
+            TimeConstraintStart = timeConstraintStart;
+            TimeConstraintEnd = timeConstraintEnd;
         }
 
-        public bool Met { get; private set; }
+        public bool Completed { get; private set; }
+
+        public bool? Met { get; private set; }
+
+        public TimeSpan? TimeConstraintStart { get; }
+        
+        public TimeSpan? TimeConstraintEnd { get; }
 
         public void Evaluate(FeedConditionInstance instance)
         {
-            Debug.Assert(!Met, "!Met");
+            if (instance.Identifier != _condition)
+            {
+                if (TimeConstraintEnd.HasValue && instance.Instance.When > TimeConstraintEnd)
+                {
+                    Completed = true;
+                    Met = false;
+                }
+                else
+                    return;
+            }
 
-            if (instance.Identifier == _condition)
+            if (TimeConstraintStart.HasValue && instance.Instance.When < TimeConstraintStart)
+                return;
+
+            if (TimeConstraintEnd.HasValue)
+            {
+                Completed = true;
+                Met = instance.Instance.When <= TimeConstraintEnd;
+            }
+            else
+            {
+                Completed = true;
                 Met = true;
+            }
+        }
+
+        public void Evaluate(TimeSpan time)
+        {
+            if (TimeConstraintEnd.HasValue && time > TimeConstraintEnd)
+            {
+                Completed = true;
+                Met = false;
+            }
         }
     }
 }
