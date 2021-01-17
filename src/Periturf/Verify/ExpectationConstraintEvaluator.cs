@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 using System;
-using System.Diagnostics;
 
 namespace Periturf.Verify
 {
     class ExpectationConstraintEvaluator
     {
         private readonly ConditionIdentifier _condition;
+        private readonly TimeSpan? _timeConstraintStart;
 
         public ExpectationConstraintEvaluator(
             ConditionIdentifier condition,
@@ -28,7 +28,7 @@ namespace Periturf.Verify
             TimeSpan? timeConstraintEnd = null)
         {
             _condition = condition;
-            TimeConstraintStart = timeConstraintStart;
+            _timeConstraintStart = timeConstraintStart;
             TimeConstraintEnd = timeConstraintEnd;
         }
 
@@ -36,7 +36,6 @@ namespace Periturf.Verify
 
         public bool? Met { get; private set; }
 
-        public TimeSpan? TimeConstraintStart { get; }
         
         public TimeSpan? TimeConstraintEnd { get; }
 
@@ -53,7 +52,7 @@ namespace Periturf.Verify
                     return;
             }
 
-            if (TimeConstraintStart.HasValue && instance.Instance.When < TimeConstraintStart)
+            if (_timeConstraintStart.HasValue && instance.Instance.When < _timeConstraintStart)
                 return;
 
             if (TimeConstraintEnd.HasValue)
@@ -71,6 +70,15 @@ namespace Periturf.Verify
         public void Evaluate(TimeSpan time)
         {
             if (TimeConstraintEnd.HasValue && time > TimeConstraintEnd)
+            {
+                Completed = true;
+                Met = false;
+            }
+        }
+
+        public void Timeout()
+        {
+            if (!Completed)
             {
                 Completed = true;
                 Met = false;

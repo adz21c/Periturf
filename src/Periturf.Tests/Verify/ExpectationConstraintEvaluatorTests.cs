@@ -70,5 +70,61 @@ namespace Periturf.Tests.Verify
             Assert.That(sut.Completed, Is.False);
             Assert.That(sut.Met, Is.Null);
         }
+
+        [Test]
+        public void Given_Incomplete_When_Timeout_Then_NotMet()
+        {
+            var sut = new ExpectationConstraintEvaluator(_condition1);
+
+            Assume.That(sut.Completed, Is.False);
+            Assume.That(sut.Met, Is.Null);
+
+            sut.Timeout();
+
+            Assert.That(sut.Completed, Is.True);
+            Assert.That(sut.Met, Is.False);
+        }
+
+        [Test]
+        public void Given_CompleteAndMet_When_Timeout_Then_Met()
+        {
+            var sut = new ExpectationConstraintEvaluator(_condition1);
+
+            Assume.That(sut.Completed, Is.False);
+            Assume.That(sut.Met, Is.Null);
+
+            var feedInstance = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
+
+            sut.Evaluate(feedInstance);
+
+            Assume.That(sut.Completed, Is.True);
+            Assume.That(sut.Met, Is.True);
+
+            sut.Timeout();
+
+            Assert.That(sut.Completed, Is.True);
+            Assert.That(sut.Met, Is.True);
+        }
+
+        [Test]
+        public void Given_CompleteAndNotMet_When_Timeout_Then_NotMet()
+        {
+            var sut = new ExpectationConstraintEvaluator(_condition1);
+
+            Assume.That(sut.Completed, Is.False);
+            Assume.That(sut.Met, Is.Null);
+
+            sut.Evaluate(TimeSpan.FromMilliseconds(200));
+
+            Assume.That(sut.Completed, Is.True);
+            Assume.That(sut.Met, Is.False);
+
+            sut.Timeout();
+
+            Assert.That(sut.Completed, Is.True);
+            Assert.That(sut.Met, Is.False);
+        }
     }
 }
