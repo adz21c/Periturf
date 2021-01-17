@@ -15,6 +15,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Periturf.Verify
@@ -60,6 +61,7 @@ namespace Periturf.Verify
             // If we have another set of constraints then defer to the next set
             if (_evaluated)
             {
+                Debug.Assert(_next != null, "_next != null");
                 var nextResult = _next.Evaluate(instance);
                 if (nextResult.IsCompleted)
                     _completedResult = nextResult;
@@ -73,17 +75,6 @@ namespace Periturf.Verify
             return TryComplete();
         }
 
-        public ExpectationResult Timeout()
-        {
-            if (_completedResult != null)
-                return _completedResult;
-
-            foreach (var constraint in _constraints.Where(x => !x.Completed))
-                constraint.Timeout();
-
-            return TryComplete();
-        }
-
         public ExpectationResult Evaluate(TimeSpan timeSpan)
         {
             if (_constraints.Any(x => x.TimeConstraintEnd.HasValue))
@@ -91,6 +82,17 @@ namespace Periturf.Verify
                 foreach (var constraint in _constraints.Where(x => x.TimeConstraintEnd.HasValue))
                     constraint.Evaluate(timeSpan);
             }
+
+            return TryComplete();
+        }
+
+        public ExpectationResult Timeout()
+        {
+            if (_completedResult != null)
+                return _completedResult;
+
+            foreach (var constraint in _constraints.Where(x => !x.Completed))
+                constraint.Timeout();
 
             return TryComplete();
         }
