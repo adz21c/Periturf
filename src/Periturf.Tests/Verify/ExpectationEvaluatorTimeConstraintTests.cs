@@ -28,7 +28,20 @@ namespace Periturf.Tests.Verify
         private readonly ConditionIdentifier _condition2 = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
 
         [Test]
-        public void A1()
+        public void Given_NoTimeConstaint_When_NextTimer_Then_Null()
+        {
+            var sut = new ExpectationEvaluator(
+                new List<ExpectationConstraintEvaluator>
+                {
+                    new ExpectationConstraintEvaluator(_condition1)
+                },
+                null);
+
+            Assert.That(sut.NextTimer, Is.Null);
+        }
+
+        [Test]
+        public void Given_TimeConstraint_When_NextTimer_Then_MatchesTimeConstraint()
         {
             var timeConstraint = TimeSpan.FromMilliseconds(100);
 
@@ -39,11 +52,11 @@ namespace Periturf.Tests.Verify
                 },
                 null);
 
-            Assert.That(sut.NextTimeout, Is.EqualTo(timeConstraint));
+            Assert.That(sut.NextTimer, Is.EqualTo(timeConstraint));
         }
 
         [Test]
-        public void B()
+        public void Given_MultipleTimeConstraints_When_Evaluate_Then_NextTimerMatchesEarliestIncomplete()
         {
             var timeConstraint = TimeSpan.FromMilliseconds(100);
             var timeConstraint2 = TimeSpan.FromMilliseconds(200);
@@ -56,7 +69,7 @@ namespace Periturf.Tests.Verify
                 },
                 null);
 
-            Assume.That(sut.NextTimeout, Is.EqualTo(timeConstraint));
+            Assume.That(sut.NextTimer, Is.EqualTo(timeConstraint));
 
             var feedInstance = new FeedConditionInstance(
                 _condition1,
@@ -64,30 +77,67 @@ namespace Periturf.Tests.Verify
 
             sut.Evaluate(feedInstance);
 
-            Assert.That(sut.NextTimeout, Is.EqualTo(timeConstraint2));
+            Assert.That(sut.NextTimer, Is.EqualTo(timeConstraint2));
         }
 
         [Test]
-        public void C()
+        public void Given_TimeConstraints_When_AllTimeConstraintsMet_Then_NullNextTimer()
         {
             var timeConstraint = TimeSpan.FromMilliseconds(100);
 
             var sut = new ExpectationEvaluator(
                 new List<ExpectationConstraintEvaluator>
                 {
-                    new ExpectationConstraintEvaluator(_condition1, null, timeConstraint)
+                    new ExpectationConstraintEvaluator(_condition1, null, timeConstraint),
+                    new ExpectationConstraintEvaluator(_condition1)
                 },
                 null);
 
-            Assume.That(sut.NextTimeout, Is.EqualTo(timeConstraint));
+            Assume.That(sut.NextTimer, Is.EqualTo(timeConstraint));
 
-            var feedInstance = new FeedConditionInstance(
+            sut.Evaluate(new FeedConditionInstance(
                 _condition1,
-                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1")));
 
-            sut.Evaluate(feedInstance);
+            Assert.That(sut.NextTimer, Is.Null);
+        }
 
-            Assert.That(sut.NextTimeout, Is.Null);
+        [Test]
+        public void Given_UpperBoundTimeConstraints_When_EvaluateTimer_Then_NotMet()
+        {
+            var timeConstraint = TimeSpan.FromMilliseconds(100);
+
+            var sut = new ExpectationEvaluator(
+                new List<ExpectationConstraintEvaluator>
+                {
+                    new ExpectationConstraintEvaluator(_condition1, null, timeConstraint),
+                },
+                null);
+
+            var result = sut.Evaluate(TimeSpan.FromMilliseconds(101));
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
+            Assert.That(result.Met, Is.False);
+        }
+
+        [Test]
+        public void Given_UpperBoundTimeConstraints_When_Timeout_Then_NotMet()
+        {
+            var timeConstraint = TimeSpan.FromMilliseconds(100);
+
+            var sut = new ExpectationEvaluator(
+                new List<ExpectationConstraintEvaluator>
+                {
+                    new ExpectationConstraintEvaluator(_condition1, null, timeConstraint),
+                },
+                null);
+
+            var result = sut.Timeout();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
+            Assert.That(result.Met, Is.False);
         }
     }
 }

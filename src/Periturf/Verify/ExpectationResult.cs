@@ -20,7 +20,7 @@ namespace Periturf.Verify
     [ExcludeFromCodeCoverage]
     public class ExpectationResult
     {
-        internal ExpectationResult(bool isCompleted, bool met)
+        internal ExpectationResult(bool isCompleted, bool? met)
         {
             IsCompleted = isCompleted;
             Met = met;
@@ -28,6 +28,6 @@ namespace Periturf.Verify
 
         public bool IsCompleted { get; }
 
-        public bool Met { get; }
+        public bool? Met { get; }
     }
 }

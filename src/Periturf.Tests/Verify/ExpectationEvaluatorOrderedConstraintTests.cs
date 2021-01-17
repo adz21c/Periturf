@@ -39,7 +39,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public void Given_OutOfOrderMatchingResult_When_Evaluate_Then_NotMet()
+        public void Given_OutOfOrderMatchingResult_When_Evaluate_Then_InComplete()
         {
             var feedInstance = new FeedConditionInstance(
                 _condition2,
@@ -48,11 +48,12 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
         }
 
         [Test]
-        public void Given_CorrectInstance_When_Evaluate_Then_NotMet()
+        public void Given_CorrectInstance_When_Evaluate_Then_InComplete()
         {
             var feedInstance = new FeedConditionInstance(
                 _condition1,
@@ -61,11 +62,12 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
         }
 
         [Test]
-        public void Given_CorrectInstanceFollowedByIncorrect_When_Evaluate_Then_NotMet()
+        public void Given_CorrectInstanceFollowedByIncorrect_When_Evaluate_Then_InComplete()
         {
             var feedInstance = new FeedConditionInstance(
                 _condition1,
@@ -74,7 +76,8 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assume.That(result, Is.Not.Null);
-            Assume.That(result.Met, Is.False);
+            Assume.That(result.IsCompleted, Is.False);
+            Assume.That(result.Met, Is.Null);
 
             var feedInstance2 = new FeedConditionInstance(
                 _condition1,
@@ -83,7 +86,8 @@ namespace Periturf.Tests.Verify
             var result2 = _sut.Evaluate(feedInstance2);
 
             Assert.That(result2, Is.Not.Null);
-            Assert.That(result2.Met, Is.False);
+            Assert.That(result2.IsCompleted, Is.False);
+            Assert.That(result2.Met, Is.Null);
         }
 
         [Test]
@@ -96,7 +100,8 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assume.That(result, Is.Not.Null);
-            Assume.That(result.Met, Is.False);
+            Assume.That(result.IsCompleted, Is.False);
+            Assume.That(result.Met, Is.Null);
 
             var feedInstance2 = new FeedConditionInstance(
                 _condition2,
@@ -105,6 +110,7 @@ namespace Periturf.Tests.Verify
             var result2 = _sut.Evaluate(feedInstance2);
 
             Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
             Assert.That(result2.Met, Is.True);
         }
     }

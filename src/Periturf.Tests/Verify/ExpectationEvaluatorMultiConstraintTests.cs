@@ -50,7 +50,8 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
         }
 
         [Test]
@@ -62,8 +63,9 @@ namespace Periturf.Tests.Verify
 
             var result = _sut.Evaluate(feedInstance);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
+            Assume.That(result, Is.Not.Null);
+            Assume.That(result.IsCompleted, Is.False);
+            Assume.That(result.Met, Is.Null);
 
             var feedInstance2 = new FeedConditionInstance(
                 _condition1,
@@ -72,6 +74,7 @@ namespace Periturf.Tests.Verify
             var result2 = _sut.Evaluate(feedInstance2);
 
             Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
             Assert.That(result2.Met, Is.True);
         }
     }

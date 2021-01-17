@@ -23,7 +23,7 @@ namespace Periturf.Verify
     {
         private readonly List<ExpectationConstraintEvaluator> _constraints;
         private readonly ExpectationEvaluator? _next;
-        private bool _completed = false;
+        private bool _evaluated = false;
         private ExpectationResult? _completedResult;
 
         public ExpectationEvaluator(
@@ -34,12 +34,12 @@ namespace Periturf.Verify
             _next = next;
         }
 
-        public TimeSpan? NextTimeout
+        public TimeSpan? NextTimer
         {
             get
             {
-                if (_completed)
-                    return _next?.NextTimeout;
+                if (_evaluated)
+                    return _next?.NextTimer;
 
                 var nextTimeout = _constraints
                     .Where(x => !x.Completed)
@@ -58,7 +58,7 @@ namespace Periturf.Verify
                 return _completedResult;
 
             // If we have another set of constraints then defer to the next set
-            if (_next != null && _constraints.All(x => x.Completed && x.Met.Value))
+            if (_evaluated)
             {
                 var nextResult = _next.Evaluate(instance);
                 if (nextResult.IsCompleted)
@@ -68,19 +68,50 @@ namespace Periturf.Verify
             }
 
             foreach (var constraint in _constraints.Where(x => !x.Completed))
-            {
                 constraint.Evaluate(instance);
+
+            return TryComplete();
+        }
+
+        public ExpectationResult Timeout()
+        {
+            if (_completedResult != null)
+                return _completedResult;
+
+            foreach (var constraint in _constraints.Where(x => !x.Completed))
+                constraint.Timeout();
+
+            return TryComplete();
+        }
+
+        public ExpectationResult Evaluate(TimeSpan timeSpan)
+        {
+            if (_constraints.Any(x => x.TimeConstraintEnd.HasValue))
+            {
+                foreach (var constraint in _constraints.Where(x => x.TimeConstraintEnd.HasValue))
+                    constraint.Evaluate(timeSpan);
             }
 
+            return TryComplete();
+        }
+
+        private ExpectationResult TryComplete()
+        {
             if (!_constraints.All(x => x.Completed))
-                return new ExpectationResult(false, false);
+                return new ExpectationResult(false, null);
+
+            _evaluated = true;
+
+#pragma warning disable CS8629 // Nullable value type may be null.
+            if (_constraints.Any(x => x.Met.Value == false))
+#pragma warning restore CS8629 // Nullable value type may be null.
+                return _completedResult = new ExpectationResult(true, false);
 
             if (_next == null)
-            {
                 return _completedResult = new ExpectationResult(true, true);
-            }
-            else
-                return new ExpectationResult(false, false);
+            
+            // it continues in the next expectation
+            return new ExpectationResult(false, null);
         }
     }
 }

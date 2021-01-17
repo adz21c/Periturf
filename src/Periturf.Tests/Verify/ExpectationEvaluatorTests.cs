@@ -37,7 +37,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public void Given_MatchingInputs_When_Evaluate_Then_Met()
+        public void Given_MatchingInputsAndNoTimeConstraints_When_Evaluate_Then_Met()
         {
             var feedInstance = new FeedConditionInstance(
                 _condition1,
@@ -46,11 +46,12 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
             Assert.That(result.Met, Is.True);
         }
 
         [Test]
-        public void Given_MatchingInputs_When_Evaluate_Then_NotMet()
+        public void Given_NotMatchingInputsAndNoTimeConstraints_When_Evaluate_Then_InComplete()
         {
             var feedInstance = new FeedConditionInstance(
                 _condition2,
@@ -59,6 +60,29 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
+        }
+
+
+        [Test]
+        public void Given_TimeAndNoTimeConstraints_When_Evaluate_Then_Ignored()
+        {
+            var result = _sut.Evaluate(TimeSpan.FromMilliseconds(100));
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
+        }
+
+
+        [Test]
+        public void Given_NoTimeConstraints_When_Timeout_Then_NotMet()
+        {
+            var result = _sut.Timeout();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
             Assert.That(result.Met, Is.False);
         }
 
@@ -71,8 +95,9 @@ namespace Periturf.Tests.Verify
 
             var result = _sut.Evaluate(feedInstance);
 
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
+            Assume.That(result, Is.Not.Null);
+            Assume.That(result.IsCompleted, Is.False);
+            Assume.That(result.Met, Is.Null);
 
             var feedInstance2 = new FeedConditionInstance(
                 _condition1,
@@ -81,37 +106,7 @@ namespace Periturf.Tests.Verify
             var result2 = _sut.Evaluate(feedInstance2);
 
             Assert.That(result2, Is.Not.Null);
-            Assert.That(result2.Met, Is.True);
-        }
-
-
-        [Test]
-        public void Given_MultipleConstraint_When_Evaluate_Then_MetWhenAllMet()
-        {
-            var sut = new ExpectationEvaluator(
-                new List<ExpectationConstraintEvaluator>
-                {
-                    new ExpectationConstraintEvaluator(_condition1),
-                    new ExpectationConstraintEvaluator(_condition2)
-                },
-                null);
-
-            var feedInstance = new FeedConditionInstance(
-                _condition2,
-                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2"));
-
-            var result = sut.Evaluate(feedInstance);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Met, Is.False);
-
-            var feedInstance2 = new FeedConditionInstance(
-                _condition1,
-                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
-
-            var result2 = sut.Evaluate(feedInstance2);
-
-            Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
             Assert.That(result2.Met, Is.True);
         }
 
@@ -125,6 +120,7 @@ namespace Periturf.Tests.Verify
             var result = _sut.Evaluate(feedInstance);
 
             Assume.That(result, Is.Not.Null);
+            Assume.That(result.IsCompleted, Is.True);
             Assume.That(result.Met, Is.True);
 
             var feedInstance2 = new FeedConditionInstance(
@@ -134,6 +130,7 @@ namespace Periturf.Tests.Verify
             var result2 = _sut.Evaluate(feedInstance2);
 
             Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
             Assert.That(result2.Met, Is.True);
 
             var feedInstance3 = new FeedConditionInstance(
@@ -143,6 +140,7 @@ namespace Periturf.Tests.Verify
             var result3 = _sut.Evaluate(feedInstance3);
 
             Assert.That(result3, Is.Not.Null);
+            Assert.That(result3.IsCompleted, Is.True);
             Assert.That(result3.Met, Is.True);
         }
     }

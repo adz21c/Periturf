@@ -56,7 +56,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public void Given_MultipleConstraint_When_Build_Then_EvaluatorHasConstraints()
+        public void Given_MultipleNoTimeConstraint_When_Build_Then_EvaluatorHasConstraints()
         {
             _sut.Constraint(x =>
             {
@@ -73,7 +73,7 @@ namespace Periturf.Tests.Verify
             Assume.That(result2, Is.Not.Null);
 
             Assert.That(result.IsCompleted, Is.False);
-            Assert.That(result.Met, Is.False);
+            Assert.That(result.Met, Is.Null);
             Assert.That(result2.IsCompleted, Is.True);
             Assert.That(result2.Met, Is.True);
         }
@@ -97,11 +97,11 @@ namespace Periturf.Tests.Verify
             Assume.That(result4, Is.Not.Null);
 
             Assert.That(result.IsCompleted, Is.False);
-            Assert.That(result.Met, Is.False);
+            Assert.That(result.Met, Is.Null);
             Assert.That(result2.IsCompleted, Is.False);
-            Assert.That(result2.Met, Is.False);
+            Assert.That(result2.Met, Is.Null);
             Assert.That(result3.IsCompleted, Is.False);
-            Assert.That(result3.Met, Is.False);
+            Assert.That(result3.Met, Is.Null);
             Assert.That(result4.IsCompleted, Is.True);
             Assert.That(result4.Met, Is.True);
         }
