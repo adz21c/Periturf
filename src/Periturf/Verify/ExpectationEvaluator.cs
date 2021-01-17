@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,6 +23,7 @@ namespace Periturf.Verify
     {
         private readonly List<ExpectationConstraintEvaluator> _constraints;
         private readonly ExpectationEvaluator? _next;
+        private bool _completed = false;
         private ExpectationResult? _completedResult;
 
         public ExpectationEvaluator(
@@ -30,6 +32,24 @@ namespace Periturf.Verify
         {
             _constraints = constraints;
             _next = next;
+        }
+
+        public TimeSpan? NextTimeout
+        {
+            get
+            {
+                if (_completed)
+                    return _next?.NextTimeout;
+
+                var nextTimeout = _constraints
+                    .Where(x => !x.Completed)
+                    .Where(x => x.TimeConstraintEnd.HasValue)
+                    .Select(x => x.TimeConstraintEnd)
+                    .OrderBy(x => x)
+                    .FirstOrDefault();
+
+                return nextTimeout;
+            }
         }
 
         public ExpectationResult Evaluate(FeedConditionInstance instance)
