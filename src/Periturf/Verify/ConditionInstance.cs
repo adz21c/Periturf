@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
@@ -22,7 +23,7 @@ namespace Periturf.Verify
     /// A moment when a component condition matched
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class ConditionInstance
+    public class ConditionInstance : IEquatable<ConditionInstance?>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionInstance"/> class.
@@ -50,5 +51,40 @@ namespace Periturf.Verify
         /// The identifier.
         /// </value>
         public string ID { get; }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as ConditionInstance);
+        }
+
+        public bool Equals(ConditionInstance? other)
+        {
+            return other != null &&
+                   When.Equals(other.When) &&
+                   ID == other.ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(When, ID);
+        }
+
+        public static bool operator ==(ConditionInstance? left, ConditionInstance? right)
+        {
+            if (left is null)
+                return right is null;
+            else
+            {
+                if (right is null)
+                    return false;
+                else
+                    return EqualityComparer<ConditionInstance>.Default.Equals(left, right);
+            }
+        }
+
+        public static bool operator !=(ConditionInstance? left, ConditionInstance? right)
+        {
+            return !(left == right);
+        }
     }
 }

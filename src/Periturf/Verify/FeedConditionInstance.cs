@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
 {
     [ExcludeFromCodeCoverage]
-    public class FeedConditionInstance
+    public class FeedConditionInstance : IEquatable<FeedConditionInstance?>
     {
         internal FeedConditionInstance(ConditionIdentifier identifier, ConditionInstance instance)
         {
@@ -29,5 +31,40 @@ namespace Periturf.Verify
         public ConditionIdentifier Identifier { get; }
 
         public ConditionInstance Instance { get; }
+
+        public override bool Equals(object? obj)
+        {
+            return Equals(obj as FeedConditionInstance);
+        }
+
+        public bool Equals(FeedConditionInstance? other)
+        {
+            return other != null &&
+                   EqualityComparer<ConditionIdentifier>.Default.Equals(Identifier, other.Identifier) &&
+                   EqualityComparer<ConditionInstance>.Default.Equals(Instance, other.Instance);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Identifier, Instance);
+        }
+
+        public static bool operator ==(FeedConditionInstance? left, FeedConditionInstance? right)
+        {
+            if (left is null)
+                return right is null;
+            else
+            {
+                if (right is null)
+                    return false;
+                else
+                    return EqualityComparer<FeedConditionInstance>.Default.Equals(left, right);
+            }
+        }
+
+        public static bool operator !=(FeedConditionInstance? left, FeedConditionInstance? right)
+        {
+            return !(left == right);
+        }
     }
 }

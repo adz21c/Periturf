@@ -63,6 +63,7 @@ namespace Periturf.Verify
             await Task.WhenAll(conditionBuilds.Select(x => x.Task));
 
             return new Verifier(
+                TimeSpan.FromMilliseconds(0),   // TODO populate
                 conditionBuilds.Select(x => (x.Identifier, x.Task.Result)).ToList(),
                 _expectationSpecification.Build());
         }

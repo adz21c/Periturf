@@ -1,4 +1,4 @@
-﻿/*
+﻿ /*
  *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,8 +43,9 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
 
             _sut = new Verifier(
+                TimeSpan.FromMilliseconds(500),
                 new List<(ConditionIdentifier ID, IConditionFeed Feed)> { (_feed1Id, _feed1) },
-                _expectationEvaluator);
+                _expectationEvaluator) ;
         }
 
         [Test]
@@ -54,8 +55,8 @@ namespace Periturf.Tests.Verify
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.AsExpected, Is.True);
-            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).MustHaveHappened();
-            A.CallTo(() => _feed1.DisposeAsync()).MustHaveHappened();
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).MustHaveHappened().Then(
+            A.CallTo(() => _feed1.DisposeAsync()).MustHaveHappened());
         }
 
         [Test]
@@ -66,7 +67,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_Verifyd_When_Dispose_Then_DoesNotDisposeAgain()
+        public async Task Given_Verified_When_Dispose_Then_DoesNotDisposeAgain()
         {
             await _sut.VerifyAsync(CancellationToken.None);
             Fake.ClearRecordedCalls(_feed1);

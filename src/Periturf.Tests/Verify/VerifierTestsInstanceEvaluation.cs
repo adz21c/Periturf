@@ -49,6 +49,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
 
             _sut = new Verifier(
+                TimeSpan.FromMilliseconds(500),
                 new List<(ConditionIdentifier ID, IConditionFeed Feed)> { (_feed1Id, _feed1), (_feed2Id, _feed2) },
                 _expectationEvaluator);
         }
@@ -84,11 +85,11 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_MultipleFeedsAndInstances_When_Verify_Then_VerifydInOrder()
+        public async Task Given_MultipleFeedsAndInstances_When_Verify_Then_VerifiedInOrder()
         {
-            var instance1 = new ConditionInstance(TimeSpan.FromSeconds(1), "ID1");
-            var instance2 = new ConditionInstance(TimeSpan.FromSeconds(2), "ID2");
-            var instance3 = new ConditionInstance(TimeSpan.FromSeconds(3), "ID3");
+            var instance1 = new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1");
+            var instance2 = new ConditionInstance(TimeSpan.FromMilliseconds(200), "ID2");
+            var instance3 = new ConditionInstance(TimeSpan.FromMilliseconds(300), "ID3");
 
             A.CallTo(() => _feed1.WaitForInstancesAsync(A<CancellationToken>._))
                 .Returns(new List<ConditionInstance> { instance1, instance3 });
@@ -97,11 +98,15 @@ namespace Periturf.Tests.Verify
                 .Returns(new List<ConditionInstance> { instance2 });
 
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).ReturnsNextFromSequence(
-                new ExpectationResult(false, false),
-                new ExpectationResult(false, false),
+                new ExpectationResult(false, null),
+                new ExpectationResult(false, null),
                 new ExpectationResult(true, true));
 
-            await _sut.VerifyAsync(CancellationToken.None);
+            var result = await _sut.VerifyAsync(CancellationToken.None);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.AsExpected, Is.True);
+
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>.That.NullCheckedMatches(
                     i => i.Instance == instance1 && i.Identifier == _feed1Id,
                     e => e.Write("Expectation1")))).MustHaveHappenedOnceExactly()

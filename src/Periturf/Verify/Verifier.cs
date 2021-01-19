@@ -25,6 +25,7 @@ namespace Periturf.Verify
     {
         private readonly List<(ConditionIdentifier ID, IConditionFeed Feed)> _feeds;
         private readonly IExpectationEvaluator _expectation;
+        private readonly TimeSpan _inactivityTimeout;
 
         private VerificationResult? _result;
 
@@ -33,9 +34,11 @@ namespace Periturf.Verify
         private bool _disposed;
 
         public Verifier(
+            TimeSpan inactivityTimeout,
             List<(ConditionIdentifier ID, IConditionFeed Feed)> feeds,
             IExpectationEvaluator expectation)
         {
+            _inactivityTimeout = inactivityTimeout;
             _feeds = feeds;
             _expectation = expectation;
         }
@@ -56,23 +59,38 @@ namespace Periturf.Verify
             using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
             try
             {
+                var feedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
+                var completedFeedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
                 do
                 {
-                    var workers = _feeds
-                        .Select(x => new
-                        {
-                            Feed = x,
-                            Task = x.Feed.WaitForInstancesAsync(evaluateCt.Token)
-                        })
-                        .ToList();
+                    bool usingInactivityTimer = false;
+                    var nextTimer = _expectation.NextTimer;
+                    TimeSpan timer;
+                    if (nextTimer.HasValue)
+                        timer = nextTimer.Value;
+                    else
+                    {
+                        timer = _inactivityTimeout;
+                        usingInactivityTimer = true;
+                    }
 
-                    await Task.WhenAny(workers.Select(x => x.Task));
+                    feedWaitTasks.AddRange(
+                        _feeds
+                        .Where(x => !feedWaitTasks.Select(y => y.ID).Contains(x.ID))
+                        .Select(x => (x.ID, x.Feed, x.Feed.WaitForInstancesAsync(evaluateCt.Token))));
+                    var timerTask = Task.Delay(timer);
 
-                    var instances = workers
+                    await Task.WhenAny(feedWaitTasks.Select(x => x.Task).Concat(new[] { timerTask }));
+
+                    completedFeedWaitTasks = feedWaitTasks
                         .Where(x => x.Task.IsCompletedSuccessfully)
-                        .SelectMany(x => x.Task.Result.Select(y => new FeedConditionInstance(x.Feed.ID, y)))
-                        .OrderBy(x => x.Instance.When)
                         .ToList();
+
+                    feedWaitTasks.RemoveAll(x => completedFeedWaitTasks.Select(x => x.ID).Contains(x.ID));
+
+                    var instances = completedFeedWaitTasks
+                        .SelectMany(x => x.Task.Result.Select(y => new FeedConditionInstance(x.ID, y)))
+                        .OrderBy(x => x.Instance.When);
 
                     foreach (var instance in instances)
                     {
@@ -80,6 +98,15 @@ namespace Periturf.Verify
                         if (result.IsCompleted)
                             return _result = new VerificationResult(result.Met.Value);  // TODO: Fix
                     }
+
+                    if (timerTask.IsCompletedSuccessfully)
+                    {
+                        var result = usingInactivityTimer ? _expectation.Timeout() : _expectation.Evaluate(timer);
+                        if (result.IsCompleted)
+                            return _result = new VerificationResult(result.Met.Value);  // TODO: Fix
+                    }
+                    else
+                        timerTask.Dispose();
                 } while (true);
             }
             finally

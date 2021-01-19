@@ -13,10 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+
 namespace Periturf.Verify
 {
     interface IExpectationEvaluator
     {
+        TimeSpan? NextTimer { get; }
+
         ExpectationResult Evaluate(FeedConditionInstance instance);
+        ExpectationResult Evaluate(TimeSpan timer);
+        ExpectationResult Timeout();
     }
 }
