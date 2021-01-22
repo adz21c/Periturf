@@ -23,7 +23,7 @@ namespace Periturf.Verify
     /// A moment when a component condition matched
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class ConditionInstance : IEquatable<ConditionInstance?>
+    public sealed class ConditionInstance : IEquatable<ConditionInstance?>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConditionInstance"/> class.

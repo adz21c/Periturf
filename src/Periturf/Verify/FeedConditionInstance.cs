@@ -20,7 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Periturf.Verify
 {
     [ExcludeFromCodeCoverage]
-    public class FeedConditionInstance : IEquatable<FeedConditionInstance?>
+    public sealed class FeedConditionInstance : IEquatable<FeedConditionInstance?>
     {
         internal FeedConditionInstance(ConditionIdentifier identifier, ConditionInstance instance)
         {

@@ -75,12 +75,12 @@ namespace Periturf.Verify
             return TryComplete();
         }
 
-        public ExpectationResult Evaluate(TimeSpan timeSpan)
+        public ExpectationResult Evaluate(TimeSpan timer)
         {
             if (_constraints.Any(x => x.TimeConstraintEnd.HasValue))
             {
                 foreach (var constraint in _constraints.Where(x => x.TimeConstraintEnd.HasValue))
-                    constraint.Evaluate(timeSpan);
+                    constraint.Evaluate(timer);
             }
 
             return TryComplete();
@@ -104,9 +104,7 @@ namespace Periturf.Verify
 
             _evaluated = true;
 
-#pragma warning disable CS8629 // Nullable value type may be null.
-            if (_constraints.Any(x => x.Met.Value == false))
-#pragma warning restore CS8629 // Nullable value type may be null.
+            if (_constraints.Any(x => x.Met == false))
                 return _completedResult = new ExpectationResult(true, false);
 
             if (_next == null)
