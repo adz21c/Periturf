@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
 using System.Diagnostics;
 
 namespace Periturf.Verify
@@ -20,6 +21,8 @@ namespace Periturf.Verify
     class ExpectationConstraintSpecification : IExpectationConstraintConfigurator
     {
         private ConditionIdentifier? _conditionIdentifier;
+        private TimeSpan? _timeConstraintStart;
+        private TimeSpan? _timeConstraintEnd;
 
         public IExpectationConstraintConfigurator Condition(ConditionIdentifier conditionIdentifier)
         {
@@ -27,12 +30,33 @@ namespace Periturf.Verify
             return this;
         }
 
-        internal ExpectationConstraintEvaluator Build()
+        public IExpectationConstraintConfigurator Between(TimeSpan start, TimeSpan end)
+        {
+            _timeConstraintStart = start;
+            _timeConstraintEnd = end;
+            return this;
+        }
+
+        public IExpectationConstraintConfigurator After(TimeSpan time)
+        {
+            _timeConstraintStart = time;
+            return this;
+        }
+
+        public IExpectationConstraintConfigurator Before(TimeSpan time)
+        {
+            _timeConstraintEnd = time;
+            return this;
+        }
+
+        public ExpectationConstraintEvaluator Build()
         {
             Debug.Assert(_conditionIdentifier != null, "_conditionIdentifier != null");
 
             return new ExpectationConstraintEvaluator(
-                _conditionIdentifier);
+                _conditionIdentifier,
+                _timeConstraintStart,
+                _timeConstraintEnd);
         }
     }
 }

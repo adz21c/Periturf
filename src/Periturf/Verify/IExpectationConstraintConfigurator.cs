@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using System;
+
 namespace Periturf.Verify
 {
     public interface IExpectationConstraintConfigurator
     {
         IExpectationConstraintConfigurator Condition(ConditionIdentifier conditionIdentifier);
+
+        IExpectationConstraintConfigurator Between(TimeSpan start, TimeSpan end);
+
+        IExpectationConstraintConfigurator After(TimeSpan time);
+
+        IExpectationConstraintConfigurator Before(TimeSpan time);
     }
 }

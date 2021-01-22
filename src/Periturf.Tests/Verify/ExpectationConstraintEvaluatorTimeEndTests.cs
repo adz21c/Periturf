@@ -31,10 +31,11 @@ namespace Periturf.Tests.Verify
         [TestCase(99, true, false, Description = "After upper bound")]
         public void Given_TimeConstraintEnd_When_EvaluateWithMatch_Then_Result(int constraint, bool completed, bool? met)
         {
-            var sut = new ExpectationConstraintEvaluator(
-                _condition1,
-                null,
-                TimeSpan.FromMilliseconds(constraint));
+            var spec = new ExpectationConstraintSpecification();
+            spec
+                .Condition(_condition1)
+                .Before(TimeSpan.FromMilliseconds(constraint));
+            var sut = spec.Build();
 
             Assume.That(sut.Completed, Is.False);
             Assume.That(sut.Met, Is.Null);
@@ -54,10 +55,11 @@ namespace Periturf.Tests.Verify
         [TestCase(99, true, false, Description = "After upper bound")]
         public void Given_TimeConstraintEnd_When_EvaluateWithoutMatch_Then_Result(int constraint, bool completed, bool? met)
         {
-            var sut = new ExpectationConstraintEvaluator(
-                _condition1,
-                null,
-                TimeSpan.FromMilliseconds(constraint));
+            var spec = new ExpectationConstraintSpecification();
+            spec
+                .Condition(_condition1)
+                .Before(TimeSpan.FromMilliseconds(constraint));
+            var sut = spec.Build();
 
             Assume.That(sut.Completed, Is.False);
             Assume.That(sut.Met, Is.Null);
@@ -77,10 +79,11 @@ namespace Periturf.Tests.Verify
         [TestCase(99, true, false, Description = "After upper bound")]
         public void Given_TimeConstraintEnd_When_Evaluate_Then_Complete(int constraint, bool completed, bool? met)
         {
-            var sut = new ExpectationConstraintEvaluator(
-                _condition1,
-                null,
-                TimeSpan.FromMilliseconds(constraint));
+            var spec = new ExpectationConstraintSpecification();
+            spec
+                .Condition(_condition1)
+                .Before(TimeSpan.FromMilliseconds(constraint));
+            var sut = spec.Build();
 
             Assume.That(sut.Completed, Is.False);
             Assume.That(sut.Met, Is.Null);
