@@ -29,10 +29,13 @@ namespace Periturf.Verify
         private readonly Dictionary<ConditionIdentifier, IConditionSpecification> _conditions = new Dictionary<ConditionIdentifier, IConditionSpecification>();
         private ExpectationSpecification? _expectationSpecification;
 
-        public VerificationContext(ComponentLocator componentLocator)
+        public VerificationContext(ComponentLocator componentLocator, TimeSpan defaultInactivityTimeout)
         {
             _componentLocator = componentLocator;
+            InactivityTimeout = defaultInactivityTimeout;
         }
+
+        public TimeSpan InactivityTimeout { get; set; }
 
         public ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config)
         {
@@ -63,7 +66,7 @@ namespace Periturf.Verify
             await Task.WhenAll(conditionBuilds.Select(x => x.Task));
 
             return new Verifier(
-                TimeSpan.FromMilliseconds(0),   // TODO populate
+                InactivityTimeout,
                 conditionBuilds.Select(x => (x.Identifier, x.Task.Result)).ToList(),
                 _expectationSpecification.Build());
         }

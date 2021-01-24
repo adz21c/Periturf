@@ -35,10 +35,12 @@ namespace Periturf
         private readonly List<IHost> _hosts = new List<IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
         private readonly EventHandlerFactory _eventHandlerFactory;
+        private readonly TimeSpan _defaultVerifyInactivityTimeout;
 
-        private Environment()
+        private Environment(TimeSpan defaultVerifyInactivityTimeout)
         {
             _eventHandlerFactory = new EventHandlerFactory(this);
+            _defaultVerifyInactivityTimeout = defaultVerifyInactivityTimeout;
         }
 
         /// <summary>
@@ -136,8 +138,8 @@ namespace Periturf
             var spec = new EnvironmentSpecification();
             config?.Invoke(spec);
             var hosts = spec.Build();
-
-            var env = new Environment();
+            
+            var env = new Environment(spec.VerifyInactivityTimeout);
             env._hosts.AddRange(hosts);
             foreach (var component in env._hosts.SelectMany(x => x.Components))
                 env._components.Add(component.Key, component.Value);
@@ -209,7 +211,7 @@ namespace Periturf
         /// <returns></returns>
         public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
         {
-            var context = new VerificationContext(new ComponentLocator(_components));
+            var context = new VerificationContext(new ComponentLocator(_components), _defaultVerifyInactivityTimeout);
             builder(context);
 
             return await context.BuildAsync(ct);

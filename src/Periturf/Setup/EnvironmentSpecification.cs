@@ -29,6 +29,8 @@ namespace Periturf.Setup
 
         public bool DefaultExpectationShortCircuit { get; set; }
 
+        public TimeSpan VerifyInactivityTimeout { get; set; } = TimeSpan.FromMilliseconds(500);
+
         public void AddHostSpecification(IHostSpecification hostSpecification)
         {
             _hostSpecifications.Add(hostSpecification ?? throw new ArgumentNullException(nameof(hostSpecification)));

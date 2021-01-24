@@ -37,5 +37,7 @@ namespace Periturf.Setup
         /// </summary>
         /// <param name="hostSpecification">The host specification.</param>
         void AddHostSpecification(IHostSpecification hostSpecification);
+
+        TimeSpan VerifyInactivityTimeout { get; set; }
     }
 }

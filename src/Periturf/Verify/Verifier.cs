@@ -57,6 +57,7 @@ namespace Periturf.Verify
             _verifying = true;
 
             using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
             try
             {
                 var feedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
@@ -78,7 +79,7 @@ namespace Periturf.Verify
                         _feeds
                         .Where(x => !feedWaitTasks.Select(y => y.ID).Contains(x.ID))
                         .Select(x => (x.ID, x.Feed, x.Feed.WaitForInstancesAsync(evaluateCt.Token))));
-                    var timerTask = Task.Delay(timer);
+                    var timerTask = Task.Delay(timer, timerCt.Token);
 
                     await Task.WhenAny(feedWaitTasks.Select(x => x.Task).Concat(new[] { timerTask }));
 
@@ -110,12 +111,16 @@ namespace Periturf.Verify
 #pragma warning restore CS8629 // Nullable value type may be null.
                     }
                     else
-                        timerTask.Dispose();
+                    {
+                        timerCt.Cancel();
+                        timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                    }
                 } while (true);
             }
             finally
             {
                 evaluateCt.Cancel();
+                timerCt.Cancel();
                 await DisposeDependencies();
             }
         }

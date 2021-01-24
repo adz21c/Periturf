@@ -22,6 +22,8 @@ namespace Periturf.Verify
     /// </summary>
     public interface IVerificationContext
     {
+        TimeSpan InactivityTimeout { get; set; }
+
         ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config);
 
         void Expect(Action<IExpectationConfigurator> config);
