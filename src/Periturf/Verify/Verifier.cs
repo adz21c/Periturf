@@ -96,14 +96,18 @@ namespace Periturf.Verify
                     {
                         var result = _expectation.Evaluate(instance);
                         if (result.IsCompleted)
-                            return _result = new VerificationResult(result.Met.Value);  // TODO: Fix
+#pragma warning disable CS8629 // Nullable value type may be null.
+                            return _result = new VerificationResult(result.Met.Value);
+#pragma warning restore CS8629 // Nullable value type may be null.
                     }
 
                     if (timerTask.IsCompletedSuccessfully)
                     {
                         var result = usingInactivityTimer ? _expectation.Timeout() : _expectation.Evaluate(timer);
                         if (result.IsCompleted)
-                            return _result = new VerificationResult(result.Met.Value);  // TODO: Fix
+#pragma warning disable CS8629 // Nullable value type may be null.
+                            return _result = new VerificationResult(result.Met.Value);
+#pragma warning restore CS8629 // Nullable value type may be null.
                     }
                     else
                         timerTask.Dispose();
