@@ -85,22 +85,5 @@ namespace Periturf.Tests.Setup
             // Assert
             Assert.That(environment, Is.Not.Null);
         }
-
-        [Test]
-        public void Given_ValidTimeout_When_Setup_Then_Created()
-        {
-            var env = Environment.Setup(s => s.DefaultExpectationTimeout = TimeSpan.FromMilliseconds(1));
-
-            Assert.That(env, Is.Not.Null);
-        }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public void Given_ValidShortCircuit_When_Setup_Then_Created(bool shortCircuit)
-        {
-            var env = Environment.Setup(s => s.DefaultExpectationShortCircuit = shortCircuit);
-
-            Assert.That(env, Is.Not.Null);
-        }
     }
 }

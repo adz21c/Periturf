@@ -23,16 +23,6 @@ namespace Periturf.Setup
     public interface ISetupContext
     {
         /// <summary>
-        /// Sets the default expectation short circuit state.
-        /// </summary>
-        bool DefaultExpectationShortCircuit { get; set; }
-
-        /// <summary>
-        /// Sets the default expectation timeout.
-        /// </summary>
-        TimeSpan DefaultExpectationTimeout { get; set; }
-
-        /// <summary>
         /// Adds a new host specification.
         /// </summary>
         /// <param name="hostSpecification">The host specification.</param>
