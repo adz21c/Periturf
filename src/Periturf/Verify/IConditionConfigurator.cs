@@ -15,8 +15,16 @@
  */
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Configures a condition.
+    /// </summary>
     public interface IConditionConfigurator
     {
+        /// <summary>
+        /// Retrieves a component's condition builder.
+        /// </summary>
+        /// <param name="componentName">Name of the component.</param>
+        /// <returns></returns>
         IConditionBuilder GetConditionBuilder(string componentName);
     }
 }

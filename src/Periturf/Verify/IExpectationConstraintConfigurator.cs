@@ -17,14 +17,38 @@ using System;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Configures an expectation constraint.
+    /// </summary>
     public interface IExpectationConstraintConfigurator
     {
+        /// <summary>
+        /// The condition the constraint listens for.
+        /// </summary>
+        /// <param name="conditionIdentifier">The condition identifier.</param>
+        /// <returns></returns>
         IExpectationConstraintConfigurator Condition(ConditionIdentifier conditionIdentifier);
 
+        /// <summary>
+        /// The condition must occur between the two times.
+        /// </summary>
+        /// <param name="start">The start.</param>
+        /// <param name="end">The end.</param>
+        /// <returns></returns>
         IExpectationConstraintConfigurator Between(TimeSpan start, TimeSpan end);
 
+        /// <summary>
+        /// The condition must occur after the specified time.
+        /// </summary>
+        /// <param name="time">The time.</param>
+        /// <returns></returns>
         IExpectationConstraintConfigurator After(TimeSpan time);
 
+        /// <summary>
+        /// The condition must occur before the specified time.
+        /// </summary>
+        /// <param name="time">The time.</param>
+        /// <returns></returns>
         IExpectationConstraintConfigurator Before(TimeSpan time);
     }
 }

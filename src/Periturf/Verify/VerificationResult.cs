@@ -17,6 +17,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// The outcome of a verification.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     public class VerificationResult
     {
@@ -25,6 +28,12 @@ namespace Periturf.Verify
             AsExpected = asExpected;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the verification met its critera.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if criteria met; otherwise, <c>false</c>.
+        /// </value>
         public bool AsExpected { get; }
     }
 }

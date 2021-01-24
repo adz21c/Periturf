@@ -17,10 +17,21 @@ using System;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Configures an expectation.
+    /// </summary>
     public interface IExpectationConfigurator
     {
+        /// <summary>
+        /// Defines a constraint.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
         void Constraint(Action<IExpectationConstraintConfigurator> config);
 
+        /// <summary>
+        /// Defines an expectation that must also be met when this expectation's constraints have been met.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
         void Then(Action<IExpectationConfigurator> config);
     }
 }

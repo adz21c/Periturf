@@ -22,10 +22,25 @@ namespace Periturf.Verify
     /// </summary>
     public interface IVerificationContext
     {
+        /// <summary>
+        /// Override the inactivity timeout.
+        /// </summary>
+        /// <value>
+        /// The inactivity timeout.
+        /// </value>
         TimeSpan InactivityTimeout { get; set; }
 
+        /// <summary>
+        /// Register a condition for verification.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns>An identifier for the condition.</returns>
         ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config);
 
+        /// <summary>
+        /// Defines the expectation.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
         void Expect(Action<IExpectationConfigurator> config);
     }
 }

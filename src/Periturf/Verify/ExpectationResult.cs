@@ -17,6 +17,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// The result of evaluating a <see cref="ConditionInstance"/>
+    /// </summary>
     [ExcludeFromCodeCoverage]
     public class ExpectationResult
     {
@@ -26,8 +29,20 @@ namespace Periturf.Verify
             Met = met;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="ExpectationEvaluator"/> has completed evaluating.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if is completed; otherwise, <c>false</c>.
+        /// </value>
         public bool IsCompleted { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="ExpectationEvaluator"/> determined the condition instances have met the criteria.
+        /// </summary>
+        /// <value>
+        /// <c>null</c> when done complete evaluating, <c>true</c> if the conditions met the criteria, or <c>false</c> if the conditions didn't meet the criteria.
+        /// </value>
         public bool? Met { get; }
     }
 }

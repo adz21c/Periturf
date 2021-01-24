@@ -28,6 +28,12 @@ namespace Periturf.Setup
         /// <param name="hostSpecification">The host specification.</param>
         void AddHostSpecification(IHostSpecification hostSpecification);
 
+        /// <summary>
+        /// Timeout for a verification if there are no condition instances for the specified timespan.
+        /// </summary>
+        /// <value>
+        /// The verify inactivity timeout.
+        /// </value>
         TimeSpan VerifyInactivityTimeout { get; set; }
     }
 }

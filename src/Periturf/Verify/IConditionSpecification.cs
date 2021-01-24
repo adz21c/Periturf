@@ -18,12 +18,32 @@ using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Specification for a condition.
+    /// </summary>
     public interface IConditionSpecification
     {
+        /// <summary>
+        /// Gets the name of the component.
+        /// </summary>
+        /// <value>
+        /// The name of the component.
+        /// </value>
         string ComponentName { get; }
 
+        /// <summary>
+        /// Gets the condition description.
+        /// </summary>
+        /// <value>
+        /// The condition description.
+        /// </value>
         string ConditionDescription { get; }
 
+        /// <summary>
+        /// Registers the condition with the component.
+        /// </summary>
+        /// <param name="ct">The ct.</param>
+        /// <returns></returns>
         Task<IConditionFeed> BuildAsync(CancellationToken ct);
     }
 }

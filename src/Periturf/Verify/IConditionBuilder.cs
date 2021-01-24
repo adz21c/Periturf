@@ -16,6 +16,9 @@
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Base interface for component condition buiders (currently a placeholder)
+    /// </summary>
     public interface IConditionBuilder
     {
     }

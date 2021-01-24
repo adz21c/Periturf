@@ -19,6 +19,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
 {
+    /// <summary>
+    /// Extends <see cref="ConditionInstance"/> to include the condition identifier.
+    /// </summary>
     [ExcludeFromCodeCoverage]
     public sealed class FeedConditionInstance : IEquatable<FeedConditionInstance?>
     {
@@ -28,15 +31,41 @@ namespace Periturf.Verify
             Instance = instance;
         }
 
+        /// <summary>
+        /// Gets the condition identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
         public ConditionIdentifier Identifier { get; }
 
+        /// <summary>
+        /// Gets the condition instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
         public ConditionInstance Instance { get; }
 
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the specified object  is equal to the current object; otherwise, <see langword="false" />.
+        /// </returns>
         public override bool Equals(object? obj)
         {
             return Equals(obj as FeedConditionInstance);
         }
 
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        /// </returns>
         public bool Equals(FeedConditionInstance? other)
         {
             return other != null &&
@@ -44,11 +73,25 @@ namespace Periturf.Verify
                    EqualityComparer<ConditionInstance>.Default.Equals(Instance, other.Instance);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return HashCode.Combine(Identifier, Instance);
         }
 
+        /// <summary>
+        /// Implements the operator ==.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator ==(FeedConditionInstance? left, FeedConditionInstance? right)
         {
             if (left is null)
@@ -62,6 +105,14 @@ namespace Periturf.Verify
             }
         }
 
+        /// <summary>
+        /// Implements the operator !=.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns>
+        /// The result of the operator.
+        /// </returns>
         public static bool operator !=(FeedConditionInstance? left, FeedConditionInstance? right)
         {
             return !(left == right);
