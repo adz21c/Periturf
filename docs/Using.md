@@ -133,6 +133,34 @@ await post204.DisposeAsync();
 // POST 404
 ```
 
+## Verify
+
+You can test that your system under test interfacts with its environment by declaring verifications. A verification is made up of:
+- **Conditions** - Registered with the component defining an event of interest.
+- An **Expectation** - That defines a set of constraints that all must be met.
+- **Constraints** - Defines an event that must happen to meet the expectation with optional additional restrictions.
+
+```csharp
+var verifier = env.VerifyAsync(ctx =>
+{
+    var conditionIdentifier = ctx.Condition(c => c.WebApp().OnRequest(...));
+    ctx.Expect(e =>
+    {
+        e.Constraint(c => c.Condition(conditionIdentifier).Before(TimeSpan.FromSeconds(5))));
+        e.Then(c => c.Condition(conditionIdentifier))));
+    });
+});
+var result = await verifier.VerifyAsync();
+
+if (!result.AsExpected)
+    throw new Exception();
+```
+
+The above example verifies two web requests meeting the same condition. The first must happen within 5 seconds of initiating verification and the second anytime after.
+
+All verifications are subject to an *inactivity timeout* which fails the verification if none of the registered conditions provide any relevant activity for the configured timeout. If the expectation constraints have a relevant timeout configured then the inactivity timeout is ignored until they are no-longer relevant. In the above timeout the inactivity timeout is ignored for the first request. If the first request fails to happen within 5 seconds then the constraint timeout will fail the test. The *inactivity timeout* can be configured on environment setup or on a per-verification basis.
+
+
 ## Discussion
 
 Envrionments can be setup and discarded as you wish, but Periturf has been designed expecting an environment to be a long running dependency of your System Under Test (SUT). Immediately after setting up your environment you will likely want to configure some default behaviour that is common for all tests, but configuration can be created and disposed per-test (or groups of tests). Depending on the purpose and implementation of your SUT this enables you to have a single running instance of your SUT, while executing multiple concurrent tests against it.
