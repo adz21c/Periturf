@@ -137,7 +137,8 @@ await post204.DisposeAsync();
 
 You can test that your system under test interfacts with its environment by declaring verifications. A verification is made up of:
 - **Conditions** - Registered with the component defining an event of interest.
-- An **Expectation** - That defines a set of constraints that all must be met.
+  - Produces a feed of *condition instances* that indicate when the condition was met.
+- An **Expectation** - That defines a set of constraints that all must be met and evaluates it against the feed of *condition instances*.
 - **Constraints** - Defines an event that must happen to meet the expectation with optional additional restrictions.
 
 ```csharp

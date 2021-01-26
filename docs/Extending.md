@@ -240,3 +240,7 @@ namespace Periturf
 ```
 
 *IConditionSpecification* will be called to create the *IConditionFeed*. This should register the condition with the component and start gathering *ConditionInstances*. *WaitForInstances* will be called on the *IConditionFeed* which will wait until it receives instances to pass on. When the verification is done the provided CancellationToken will be cancelled. *IConditionFeed* will be disposed when the verifier has no need for the condition, which should unregister the condition with the component.
+
+## Discussion
+
+Configuration and Verification both aim to identify an event within your component to react and record respectively. Therefore, it makes sense to re-use whatever configuration code you can between these two areas to enable users to also write code that can be shared.
