@@ -207,14 +207,13 @@ namespace Periturf
         /// Defines a verifier to establish if expectations are met.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
+        public IVerifier Verify(Action<IVerificationContext> builder)
         {
             var context = new VerificationContext(new ComponentLocator(_components), _defaultVerifyInactivityTimeout);
             builder(context);
 
-            return await context.BuildAsync(ct);
+            return context.Build();
         }
 
         #region Client

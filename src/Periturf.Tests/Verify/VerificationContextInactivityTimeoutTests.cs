@@ -67,7 +67,7 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_DefautTimeout_When_VerifyWithNoActivity_Then_CompletesBasedOnTimeout()
         {
-            var verifier = await _sut.VerifyAsync(ctx =>
+            var verifier = _sut.Verify(ctx =>
                 ctx.Expect(e =>
                     e.Constraint(ec =>
                         ec.Condition(
@@ -89,7 +89,7 @@ namespace Periturf.Tests.Verify
         {
             const int OverrideTimeout = 100;
             
-            var verifier = await _sut.VerifyAsync(ctx =>
+            var verifier = _sut.Verify(ctx =>
             {
                 ctx.InactivityTimeout = TimeSpan.FromMilliseconds(OverrideTimeout);
                 ctx.Expect(e =>

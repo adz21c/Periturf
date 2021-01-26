@@ -27,6 +27,7 @@ namespace Periturf.Tests.Verify
     class VerifierTestsCtorAndDispose
     {
         private readonly ConditionIdentifier _feed1Id = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
+        private IConditionSpecification _spec1;
         private IConditionFeed _feed1;
 
         private IExpectationEvaluator _expectationEvaluator;
@@ -39,49 +40,28 @@ namespace Periturf.Tests.Verify
             _feed1 = A.Fake<IConditionFeed>();
             A.CallTo(() => _feed1.WaitForInstancesAsync(A<CancellationToken>._)).Returns(new List<ConditionInstance> { new ConditionInstance(TimeSpan.FromSeconds(1), "ID") });
 
+            _spec1 = A.Fake<IConditionSpecification>();
+            A.CallTo(() => _spec1.BuildAsync(A<CancellationToken>._)).Returns(_feed1);
+
             _expectationEvaluator = A.Fake<IExpectationEvaluator>();
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
 
             _sut = new Verifier(
                 TimeSpan.FromMilliseconds(500),
-                new List<(ConditionIdentifier ID, IConditionFeed Feed)> { (_feed1Id, _feed1) },
+                new List<(ConditionIdentifier, IConditionSpecification)> { (_feed1Id, _spec1) },
                 _expectationEvaluator) ;
         }
 
         [Test]
-        public async Task Given_MetExpectations_When_Verify_Then_ResultAsExpectedAndFeedDisposed()
+        public async Task Given_MetExpectations_When_Verify_Then_FeedCreatedAndResultAsExpectedAndFeedDisposed()
         {
             var result = await _sut.VerifyAsync(CancellationToken.None);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.AsExpected, Is.True);
-            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).MustHaveHappened().Then(
+            A.CallTo(() => _spec1.BuildAsync(A<CancellationToken>._)).MustHaveHappenedOnceExactly().Then(
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).MustHaveHappened()).Then(
             A.CallTo(() => _feed1.DisposeAsync()).MustHaveHappened());
-        }
-
-        [Test]
-        public async Task Given_NotEvaluated_When_Dispose_Then_FeedsDisposed()
-        {
-            await _sut.DisposeAsync();
-            A.CallTo(() => _feed1.DisposeAsync()).MustHaveHappened();
-        }
-
-        [Test]
-        public async Task Given_Verified_When_Dispose_Then_DoesNotDisposeAgain()
-        {
-            await _sut.VerifyAsync(CancellationToken.None);
-            Fake.ClearRecordedCalls(_feed1);
-
-            await _sut.DisposeAsync();
-            A.CallTo(() => _feed1.DisposeAsync()).MustNotHaveHappened();
-        }
-
-        [Test]
-        public async Task Given_Disposed_When_Verify_Then_Exception()
-        {
-            await _sut.DisposeAsync();
-
-            Assert.That(() => _sut.VerifyAsync(CancellationToken.None), Throws.TypeOf<ObjectDisposedException>());
         }
     }
 }

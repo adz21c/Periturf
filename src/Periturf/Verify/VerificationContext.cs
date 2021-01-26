@@ -51,23 +51,13 @@ namespace Periturf.Verify
             config.Invoke(_expectationSpecification);
         }
 
-        public async Task<Verifier> BuildAsync(CancellationToken ct)
+        public Verifier Build()
         {
             Debug.Assert(_expectationSpecification != null, "_expectationSpecification != null");
 
-            var conditionBuilds = _conditions
-                .Select(x => new
-                {
-                    Identifier = x.Key,
-                    Task = x.Value.BuildAsync(ct)
-                })
-                .ToList();
-
-            await Task.WhenAll(conditionBuilds.Select(x => x.Task));
-
             return new Verifier(
                 InactivityTimeout,
-                conditionBuilds.Select(x => (x.Identifier, x.Task.Result)).ToList(),
+                _conditions.Select(x => (x.Key, x.Value)).ToList(),
                 _expectationSpecification.Build());
         }
 

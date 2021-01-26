@@ -23,41 +23,29 @@ namespace Periturf.Verify
 {
     class Verifier : IVerifier
     {
-        private readonly List<(ConditionIdentifier ID, IConditionFeed Feed)> _feeds;
+        private readonly List<(ConditionIdentifier ID, IConditionSpecification Spec)> _specs;
         private readonly IExpectationEvaluator _expectation;
         private readonly TimeSpan _inactivityTimeout;
 
-        private VerificationResult? _result;
-
-        private bool _verifying;
-        private bool _dependenciesDisposed;
-        private bool _disposed;
-
         public Verifier(
             TimeSpan inactivityTimeout,
-            List<(ConditionIdentifier ID, IConditionFeed Feed)> feeds,
+            List<(ConditionIdentifier ID, IConditionSpecification Spec)> specs,
             IExpectationEvaluator expectation)
         {
             _inactivityTimeout = inactivityTimeout;
-            _feeds = feeds;
+            _specs = specs;
             _expectation = expectation;
         }
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
-            if (_disposed)
-                throw new ObjectDisposedException(typeof(Verifier).FullName);
+            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(ct)}).ToList();
 
-            if (_result != null)
-                return _result;
-
-            if (_verifying)
-                throw new InvalidOperationException("Already verifying");
-            
-            _verifying = true;
+            await Task.WhenAll(buildFeeds.Select(x => x.BuildTask));
 
             using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
             var timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var feeds = buildFeeds.Select(x => new { x.ID, Feed = x.BuildTask.Result }).ToList();
             try
             {
                 var feedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
@@ -76,7 +64,7 @@ namespace Periturf.Verify
                     }
 
                     feedWaitTasks.AddRange(
-                        _feeds
+                        feeds
                         .Where(x => !feedWaitTasks.Select(y => y.ID).Contains(x.ID))
                         .Select(x => (x.ID, x.Feed, x.Feed.WaitForInstancesAsync(evaluateCt.Token))));
                     var timerTask = Task.Delay(timer, timerCt.Token);
@@ -98,7 +86,7 @@ namespace Periturf.Verify
                         var result = _expectation.Evaluate(instance);
                         if (result.IsCompleted)
 #pragma warning disable CS8629 // Nullable value type may be null.
-                            return _result = new VerificationResult(result.Met.Value);
+                            return new VerificationResult(result.Met.Value);
 #pragma warning restore CS8629 // Nullable value type may be null.
                     }
 
@@ -107,7 +95,7 @@ namespace Periturf.Verify
                         var result = usingInactivityTimer ? _expectation.Timeout() : _expectation.Evaluate(timer);
                         if (result.IsCompleted)
 #pragma warning disable CS8629 // Nullable value type may be null.
-                            return _result = new VerificationResult(result.Met.Value);
+                            return new VerificationResult(result.Met.Value);
 #pragma warning restore CS8629 // Nullable value type may be null.
                     }
                     else
@@ -121,26 +109,8 @@ namespace Periturf.Verify
             {
                 evaluateCt.Cancel();
                 timerCt.Cancel();
-                await DisposeDependencies();
+                await Task.WhenAll(feeds.Select(x => x.Feed.DisposeAsync().AsTask()));
             }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_disposed)
-                return;
-
-            await DisposeDependencies();
-            _disposed = true;
-        }
-
-        private async Task DisposeDependencies()
-        {
-            if (_dependenciesDisposed)
-                return;
-
-            await Task.WhenAll(_feeds.Select(x => x.Feed.DisposeAsync().AsTask()));
-            _dependenciesDisposed = true;
         }
     }
 }

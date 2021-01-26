@@ -22,7 +22,7 @@ namespace Periturf.Verify
     /// <summary>
     /// Evaluates if a condition has happened since creation of the instance.
     /// </summary>
-    public interface IVerifier : IAsyncDisposable
+    public interface IVerifier
     {
         /// <summary>
         /// Verifies if expectations have been met.

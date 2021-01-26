@@ -47,7 +47,7 @@ namespace Periturf.Tests.Verify
         [Test]
         public async Task Given_Env_When_Verify_Then_VerifierCreated()
         {
-            var conditionSpec = A.Fake<IConditionSpecification>();
+            var conditionSpec = A.Dummy<IConditionSpecification>();
             var conditionConfig = A.Fake<Func<IConditionConfigurator, IConditionSpecification>>();
             A.CallTo(() => conditionConfig.Invoke(A<IConditionConfigurator>._))
                 .Invokes((IConditionConfigurator c) => c.GetConditionBuilder(ComponentName))
@@ -60,7 +60,7 @@ namespace Periturf.Tests.Verify
                 e.Constraint(c => c.Condition(conditionIdentifier));
             });
 
-            var verifier = await _sut.VerifyAsync(ctx =>
+            var verifier = _sut.Verify(ctx =>
             {
                 conditionIdentifier = ctx.Condition(conditionConfig);
                 ctx.Expect(expectationConfig);
@@ -70,7 +70,6 @@ namespace Periturf.Tests.Verify
             Assert.That(conditionIdentifier, Is.Not.Null);
             A.CallTo(() => conditionConfig.Invoke(A<IConditionConfigurator>._)).MustHaveHappened();
             A.CallTo(() => expectationConfig.Invoke(A<IExpectationConfigurator>._)).MustHaveHappened();
-            A.CallTo(() => conditionSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => _component.CreateConditionBuilder()).MustHaveHappened();
         }
 
@@ -81,8 +80,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => conditionConfig.Invoke(A<IConditionConfigurator>._))
                 .Invokes((IConditionConfigurator c) => c.GetConditionBuilder("NonComponentName"));
 
-            Assert.That(() => _sut.VerifyAsync(ctx => ctx.Condition(conditionConfig)), Throws.TypeOf<ComponentLocationFailedException>());
-
+            Assert.That(() => _sut.Verify(ctx => ctx.Condition(conditionConfig)), Throws.TypeOf<ComponentLocationFailedException>());
         }
     }
 }
