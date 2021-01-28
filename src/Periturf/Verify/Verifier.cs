@@ -24,17 +24,17 @@ namespace Periturf.Verify
     class Verifier : IVerifier
     {
         private readonly List<(ConditionIdentifier ID, IConditionSpecification Spec)> _specs;
-        private readonly IExpectationEvaluator _expectation;
+        private readonly IExpectationSpecification _expectationSpecification;
         private readonly TimeSpan _inactivityTimeout;
 
         public Verifier(
             TimeSpan inactivityTimeout,
             List<(ConditionIdentifier ID, IConditionSpecification Spec)> specs,
-            IExpectationEvaluator expectation)
+            IExpectationSpecification expectationSpecification)
         {
             _inactivityTimeout = inactivityTimeout;
             _specs = specs;
-            _expectation = expectation;
+            _expectationSpecification = expectationSpecification;
         }
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
@@ -45,6 +45,7 @@ namespace Periturf.Verify
 
             using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
             var timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var expectation = _expectationSpecification.Build();
             var feeds = buildFeeds.Select(x => new { x.ID, Feed = x.BuildTask.Result }).ToList();
             try
             {
@@ -53,7 +54,7 @@ namespace Periturf.Verify
                 do
                 {
                     bool usingInactivityTimer = false;
-                    var nextTimer = _expectation.NextTimer;
+                    var nextTimer = expectation.NextTimer;
                     TimeSpan timer;
                     if (nextTimer.HasValue)
                         timer = nextTimer.Value;
@@ -83,7 +84,7 @@ namespace Periturf.Verify
 
                     foreach (var instance in instances)
                     {
-                        var result = _expectation.Evaluate(instance);
+                        var result = expectation.Evaluate(instance);
                         if (result.IsCompleted)
 #pragma warning disable CS8629 // Nullable value type may be null.
                             return new VerificationResult(result.Met.Value);
@@ -92,7 +93,7 @@ namespace Periturf.Verify
 
                     if (timerTask.IsCompletedSuccessfully)
                     {
-                        var result = usingInactivityTimer ? _expectation.Timeout() : _expectation.Evaluate(timer);
+                        var result = usingInactivityTimer ? expectation.Timeout() : expectation.Evaluate(timer);
                         if (result.IsCompleted)
 #pragma warning disable CS8629 // Nullable value type may be null.
                             return new VerificationResult(result.Met.Value);

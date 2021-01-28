@@ -111,7 +111,7 @@ namespace Periturf.Tests.Verify
         [Test]
         public void Given_CompleteAndNotMet_When_Timeout_Then_NotMet()
         {
-            var sut = new ExpectationConstraintEvaluator(_condition1);
+            var sut = new ExpectationConstraintEvaluator(_condition1, timeConstraintEnd: TimeSpan.FromMilliseconds(150));
 
             Assume.That(sut.Completed, Is.False);
             Assume.That(sut.Met, Is.Null);

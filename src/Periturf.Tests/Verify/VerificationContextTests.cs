@@ -45,7 +45,7 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public async Task Given_Env_When_Verify_Then_VerifierCreated()
+        public void Given_Env_When_Verify_Then_VerifierCreated()
         {
             var conditionSpec = A.Dummy<IConditionSpecification>();
             var conditionConfig = A.Fake<Func<IConditionConfigurator, IConditionSpecification>>();

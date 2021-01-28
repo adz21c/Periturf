@@ -58,7 +58,7 @@ namespace Periturf.Verify
             return new Verifier(
                 InactivityTimeout,
                 _conditions.Select(x => (x.Key, x.Value)).ToList(),
-                _expectationSpecification.Build());
+                _expectationSpecification);
         }
 
         IConditionBuilder IConditionConfigurator.GetConditionBuilder(string componentName)

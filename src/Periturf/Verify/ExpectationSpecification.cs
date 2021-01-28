@@ -19,7 +19,7 @@ using System.Linq;
 
 namespace Periturf.Verify
 {
-    class ExpectationSpecification : IExpectationConfigurator
+    class ExpectationSpecification : IExpectationConfigurator, IExpectationSpecification
     {
         private ExpectationSpecification? _expectationSpecifications;
         private readonly List<ExpectationConstraintSpecification> _expectationConstraintSpecifications = new List<ExpectationConstraintSpecification>();
@@ -38,7 +38,7 @@ namespace Periturf.Verify
             _expectationSpecifications = spec;
         }
 
-        public ExpectationEvaluator Build()
+        public IExpectationEvaluator Build()
         {
             return new ExpectationEvaluator(
                 _expectationConstraintSpecifications.Select(x => x.Build()).ToList(),

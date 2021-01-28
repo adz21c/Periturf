@@ -23,13 +23,13 @@ namespace Periturf.Verify
     class ExpectationEvaluator : IExpectationEvaluator
     {
         private readonly List<ExpectationConstraintEvaluator> _constraints;
-        private readonly ExpectationEvaluator? _next;
+        private readonly IExpectationEvaluator? _next;
         private bool _evaluated = false;
         private ExpectationResult? _completedResult;
 
         public ExpectationEvaluator(
             List<ExpectationConstraintEvaluator> constraints,
-            ExpectationEvaluator? next)
+            IExpectationEvaluator? next)
         {
             _constraints = constraints;
             _next = next;

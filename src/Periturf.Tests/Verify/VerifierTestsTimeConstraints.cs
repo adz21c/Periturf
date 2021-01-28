@@ -64,11 +64,13 @@ namespace Periturf.Tests.Verify
 
             _expectationEvaluator = A.Fake<IExpectationEvaluator>();
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
+            var expectationSpec = A.Fake<IExpectationSpecification>();
+            A.CallTo(() => expectationSpec.Build()).Returns(_expectationEvaluator);
 
             _sut = new Verifier(
                 _inactivityTimeout,
                 new List<(ConditionIdentifier, IConditionSpecification)> { (_feed1Id, _spec1), (_feed2Id, _spec2) },
-                _expectationEvaluator);
+                expectationSpec);
         }
 
         [Test]
