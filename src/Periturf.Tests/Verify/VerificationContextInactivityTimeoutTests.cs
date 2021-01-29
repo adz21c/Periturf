@@ -59,7 +59,7 @@ namespace Periturf.Tests.Verify
                 });
 
             _conditionSpec = A.Fake<IConditionSpecification>();
-            A.CallTo(() => _conditionSpec.BuildAsync(A<CancellationToken>._)).Returns(conditionFeed);
+            A.CallTo(() => _conditionSpec.BuildAsync(A<IConditionInstanceFactory>._, A<CancellationToken>._)).Returns(conditionFeed);
             A.CallTo(() => _conditionSpec.ComponentName).Returns(A.Dummy<string>());
             A.CallTo(() => _conditionSpec.ConditionDescription).Returns(A.Dummy<string>());
         }

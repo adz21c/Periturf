@@ -13,38 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Threading;
-using System.Threading.Tasks;
+using System;
 
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Specification for a condition.
+    /// Creates condition instances, ensuring a correct <see cref="TimeSpan"/>.
     /// </summary>
-    public interface IConditionSpecification
+    public interface IConditionInstanceFactory
     {
         /// <summary>
-        /// Gets the name of the component.
+        /// Creates a condition instance with a TimeSpan based on the current time (now).
         /// </summary>
-        /// <value>
-        /// The name of the component.
-        /// </value>
-        string ComponentName { get; }
-
-        /// <summary>
-        /// Gets the condition description.
-        /// </summary>
-        /// <value>
-        /// The condition description.
-        /// </value>
-        string ConditionDescription { get; }
-
-        /// <summary>
-        /// Registers the condition with the component.
-        /// </summary>
-        /// <param name="conditionInstanceFactory">The condition instance factory.</param>
-        /// <param name="ct">The ct.</param>
+        /// <param name="id">The instance identifier.</param>
         /// <returns></returns>
-        Task<IConditionFeed> BuildAsync(IConditionInstanceFactory conditionInstanceFactory, CancellationToken ct);
+        ConditionInstance Create(string id);
+
+        /// <summary>
+        /// Creates a condition instance with a TimeSpan based on the supplied event time.
+        /// </summary>
+        /// <param name="id">The instance identifier.</param>
+        /// <param name="eventDateTime">The event date time.</param>
+        /// <returns></returns>
+        ConditionInstance Create(string id, DateTime eventDateTime);
     }
 }

@@ -39,7 +39,8 @@ namespace Periturf.Verify
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
-            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(ct)}).ToList();
+            var instanceFactory = new ConditionInstanceFactory(new Time());
+            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(instanceFactory, ct)}).ToList(); //todo factory
 
             await Task.WhenAll(buildFeeds.Select(x => x.BuildTask));
 

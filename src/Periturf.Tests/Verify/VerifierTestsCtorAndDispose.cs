@@ -41,7 +41,7 @@ namespace Periturf.Tests.Verify
             A.CallTo(() => _feed1.WaitForInstancesAsync(A<CancellationToken>._)).Returns(new List<ConditionInstance> { new ConditionInstance(TimeSpan.FromSeconds(1), "ID") });
 
             _spec1 = A.Fake<IConditionSpecification>();
-            A.CallTo(() => _spec1.BuildAsync(A<CancellationToken>._)).Returns(_feed1);
+            A.CallTo(() => _spec1.BuildAsync(A<IConditionInstanceFactory>._, A<CancellationToken>._)).Returns(_feed1);
 
             _expectationEvaluator = A.Fake<IExpectationEvaluator>();
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, true));
@@ -61,7 +61,7 @@ namespace Periturf.Tests.Verify
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.AsExpected, Is.True);
-            A.CallTo(() => _spec1.BuildAsync(A<CancellationToken>._)).MustHaveHappenedOnceExactly().Then(
+            A.CallTo(() => _spec1.BuildAsync(A<IConditionInstanceFactory>._, A<CancellationToken>._)).MustHaveHappenedOnceExactly().Then(
             A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).MustHaveHappened()).Then(
             A.CallTo(() => _feed1.DisposeAsync()).MustHaveHappened());
         }
