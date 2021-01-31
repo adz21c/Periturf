@@ -40,7 +40,7 @@ namespace Periturf.Verify
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
             var instanceFactory = new ConditionInstanceFactory(new Time());
-            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(instanceFactory, ct)}).ToList(); //todo factory
+            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(instanceFactory, ct)}).ToList();
 
             await Task.WhenAll(buildFeeds.Select(x => x.BuildTask));
 
@@ -52,6 +52,7 @@ namespace Periturf.Verify
             {
                 var feedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
                 var completedFeedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
+                instanceFactory.Start();
                 do
                 {
                     bool usingInactivityTimer = false;
@@ -81,6 +82,7 @@ namespace Periturf.Verify
 
                     var instances = completedFeedWaitTasks
                         .SelectMany(x => x.Task.Result.Select(y => new FeedConditionInstance(x.ID, y)))
+                        .Where(x => x.Instance.When != TimeSpan.Zero)
                         .OrderBy(x => x.Instance.When);
 
                     foreach (var instance in instances)

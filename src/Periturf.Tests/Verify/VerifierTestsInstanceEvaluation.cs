@@ -108,6 +108,30 @@ namespace Periturf.Tests.Verify
                         e => e.Write("Expectation3")))).MustHaveHappenedOnceExactly());
         }
 
+        [Test]
+        public async Task Given_InstanceTimeSpanZero_When_Verify_Then_NotEvaluated()
+        {
+            var instance1 = new ConditionInstance(TimeSpan.Zero, "ID1");
+            var instance2 = new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2");
+
+            A.CallTo(() => _feed1.WaitForInstancesAsync(A<CancellationToken>._))
+                .Returns(new List<ConditionInstance> { instance1 });
+
+            A.CallTo(() => _feed2.WaitForInstancesAsync(A<CancellationToken>._))
+                .Returns(new List<ConditionInstance> { instance2 });
+
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>._)).Returns(new ExpectationResult(true, false));
+
+            await _sut.VerifyAsync(CancellationToken.None);
+
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>.That.NullCheckedMatches(
+                    i => i.Instance == instance1,
+                    e => e.Write("Expectation1")))).MustNotHaveHappened();
+            A.CallTo(() => _expectationEvaluator.Evaluate(A<FeedConditionInstance>.That.NullCheckedMatches(
+                    i => i.Instance == instance2,
+                    e => e.Write("Expectation2")))).MustHaveHappenedOnceExactly();
+        }
+
         [Test, Ignore("Need to fix broken test")]
         public async Task Given_IncompleteTask_When_VerifyComplete_Then_TaskCancelled()
         {
