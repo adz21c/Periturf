@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Context within which the verification will be defined.
+    /// Specification for a condition.
     /// </summary>
-    public interface IVerificationContext
+    public interface IConditionSpecification
     {
         /// <summary>
-        /// Override the inactivity timeout.
+        /// Gets the name of the component.
         /// </summary>
         /// <value>
-        /// The inactivity timeout.
+        /// The name of the component.
         /// </value>
-        TimeSpan InactivityTimeout { get; set; }
+        string ComponentName { get; }
 
         /// <summary>
-        /// Register a condition for verification.
+        /// Gets the condition description.
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <returns>An identifier for the condition.</returns>
-        ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config);
+        /// <value>
+        /// The condition description.
+        /// </value>
+        string ConditionDescription { get; }
 
         /// <summary>
-        /// Defines the expectation.
+        /// Registers the condition with the component.
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Expect(Action<IExpectationConfigurator> config);
+        /// <param name="conditionInstanceFactory">The condition instance factory.</param>
+        /// <param name="ct">The ct.</param>
+        /// <returns></returns>
+        Task<IConditionFeed> BuildAsync(IConditionInstanceFactory conditionInstanceFactory, CancellationToken ct);
     }
 }

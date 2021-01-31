@@ -23,103 +23,98 @@ namespace Periturf.Verify
 {
     class Verifier : IVerifier
     {
+        private readonly List<(ConditionIdentifier ID, IConditionSpecification Spec)> _specs;
+        private readonly IExpectationSpecification _expectationSpecification;
+        private readonly TimeSpan _inactivityTimeout;
 
-        private VerificationResult? _result;
-
-        private bool _verifying;
-        private bool _dependenciesDisposed;
-        private bool _disposed;
-
-        public Verifier(List<ExpectationEvaluator> expectations, bool shortCircuit = false)
+        public Verifier(
+            TimeSpan inactivityTimeout,
+            List<(ConditionIdentifier ID, IConditionSpecification Spec)> specs,
+            IExpectationSpecification expectationSpecification)
         {
-            Expectations = expectations;
-            ShortCircuit = shortCircuit;
+            _inactivityTimeout = inactivityTimeout;
+            _specs = specs;
+            _expectationSpecification = expectationSpecification;
         }
-
-        public bool ShortCircuit { get; }
-        public List<ExpectationEvaluator> Expectations { get; }
 
         public async Task<VerificationResult> VerifyAsync(CancellationToken ct = default)
         {
-            if (_disposed)
-                throw new ObjectDisposedException(typeof(Verifier).FullName);
+            var instanceFactory = new ConditionInstanceFactory(new Time());
+            var buildFeeds = _specs.Select(x => new { x.ID, BuildTask = x.Spec.BuildAsync(instanceFactory, ct)}).ToList();
 
-            if (_result != null)
-                return _result;
+            await Task.WhenAll(buildFeeds.Select(x => x.BuildTask));
 
-            if (_verifying)
-                throw new InvalidOperationException("Already verifying");
-
-            _verifying = true;
-
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct))
+            using var evaluateCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var expectation = _expectationSpecification.Build();
+            var feeds = buildFeeds.Select(x => new { x.ID, Feed = x.BuildTask.Result }).ToList();
+            try
             {
-                var results = new List<ExpectationResult>(Expectations.Count);
-                var expectations = new List<(ExpectationEvaluator evaluator, Task<ExpectationResult> task)>(Expectations.Count);
-
-                try
+                var feedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
+                var completedFeedWaitTasks = new List<(ConditionIdentifier ID, IConditionFeed Feed, Task<List<ConditionInstance>> Task)>();
+                instanceFactory.Start();
+                do
                 {
-                    expectations.AddRange(Expectations.Select(x => (x, x.EvaluateAsync(cancellationTokenSource.Token))));
-
-                    if (ShortCircuit)
+                    bool usingInactivityTimer = false;
+                    var nextTimer = expectation.NextTimer;
+                    TimeSpan timer;
+                    if (nextTimer.HasValue)
+                        timer = nextTimer.Value;
+                    else
                     {
-                        while (expectations.Any())
-                        {
-                            await Task.WhenAny(expectations.Select(x => x.task));
-                            var completed = expectations.Where(x => x.task.IsCompleted).ToList();
+                        timer = _inactivityTimeout;
+                        usingInactivityTimer = true;
+                    }
 
-                            expectations.RemoveAll(x => completed.Contains(x));
-                            results.AddRange(completed.Select(x => x.task.Result));
+                    feedWaitTasks.AddRange(
+                        feeds
+                        .Where(x => !feedWaitTasks.Select(y => y.ID).Contains(x.ID))
+                        .Select(x => (x.ID, x.Feed, x.Feed.WaitForInstancesAsync(evaluateCt.Token))));
+                    var timerTask = Task.Delay(timer.Add(TimeSpan.FromMilliseconds(1)), timerCt.Token);
 
-                            // If any failed then lets break and cancel the rest
-                            if (completed.Any(x => !(x.task.Result.Met ?? false)))
-                            {
-                                cancellationTokenSource.Cancel();   // Cancel remaining tasks
-                                // Pass over remaining incomplete tasks
-                                results.AddRange(
-                                    expectations.Select(x => new ExpectationResult(
-                                        null,
-                                        x.evaluator.Description)));
-                                break;
-                            }
-                        }
+                    await Task.WhenAny(feedWaitTasks.Select(x => x.Task).Concat(new[] { timerTask }));
+
+                    completedFeedWaitTasks = feedWaitTasks
+                        .Where(x => x.Task.IsCompletedSuccessfully)
+                        .ToList();
+
+                    feedWaitTasks.RemoveAll(x => completedFeedWaitTasks.Select(x => x.ID).Contains(x.ID));
+
+                    var instances = completedFeedWaitTasks
+                        .SelectMany(x => x.Task.Result.Select(y => new FeedConditionInstance(x.ID, y)))
+                        .Where(x => x.Instance.When != TimeSpan.Zero)
+                        .OrderBy(x => x.Instance.When);
+
+                    foreach (var instance in instances)
+                    {
+                        var result = expectation.Evaluate(instance);
+                        if (result.IsCompleted)
+#pragma warning disable CS8629 // Nullable value type may be null.
+                            return new VerificationResult(result.Met.Value);
+#pragma warning restore CS8629 // Nullable value type may be null.
+                    }
+
+                    if (timerTask.IsCompletedSuccessfully)
+                    {
+                        var result = usingInactivityTimer ? expectation.Timeout() : expectation.Evaluate(timer);
+                        if (result.IsCompleted)
+#pragma warning disable CS8629 // Nullable value type may be null.
+                            return new VerificationResult(result.Met.Value);
+#pragma warning restore CS8629 // Nullable value type may be null.
                     }
                     else
                     {
-                        await Task.WhenAll(expectations.Select(x => x.task));
-                        results.AddRange(expectations.Select(x => x.task.Result));
-                        expectations.Clear();
+                        timerCt.Cancel();
+                        timerCt = CancellationTokenSource.CreateLinkedTokenSource(ct);
                     }
-                }
-                finally
-                {
-                    _verifying = false;
-                }
-
-                await DisposeDependencies();
-
-                return _result = new VerificationResult(
-                    results.All(x => x.Met ?? false),
-                    results);
+                } while (true);
             }
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            if (_disposed)
-                return;
-
-            await DisposeDependencies();
-            _disposed = true;
-        }
-
-        private async Task DisposeDependencies()
-        {
-            if (_dependenciesDisposed)
-                return;
-
-            await Task.WhenAll(Expectations.Select(x => x.DisposeAsync().AsTask()));
-            _dependenciesDisposed = true;
+            finally
+            {
+                evaluateCt.Cancel();
+                timerCt.Cancel();
+                await Task.WhenAll(feeds.Select(x => x.Feed.DisposeAsync().AsTask()));
+            }
         }
     }
 }

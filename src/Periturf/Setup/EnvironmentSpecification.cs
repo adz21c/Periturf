@@ -24,10 +24,7 @@ namespace Periturf.Setup
     {
         private readonly List<IHostSpecification> _hostSpecifications = new List<IHostSpecification>();
 
-        // Validate greater than 0
-        public TimeSpan DefaultExpectationTimeout { get; set; }
-
-        public bool DefaultExpectationShortCircuit { get; set; }
+        public TimeSpan VerifyInactivityTimeout { get; set; } = TimeSpan.FromMilliseconds(500);
 
         public void AddHostSpecification(IHostSpecification hostSpecification)
         {

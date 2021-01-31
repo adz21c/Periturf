@@ -29,10 +29,8 @@ namespace Periturf.Components
         /// <summary>
         /// Creates a component specific condition builder.
         /// </summary>
-        /// <typeparam name="TComponentConditionBuilder">The type of the component condition builder.</typeparam>
         /// <returns></returns>
-        TComponentConditionBuilder CreateConditionBuilder<TComponentConditionBuilder>()
-            where TComponentConditionBuilder : IComponentConditionBuilder;
+        IConditionBuilder CreateConditionBuilder();
 
         /// <summary>
         /// Creates a component configuration specification.

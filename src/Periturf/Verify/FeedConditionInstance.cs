@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +20,32 @@ using System.Diagnostics.CodeAnalysis;
 namespace Periturf.Verify
 {
     /// <summary>
-    /// A moment when a component condition matched
+    /// Extends <see cref="ConditionInstance"/> to include the condition identifier.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public sealed class ConditionInstance : IEquatable<ConditionInstance?>
+    public sealed class FeedConditionInstance : IEquatable<FeedConditionInstance?>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConditionInstance"/> class.
-        /// </summary>
-        /// <param name="when">The when.</param>
-        /// <param name="id">The identifier.</param>
-        public ConditionInstance(TimeSpan when, string id)
+        internal FeedConditionInstance(ConditionIdentifier identifier, ConditionInstance instance)
         {
-            When = when;
-            ID = id ?? string.Empty;
+            Identifier = identifier;
+            Instance = instance;
         }
 
         /// <summary>
-        /// When the condition instance occurred relative to the time of definition.
-        /// </summary>
-        /// <value>
-        /// The when.
-        /// </value>
-        public TimeSpan When { get; }
-
-        /// <summary>
-        /// Component specific identifier for the condition instance.
+        /// Gets the condition identifier.
         /// </summary>
         /// <value>
         /// The identifier.
         /// </value>
-        public string ID { get; }
+        public ConditionIdentifier Identifier { get; }
+
+        /// <summary>
+        /// Gets the condition instance.
+        /// </summary>
+        /// <value>
+        /// The instance.
+        /// </value>
+        public ConditionInstance Instance { get; }
 
         /// <summary>
         /// Determines whether the specified object is equal to the current object.
@@ -61,7 +56,7 @@ namespace Periturf.Verify
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return Equals(obj as ConditionInstance);
+            return Equals(obj as FeedConditionInstance);
         }
 
         /// <summary>
@@ -71,11 +66,11 @@ namespace Periturf.Verify
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(ConditionInstance? other)
+        public bool Equals(FeedConditionInstance? other)
         {
             return other != null &&
-                   When.Equals(other.When) &&
-                   ID == other.ID;
+                   EqualityComparer<ConditionIdentifier>.Default.Equals(Identifier, other.Identifier) &&
+                   EqualityComparer<ConditionInstance>.Default.Equals(Instance, other.Instance);
         }
 
         /// <summary>
@@ -86,7 +81,7 @@ namespace Periturf.Verify
         /// </returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(When, ID);
+            return HashCode.Combine(Identifier, Instance);
         }
 
         /// <summary>
@@ -97,7 +92,7 @@ namespace Periturf.Verify
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator ==(ConditionInstance? left, ConditionInstance? right)
+        public static bool operator ==(FeedConditionInstance? left, FeedConditionInstance? right)
         {
             if (left is null)
                 return right is null;
@@ -106,7 +101,7 @@ namespace Periturf.Verify
                 if (right is null)
                     return false;
                 else
-                    return EqualityComparer<ConditionInstance>.Default.Equals(left, right);
+                    return EqualityComparer<FeedConditionInstance>.Default.Equals(left, right);
             }
         }
 
@@ -118,7 +113,7 @@ namespace Periturf.Verify
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator !=(ConditionInstance? left, ConditionInstance? right)
+        public static bool operator !=(FeedConditionInstance? left, FeedConditionInstance? right)
         {
             return !(left == right);
         }

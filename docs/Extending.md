@@ -195,3 +195,52 @@ namespace Periturf.MyExtension
     }
 }
 ```
+
+## Verification
+
+Components provide conditions that can be verified. Components are created via the *IConditionSpecification* that will create an *IConditionFeed*. The *IConditionConfigurator* provides a method to retrieve an *IConditionBuilder* from your component. The component builder will need to be casted to your implementation that will expose your *IConditionSpecification* factory methods. Unlike other areas where the specification is registered using an *AddSpecification* method on the appropriate configurator, in this case we return the specification. This is purely for the code asthetics, to remove excessive nesting.
+
+```csharp
+namespace Periturf.MyExtension
+{
+    class ConditionSpecification : IConditionSpecification
+    {
+        // ...
+    }
+
+    public class ConditionBuilder : IConditionBuilder
+    {
+        public ConditionSpecification MyCondtion()
+        {
+            // ...
+        }
+    }
+
+    class MyExtensionComponent : IComponent
+    {
+        // ...
+
+        public IConditionBuilder CreateConditionBuilder()
+        {
+            return new ConditionBuilder();
+        }
+    }
+}
+
+namespace Periturf
+{
+    public static class MyExtension
+    {
+        public static ConditionBuilder MyExtension(this IConditionConfigurator configurator, string name)
+        {
+            return (ConditionBuilder) configurator.GetConditionBuilder(name);
+        }
+    }
+}
+```
+
+*IConditionSpecification* will be called to create the *IConditionFeed*. This should register the condition with the component and start gathering *ConditionInstances*. *WaitForInstances* will be called on the *IConditionFeed* which will wait until it receives instances to pass on. When the verification is done the provided CancellationToken will be cancelled. *IConditionFeed* will be disposed when the verifier has no need for the condition, which should unregister the condition with the component.
+
+## Discussion
+
+Configuration and Verification both aim to identify an event within your component to react and record respectively. Therefore, it makes sense to re-use whatever configuration code you can between these two areas to enable users to also write code that can be shared.

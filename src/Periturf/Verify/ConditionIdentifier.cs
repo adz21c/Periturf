@@ -1,5 +1,5 @@
 ﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
+ *     Copyright 2021 Adam Burton (adz21c@gmail.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,37 +20,37 @@ using System.Diagnostics.CodeAnalysis;
 namespace Periturf.Verify
 {
     /// <summary>
-    /// A moment when a component condition matched
+    /// Identifier for a verification condition.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public sealed class ConditionInstance : IEquatable<ConditionInstance?>
+    public sealed class ConditionIdentifier : IEquatable<ConditionIdentifier?>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConditionInstance"/> class.
-        /// </summary>
-        /// <param name="when">The when.</param>
-        /// <param name="id">The identifier.</param>
-        public ConditionInstance(TimeSpan when, string id)
+        internal ConditionIdentifier(string componentName, string description, Guid id)
         {
-            When = when;
-            ID = id ?? string.Empty;
+            ComponentName = componentName;
+            Description = description;
+            Id = id;
         }
 
-        /// <summary>
-        /// When the condition instance occurred relative to the time of definition.
-        /// </summary>
-        /// <value>
-        /// The when.
-        /// </value>
-        public TimeSpan When { get; }
+        /// <summary>Gets the name of the component.</summary>
+        /// <value>The name of the component.</value>
+        public string ComponentName { get; }
 
         /// <summary>
-        /// Component specific identifier for the condition instance.
+        /// Gets the description.
+        /// </summary>
+        /// <value>
+        /// The description.
+        /// </value>
+        public string Description { get; }
+
+        /// <summary>
+        /// Gets the identifier.
         /// </summary>
         /// <value>
         /// The identifier.
         /// </value>
-        public string ID { get; }
+        public Guid Id { get; }
 
         /// <summary>
         /// Determines whether the specified object is equal to the current object.
@@ -61,7 +61,7 @@ namespace Periturf.Verify
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return Equals(obj as ConditionInstance);
+            return Equals(obj as ConditionIdentifier);
         }
 
         /// <summary>
@@ -71,11 +71,12 @@ namespace Periturf.Verify
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(ConditionInstance? other)
+        public bool Equals(ConditionIdentifier? other)
         {
             return other != null &&
-                   When.Equals(other.When) &&
-                   ID == other.ID;
+                   ComponentName == other.ComponentName &&
+                   Description == other.Description &&
+                   Id.Equals(other.Id);
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Periturf.Verify
         /// </returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(When, ID);
+            return HashCode.Combine(ComponentName, Description, Id);
         }
 
         /// <summary>
@@ -97,17 +98,12 @@ namespace Periturf.Verify
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator ==(ConditionInstance? left, ConditionInstance? right)
+        public static bool operator ==(ConditionIdentifier? left, ConditionIdentifier? right)
         {
-            if (left is null)
-                return right is null;
-            else
-            {
-                if (right is null)
-                    return false;
-                else
-                    return EqualityComparer<ConditionInstance>.Default.Equals(left, right);
-            }
+            // Supressed. Code generated. Generator probably doesn't take nullability into account
+#pragma warning disable CS8604 // Possible null reference argument.
+            return EqualityComparer<ConditionIdentifier>.Default.Equals(left, right);
+#pragma warning restore CS8604 // Possible null reference argument.
         }
 
         /// <summary>
@@ -118,7 +114,7 @@ namespace Periturf.Verify
         /// <returns>
         /// The result of the operator.
         /// </returns>
-        public static bool operator !=(ConditionInstance? left, ConditionInstance? right)
+        public static bool operator !=(ConditionIdentifier? left, ConditionIdentifier? right)
         {
             return !(left == right);
         }

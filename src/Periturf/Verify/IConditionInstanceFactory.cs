@@ -18,20 +18,23 @@ using System;
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Configures an expectation.
+    /// Creates condition instances, ensuring a correct <see cref="TimeSpan"/>.
     /// </summary>
-    public interface IExpectationConfigurator
+    public interface IConditionInstanceFactory
     {
         /// <summary>
-        /// Defines a constraint.
+        /// Creates a condition instance with a TimeSpan based on the current time (now).
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Constraint(Action<IExpectationConstraintConfigurator> config);
+        /// <param name="id">The instance identifier.</param>
+        /// <returns></returns>
+        ConditionInstance Create(string id);
 
         /// <summary>
-        /// Defines an expectation that must also be met when this expectation's constraints have been met.
+        /// Creates a condition instance with a TimeSpan based on the supplied event time.
         /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Then(Action<IExpectationConfigurator> config);
+        /// <param name="id">The instance identifier.</param>
+        /// <param name="eventDateTime">The event date time.</param>
+        /// <returns></returns>
+        ConditionInstance Create(string id, DateTime eventDateTime);
     }
 }
