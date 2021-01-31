@@ -69,7 +69,7 @@ namespace Periturf.Verify
                         feeds
                         .Where(x => !feedWaitTasks.Select(y => y.ID).Contains(x.ID))
                         .Select(x => (x.ID, x.Feed, x.Feed.WaitForInstancesAsync(evaluateCt.Token))));
-                    var timerTask = Task.Delay(timer, timerCt.Token);
+                    var timerTask = Task.Delay(timer.Add(TimeSpan.FromMilliseconds(1)), timerCt.Token);
 
                     await Task.WhenAny(feedWaitTasks.Select(x => x.Task).Concat(new[] { timerTask }));
 
