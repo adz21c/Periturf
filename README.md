@@ -40,8 +40,8 @@ var env = Environment.Setup(e =>
     {
         h.Web(w =>
         {
-            w.Configure(wb => wb.UseUrls(WebHostUrl));
             w.WebApp("MyApp", "/MyApp");
+            w.BindToUrl(WebHostUrl);
         });
     });
 });
@@ -67,15 +67,11 @@ class WebTests
             {
                 w.OnRequest(r =>
                 {
-                    r.Predicate(x => x.Request.Method.ToLower() == "get");
+                    r.Criteria(x => x.Method().EqualTo("GET"));
                     r.Response(rs =>
                     {
-                        rs.StatusCode = HttpStatusCode.OK;
-                        rs.ObjectBody(ob =>
-                        {
-                            ob.Object(new { Test = "Value" });
-                            ob.JsonSerializer();
-                        });
+                        rs.Status(200);
+                        rs.Body(ob => ob.Content(new { Test = "Value" }));
                     });
                 });
             });
