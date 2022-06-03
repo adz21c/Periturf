@@ -16,6 +16,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Periturf.Components
@@ -53,7 +54,10 @@ namespace Periturf.Components
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
         protected ComponentLocationFailedException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            ComponentName = info.GetString(nameof(ComponentName));
+
+            var componentNameValue = info.GetString(nameof(ComponentName));
+            Debug.Assert(componentNameValue != null);
+            ComponentName = componentNameValue;
         }
 
         /// <summary>

@@ -16,6 +16,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Periturf
@@ -53,7 +54,9 @@ namespace Periturf
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
         protected EnvironmentStartException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            Details = (HostExceptionDetails[]) info.GetValue(nameof(Details), typeof(HostExceptionDetails[]));
+            var detailsValue = info.GetValue(nameof(Details), typeof(HostExceptionDetails[])) as HostExceptionDetails[];
+            Debug.Assert(detailsValue != null);
+            Details = detailsValue;
         }
 
         /// <summary>

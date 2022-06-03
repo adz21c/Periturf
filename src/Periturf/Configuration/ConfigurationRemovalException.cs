@@ -16,6 +16,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 
 namespace Periturf.Configuration
@@ -57,8 +58,13 @@ namespace Periturf.Configuration
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
         protected ConfigurationRemovalException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            Id = new Guid(info.GetString(nameof(Id)));
-            Details = (ComponentExceptionDetails[]) info.GetValue(nameof(Details), typeof(ComponentExceptionDetails[]));
+            var idValue = info.GetString(nameof(Id));
+            Debug.Assert(idValue != null);
+            Id = new Guid(idValue);
+
+            var detailsValue = info.GetValue(nameof(Details), typeof(ComponentExceptionDetails[])) as ComponentExceptionDetails[];
+            Debug.Assert(detailsValue != null);
+            Details = detailsValue;
         }
 
         /// <summary>
