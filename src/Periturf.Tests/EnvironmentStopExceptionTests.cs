@@ -102,9 +102,16 @@ namespace Periturf.Tests
             var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception("MyMessage") }) };
             var originalException = new EnvironmentStopException(hostDetails);
 
+            var buffer = new byte[4096];
+            var ms = new MemoryStream(buffer);
+            var ms2 = new MemoryStream(buffer);
+            var formatter = new BinaryFormatter();
+
             // Act
-            var serialized = JsonSerializer.Serialize(originalException);
-            var deserializedException = JsonSerializer.Deserialize<EnvironmentStopException>(serialized);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            formatter.Serialize(ms, originalException);
+            var deserializedException = (EnvironmentStartException)formatter.Deserialize(ms2);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
             // Assert
             Assert.That(deserializedException.Details, Is.Not.Null);
