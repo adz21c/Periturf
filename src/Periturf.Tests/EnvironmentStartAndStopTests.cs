@@ -119,8 +119,8 @@ namespace Periturf.Tests
             Assert.That(exception.Details, Is.Not.Null);
             Assert.That(exception.Details.Length, Is.EqualTo(2));
 
-            Assert.That(exception.Details.Any(x => x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
-            Assert.That(exception.Details.Any(x => x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exceptions.Contains(failingHostException)), $"{nameof(failingHost)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exceptions.Contains(failingHostException2)), $"{nameof(failingHost2)} is missing from the exception details");
 
             A.CallTo(() => startedHost.StartAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => startedHost2.StartAsync(A<CancellationToken>._)).MustHaveHappened();
@@ -220,8 +220,8 @@ namespace Periturf.Tests
             Assert.That(exception.Details, Is.Not.Null);
             Assert.That(exception.Details.Length, Is.EqualTo(2));
 
-            Assert.That(exception.Details.Any(x => x.Exception == failingHostException), $"{nameof(failingHost)} is missing from the exception details");
-            Assert.That(exception.Details.Any(x => x.Exception == failingHostException2), $"{nameof(failingHost2)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exceptions.Contains(failingHostException)), $"{nameof(failingHost)} is missing from the exception details");
+            Assert.That(exception.Details.Any(x => x.Exceptions.Contains(failingHostException2)), $"{nameof(failingHost2)} is missing from the exception details");
 
             A.CallTo(() => stoppedHost.StopAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => stoppedHost2.StopAsync(A<CancellationToken>._)).MustHaveHappened();
