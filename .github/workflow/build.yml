@@ -1,5 +1,7 @@
 name: Build
-on: [push]
+on:
+  push:
+    - feature/net60
 jobs:
   build:
     runs-on: ubuntu-latest
