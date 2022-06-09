@@ -62,6 +62,7 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-          dotnet build src/Periturf
+          dotnet build src -c Release
+          dotnet test .\src\Periturf.Tests --collect:"XPlat code coverage" --settings:.\src\CodeCoverage.runsettings --no-restore --no-build
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       
