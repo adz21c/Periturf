@@ -2,7 +2,9 @@ name: Build
 on:
   push:
     branches:
-      - feature/net60
+      - master
+      - develop
+  pull_request 
 jobs:
   build:
     runs-on: windows-latest
