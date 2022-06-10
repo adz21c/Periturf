@@ -38,18 +38,18 @@ namespace Periturf
         /// <summary>
         /// Initializes a new instance of the <see cref="HostExceptionDetails"/> class.
         /// </summary>
-        /// <param name="exception">The exception.</param>
-        public HostExceptionDetails(Exception exception)
+        /// <param name="exceptions">The exception.</param>
+        public HostExceptionDetails(Exception[] exceptions)
         {
-            Exception = exception;
+            Exceptions = exceptions;
         }
 
         /// <summary>
-        /// Gets the exception.
+        /// Gets the exceptions.
         /// </summary>
         /// <value>
-        /// The exception.
+        /// The exceptions.
         /// </value>
-        public Exception Exception { get; }
+        public Exception[] Exceptions { get; }
     }
 }

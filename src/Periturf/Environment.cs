@@ -79,7 +79,7 @@ namespace Periturf
                 var hostDetails = startingHosts
                     .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Exception.InnerExceptions.First()))
+                        x.Exception?.InnerExceptions?.ToArray() ?? Array.Empty<Exception>()))
                     .ToArray();
 
                 throw new EnvironmentStartException(hostDetails);
@@ -120,7 +120,7 @@ namespace Periturf
                 var hostDetails = stoppingHosts
                     .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Exception.InnerExceptions.First()))
+                        x.Exception?.InnerExceptions?.ToArray() ?? Array.Empty<Exception>()))
                     .ToArray();
 
                 throw new EnvironmentStopException(hostDetails);

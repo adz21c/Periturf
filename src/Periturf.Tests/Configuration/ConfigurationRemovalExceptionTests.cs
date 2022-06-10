@@ -118,8 +118,10 @@ namespace Periturf.Tests.Configuration
             var formatter = new BinaryFormatter();
 
             // Act
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             formatter.Serialize(ms, originalException);
             var deserializedException = (ConfigurationRemovalException)formatter.Deserialize(ms2);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
             // Assert
             Assert.That(deserializedException.Details, Is.Not.Null);

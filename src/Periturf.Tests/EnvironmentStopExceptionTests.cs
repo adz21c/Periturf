@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 
 namespace Periturf.Tests
 {
@@ -46,7 +47,7 @@ namespace Periturf.Tests
         public void Given_HostErrors_When_Ctor_Then_ExceptionCreated()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
 
             // Act
             var sut = new EnvironmentStopException(hostDetails);
@@ -82,7 +83,7 @@ namespace Periturf.Tests
         {
             // Arrange
             const string message = "My Custom Error Message";
-            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
 
             // Act
             var sut = new EnvironmentStopException(message, hostDetails);
@@ -98,7 +99,7 @@ namespace Periturf.Tests
         public void Given_AnException_When_SeriaizedAndDeserialized_Then_DataMatchesTheOriginal()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails(new Exception("MyMessage")) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception("MyMessage") }) };
             var originalException = new EnvironmentStopException(hostDetails);
 
             var buffer = new byte[4096];
@@ -107,8 +108,10 @@ namespace Periturf.Tests
             var formatter = new BinaryFormatter();
 
             // Act
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             formatter.Serialize(ms, originalException);
-            var deserializedException = (EnvironmentStopException)formatter.Deserialize(ms2);
+            var deserializedException = (EnvironmentStartException)formatter.Deserialize(ms2);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
             // Assert
             Assert.That(deserializedException.Details, Is.Not.Null);
@@ -116,8 +119,8 @@ namespace Periturf.Tests
 
             var orignalHostExceptionDetails = originalException.Details.Single();
             var deserializedHostExceptionDetails = deserializedException.Details.Single();
-            Assert.That(deserializedHostExceptionDetails.Exception, Is.Not.Null);
-            Assert.That(deserializedHostExceptionDetails.Exception.Message, Is.EqualTo(orignalHostExceptionDetails.Exception.Message));
+            Assert.That(deserializedHostExceptionDetails.Exceptions, Is.Not.Empty);
+            Assert.That(deserializedHostExceptionDetails.Exceptions.First().Message, Is.EqualTo(orignalHostExceptionDetails.Exceptions.First().Message));
 
             Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }
