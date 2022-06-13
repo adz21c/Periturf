@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - develop
+      - feature/NugetPublish
   pull_request:
 jobs:
   build:
