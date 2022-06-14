@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      PACKAGE_PATH: ${{ GITHUB_WORKSPACE }}\packages
+      PACKAGE_PATH: ${{ github.workspace }}\packages
     steps:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v2
@@ -72,7 +72,7 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       
       - name: Package
-        run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion="${{ steps.gitversion.outputs.NuGetVersionV2 }}" -o "${{ PACKAGE_PATH }}"
+        run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion="${{ steps.gitversion.outputs.NuGetVersionV2 }}" -o "${{ env.PACKAGE_PATH }}"
 
       - name: Push to NuGet
         run: dotnet nuget push -s "${{ PACKAGE_PATH }}\*.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --no-symbols true
