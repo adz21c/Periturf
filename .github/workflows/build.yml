@@ -75,4 +75,4 @@ jobs:
         run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion="${{ steps.gitversion.outputs.NuGetVersionV2 }}" -o "${{ env.PACKAGE_PATH }}"
 
       - name: Push to NuGet
-        run: dotnet nuget push -s "${{ env.PACKAGE_PATH }}\*.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --no-symbols
+        run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" --no-symbols
