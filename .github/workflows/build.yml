@@ -73,4 +73,4 @@ jobs:
         run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion="${{ steps.gitversion.outputs.NuGetVersionV2 }}" -o out
 
       - name: Push to NuGet
-        run: dotnet nuget push -s .\Periturf\Periturf\out\*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --no-symbols true
+        run: dotnet nuget push -s .\out\*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --no-symbols true
