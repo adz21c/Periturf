@@ -67,12 +67,12 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-          dotnet build src -c Release
+          dotnet build src -c Release -p:Version="${{ steps.gitversion.outputs.FullSemVer }}" -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet test .\src\Periturf.Tests --collect:"XPlat Code Coverage" --settings:.\src\CodeCoverage.runsettings --no-restore --no-build -c Release
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       
       - name: Package
-        run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:PackageVersion="${{ steps.gitversion.outputs.NuGetVersionV2 }}" -o "${{ env.PACKAGE_PATH }}"
+        run: dotnet pack src --no-restore --no-build --include-symbols -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -o "${{ env.PACKAGE_PATH }}"
 
       - name: Push to NuGet
         run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*.nupkg" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json" --no-symbols
