@@ -72,7 +72,9 @@ jobs:
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       
       - name: Package
+        if: github.event_name == 'push'
         run: dotnet pack src --no-restore --no-build --include-symbols -p:SymbolPackageFormat=snupkg  -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -o "${{ env.PACKAGE_PATH }}"
 
       - name: Push to NuGet
+        if: github.event_name == 'push'
         run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
