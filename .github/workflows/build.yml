@@ -5,7 +5,8 @@ on:
   pull_request:
 
 env:
-  PACKAGE_PATH: ${{ github.workspace }}\out\packages
+  
+  PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
 
 jobs:
   build:
@@ -92,6 +93,9 @@ jobs:
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: ${{ ENV.PACKAGE_PATH }}
       
       - name: Setup dotnet
         uses: actions/setup-dotnet@v2
