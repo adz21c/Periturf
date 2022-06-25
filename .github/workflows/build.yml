@@ -1,15 +1,20 @@
 name: Build
+
 on:
   push:
     branches:
       - master
       - develop
   pull_request:
+
+  env:
+    PACKAGE_PATH: ${{ github.workspace }}\out\packages
+
 jobs:
   build:
+    name: Build
+    
     runs-on: windows-latest
-    env:
-      PACKAGE_PATH: ${{ github.workspace }}\packages
     steps:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v2
@@ -73,6 +78,29 @@ jobs:
       - name: Package
         run: dotnet pack src --no-restore --no-build --include-symbols -p:SymbolPackageFormat=snupkg  -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -o "${{ env.PACKAGE_PATH }}"
 
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}\**
+          retention-days: 5
+
+  release:
+    name: Release
+
+    needs: [build]
+    if: ${{ success() }}
+
+    runs-on: windows-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+      
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
+
       - name: Push to NuGet
-        if: github.event_name == 'push'
         run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
+
