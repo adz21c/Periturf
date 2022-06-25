@@ -7,8 +7,8 @@ on:
       - develop
   pull_request:
 
-  env:
-    PACKAGE_PATH: ${{ github.workspace }}\out\packages
+env:
+  PACKAGE_PATH: ${{ github.workspace }}\out\packages
 
 jobs:
   build:
