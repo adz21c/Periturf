@@ -95,13 +95,27 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: packages
-          path: ${{ ENV.PACKAGE_PATH }}
+          path: ${{ env.PACKAGE_PATH }}
       
       - name: Setup dotnet
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.0.x
 
-      - name: Push to NuGet
-        run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
+      - uses: gittools/actions/gitreleasemanager/setup@v0.9.2
+        name: Install GitReleaseManager
+        with:
+          versionSpec: '0.13.x'
+
+      - uses: gittools/actions/gitreleasemanager/create@v0.9.2
+        name: Create release with GitReleaseManager
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: 'adz21c'
+          repository: 'Periturf'
+          name: ${{ jobs.build.steps.gitversion.outputs.informationalVersion }}
+          assets: ${{ env.PACKAGE_PATH }}\*
+
+      #- name: Push to NuGet
+      #  run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
 
