@@ -13,7 +13,7 @@ jobs:
     name: Build
     
     outputs:
-      gitversion: ${{ steps.gitversion.outputs }}
+      gitversion_informationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
 
     runs-on: windows-latest
     steps:
@@ -116,7 +116,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           owner: 'adz21c'
           repository: 'Periturf'
-          name: ${{ needs.build.outputs.gitversion.informationalVersion }}
+          name: ${{ needs.build.outputs.gitversion_informationalVersion }}
           assets: ${{ env.PACKAGE_PATH }}\*
 
       #- name: Push to NuGet
