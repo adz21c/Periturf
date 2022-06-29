@@ -12,6 +12,9 @@ jobs:
   build:
     name: Build
     
+    outputs:
+      gitversion: ${{ steps.gitversion.outputs }}
+
     runs-on: windows-latest
     steps:
       - name: Setup dotnet
@@ -113,7 +116,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           owner: 'adz21c'
           repository: 'Periturf'
-          name: ${{ jobs.build.steps.gitversion.outputs.informationalVersion }}
+          name: ${{ needs.build.outputs.gitversion.informationalVersion }}
           assets: ${{ env.PACKAGE_PATH }}\*
 
       #- name: Push to NuGet
