@@ -106,7 +106,7 @@ jobs:
 
       - name: Create Git Release Tag v${{ needs.build.outputs.gitversion_fullSemVer }}
         run: |
-          git tag -a v${{ needs.build.outputs.gitversion_fullSemVer }} -m "Release ${{ needs.build.outputs.gitversion_fullSemVer }}"
+          git tag v${{ needs.build.outputs.gitversion_fullSemVer }}
           git push origin v${{ needs.build.outputs.gitversion_fullSemVer }}
 
       - name: Create Github Release
