@@ -116,7 +116,7 @@ jobs:
           name: ${{ needs.build.outputs.gitversion_informationalVersion }}
           files: ${{ env.PACKAGE_PATH }}\*
           tag_name: v${{ needs.build.outputs.gitversion_fullSemVer }}
-          prerelease: ${{ ne(needs.build.outputs.gitversion_preReleaseLabel, '') }}
+          prerelease: ${{ needs.build.outputs.gitversion_preReleaseLabel != '' }}
 
   # release_nuget:
   #   name: Push Release to Nuget
