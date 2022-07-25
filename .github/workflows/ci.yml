@@ -122,20 +122,20 @@ jobs:
           tag_name: v${{ needs.build.outputs.gitversion_fullSemVer }}
           prerelease: ${{ needs.build.outputs.gitversion_preReleaseLabel != '' }}
 
-   release_nuget:
-     name: Push Release to Nuget
+  release_nuget:
+    name: Push Release to Nuget
 
-     needs: [build]
-     if: ${{ success() && github.event_name == 'push' }}
+    needs: [build]
+    if: ${{ success() && github.event_name == 'push' }}
 
-     runs-on: windows-latest
-     steps:
-       - name: Download artifacts
-         uses: actions/download-artifact@v3
-         with:
-           name: packages
-           path: ${{ env.PACKAGE_PATH }}
+    runs-on: windows-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}
 
-       - name: Push to NuGet
-         run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
+      - name: Push to NuGet
+        run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
 
