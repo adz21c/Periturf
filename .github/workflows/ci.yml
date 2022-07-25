@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
-      - develop
+      - 'master'
+      - 'develop'
     paths:
-      - src/**
+      - 'src/**'
   pull_request:
 
 env:
@@ -135,7 +135,7 @@ jobs:
          with:
            name: packages
            path: ${{ env.PACKAGE_PATH }}
-           
+
        - name: Push to NuGet
          run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
 
