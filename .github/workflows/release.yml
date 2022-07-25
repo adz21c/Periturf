@@ -15,7 +15,7 @@ jobs:
      name: Test
      runs-on: windows-latest
      steps:
-       run: echo "Test"
+       - run: echo "Test"
 #  release_github:
 #    name: Create Github Release
 #
