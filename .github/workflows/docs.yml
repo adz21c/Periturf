@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'master'
+      - features/VuePressDocs
+    paths:
+      - 'docs/**'
+
+jobs:
+  publish:
+    name: Publish
+    
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
