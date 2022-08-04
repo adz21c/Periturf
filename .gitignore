@@ -332,3 +332,5 @@ ASALocalRun/
 # Coverlet OpenCover output
 coverage.json
 /coverage.cobertura.xml
+
+docs/src/.vuepress/dist/
