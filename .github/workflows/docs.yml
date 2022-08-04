@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - 'master'
-      - feature/VuePressDocs
-    paths:
-      - 'docs/**'
+      - 'feature/VuePressDocs'
+    #paths:
+    #  - 'docs/**'
 
 jobs:
   publish:
