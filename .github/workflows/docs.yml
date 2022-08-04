@@ -30,10 +30,14 @@ jobs:
         with:
           node-version: 16
 
-      - run: npm ci
+      - run: |
+          cd docs
+          npm ci
 
       - name: Build Docs
-        run: npm run prod
+        run: |
+          cd docs
+          npm run prod
 
       - name: Publish Docs Pages Artifact
         uses: actions/upload-pages-artifact@v1.0.1
