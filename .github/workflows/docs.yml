@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'master'
-      - features/VuePressDocs
+      - feature/VuePressDocs
     paths:
       - 'docs/**'
 
