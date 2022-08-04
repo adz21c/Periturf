@@ -11,9 +11,34 @@ on:
 jobs:
   publish:
     name: Publish
-    
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-pages.outputs.page_url }}
+
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - run: npm ci
+
+      - name: Build Docs
+        run: npm run prod
+
+      - name: Publish Docs Pages Artifact
+        uses: actions/upload-pages-artifact@v1.0.1
+        with:
+          path: docs/dist
+
+      - name: Deploy to GitHub Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v1
