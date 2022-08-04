@@ -37,7 +37,7 @@ jobs:
       - name: Build Docs
         run: |
           cd docs
-          npm run docs:build
+          npm run build
 
       - name: Publish Docs Pages Artifact
         uses: actions/upload-pages-artifact@v1.0.1
