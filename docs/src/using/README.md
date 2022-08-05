@@ -1,3 +1,7 @@
+---
+sidebar: auto
+---
+
 # Using Periturf
 
 ## Add as dependency

@@ -1,8 +1,4 @@
-# Periturf
-
-Library to manage the stubbing and mocking of environment components. 
-
-## Quick Start
+# Quick Start
 
 Add a package reference to [Periturf](https://www.nuget.org/packages/Periturf).
 
