@@ -23,11 +23,11 @@ using System.Threading.Tasks;
 
 namespace Periturf.Evaluators.Logical
 {
-    class AndEvaluatorSpecification<TInput> : IEvaluatorSpecification<TInput>
+    class OrEvaluatorSpecification<TInput> : IEvaluatorSpecification<TInput>
     {
         private readonly IEvaluatorSpecification<TInput>[] _conditions;
 
-        public AndEvaluatorSpecification(params IEvaluatorSpecification<TInput>[] conditions)
+        public OrEvaluatorSpecification(params IEvaluatorSpecification<TInput>[] conditions)
         {
             _conditions = conditions;
         }
@@ -41,10 +41,10 @@ namespace Periturf.Evaluators.Logical
                 foreach(var condition in builtConditions)
                 {
                     var conditionResult = await condition(i);
-                    if (!conditionResult)
-                        return false;
+                    if (conditionResult)
+                        return true;
                 }
-                return true;
+                return false;
             };
         }
     }
