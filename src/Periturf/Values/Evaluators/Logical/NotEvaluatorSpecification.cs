@@ -17,35 +17,28 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Periturf.Evaluators.Logical
+namespace Periturf.Values.Evaluators.Logical
 {
-    class AndEvaluatorSpecification<TInput> : IEvaluatorSpecification<TInput>
+    class NotEvaluatorSpecification<TInput> : IValueEvaluatorSpecification<TInput>, IValueEvaluatorBuilder<TInput>
     {
-        private readonly IEvaluatorSpecification<TInput>[] _conditions;
+        private IValueEvaluatorSpecification<TInput>? _inner;
 
-        public AndEvaluatorSpecification(params IEvaluatorSpecification<TInput>[] conditions)
+        public void AddNextEvaluatorSpecification(IValueEvaluatorSpecification<TInput> evaluatorSpecification)
         {
-            _conditions = conditions;
+            _inner = evaluatorSpecification;
         }
 
         public Func<TInput, ValueTask<bool>> Build()
         {
-            var builtConditions = _conditions.Select(x => x.Build()).ToList();
+            Debug.Assert(_inner != null);
+            var builtInner = _inner.Build();
 
-            return async i =>
-            {
-                foreach(var condition in builtConditions)
-                {
-                    var conditionResult = await condition(i);
-                    if (!conditionResult)
-                        return false;
-                }
-                return true;
-            };
+            return async i => !await builtInner(i);
         }
     }
 }

@@ -21,13 +21,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Periturf.Evaluators.Logical
+namespace Periturf.Values.Evaluators.Logical
 {
-    class OrEvaluatorSpecification<TInput> : IEvaluatorSpecification<TInput>
+    class AndEvaluatorSpecification<TInput> : IValueEvaluatorSpecification<TInput>
     {
-        private readonly IEvaluatorSpecification<TInput>[] _conditions;
+        private readonly IValueEvaluatorSpecification<TInput>[] _conditions;
 
-        public OrEvaluatorSpecification(params IEvaluatorSpecification<TInput>[] conditions)
+        public AndEvaluatorSpecification(params IValueEvaluatorSpecification<TInput>[] conditions)
         {
             _conditions = conditions;
         }
@@ -38,13 +38,13 @@ namespace Periturf.Evaluators.Logical
 
             return async i =>
             {
-                foreach(var condition in builtConditions)
+                foreach (var condition in builtConditions)
                 {
                     var conditionResult = await condition(i);
-                    if (conditionResult)
-                        return true;
+                    if (!conditionResult)
+                        return false;
                 }
-                return false;
+                return true;
             };
         }
     }

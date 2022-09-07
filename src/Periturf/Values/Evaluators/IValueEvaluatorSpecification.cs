@@ -16,27 +16,20 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Periturf.Evaluators.Logical
+namespace Periturf.Values.Evaluators
 {
-    class NotEvaluatorSpecification<TInput> : IEvaluatorSpecification<TInput>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    public interface IValueEvaluatorSpecification<TInput>
     {
-        private readonly IEvaluatorSpecification<TInput> _inner;
-
-        public NotEvaluatorSpecification(IEvaluatorSpecification<TInput> inner)
-        {
-            _inner = inner;
-        }
-
-        public Func<TInput, ValueTask<bool>> Build()
-        {
-            var builtInner = _inner.Build();
-
-            return async i => !await builtInner(i);
-        }
+        /// <summary>
+        /// Builds a Func that given <typeparamref name="TInput"/> evaluates a condition.
+        /// </summary>
+        /// <returns></returns>
+        Func<TInput, ValueTask<bool>> Build();
     }
 }

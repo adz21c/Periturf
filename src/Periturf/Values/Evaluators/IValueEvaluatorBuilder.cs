@@ -15,21 +15,18 @@
 //  
 //
 
-using System;
-using System.Threading.Tasks;
-
-namespace Periturf.Evaluators
+namespace Periturf.Values.Evaluators
 {
     /// <summary>
-    /// 
+    /// Chains evaluators to create a larger condition.
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public interface IEvaluatorSpecification<TInput>
+    public interface IValueEvaluatorBuilder<TInput> : IValueEvaluatorSpecification<TInput>
     {
         /// <summary>
-        /// Builds a Func that given <typeparamref name="TInput"/> evaluates a condition.
+        /// Add the next evaluator to the chain.
         /// </summary>
-        /// <returns></returns>
-        Func<TInput, ValueTask<bool>> Build();
+        /// <param name="evaluatorSpecification"></param>
+        void AddNextEvaluatorSpecification(IValueEvaluatorSpecification<TInput> evaluatorSpecification);
     }
 }

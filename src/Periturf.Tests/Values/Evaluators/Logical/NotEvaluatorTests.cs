@@ -22,10 +22,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FakeItEasy;
 using NUnit.Framework;
-using Periturf.Evaluators;
-using Periturf.Evaluators.Logical;
+using Periturf.Values.Evaluators;
+using Periturf.Values.Evaluators.Logical;
 
-namespace Periturf.Tests.Evaluators.Logical
+namespace Periturf.Tests.Values.Evaluators.Logical
 {
     class NotEvaluatorTests
     {
@@ -35,15 +35,19 @@ namespace Periturf.Tests.Evaluators.Logical
         {
             var next = A.Fake<Func<object, ValueTask<bool>>>();
             A.CallTo(() => next.Invoke(A<object>._)).Returns(nextResult);
-            var nextSpec = A.Fake<IEvaluatorSpecification<object>>();
+            var nextSpec = A.Fake<IValueEvaluatorSpecification<object>>();
             A.CallTo(() => nextSpec.Build()).Returns(next);
 
-            var spec = new NotEvaluatorSpecification<object>(nextSpec);
-            var sut = spec.Build();
+            var builder = A.Dummy<IValueEvaluatorBuilder<object>>();
+
+            var notBuilder = builder.Not();
+            notBuilder.AddNextEvaluatorSpecification(nextSpec);
+            var sut = notBuilder.Build();
 
             var result = await sut(new object());
 
             Assert.That(result, Is.EqualTo(sutResult));
+            A.CallTo(() => builder.AddNextEvaluatorSpecification(notBuilder)).MustHaveHappened();
         }
     }
 }

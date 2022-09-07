@@ -22,10 +22,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FakeItEasy;
 using NUnit.Framework;
-using Periturf.Evaluators;
-using Periturf.Evaluators.Logical;
+using Periturf.Values.Evaluators;
+using Periturf.Values.Evaluators.Logical;
 
-namespace Periturf.Tests.Evaluators.Logical
+namespace Periturf.Tests.Values.Evaluators.Logical
 {
     class AndEvaluatorTests
     {
@@ -37,12 +37,12 @@ namespace Periturf.Tests.Evaluators.Logical
         {
             var criteriaOne = A.Fake<Func<object, ValueTask<bool>>>();
             A.CallTo(() => criteriaOne.Invoke(A<object>._)).Returns(criteriaOneResult);
-            var criteriaOneSpec = A.Fake<IEvaluatorSpecification<object>>();
+            var criteriaOneSpec = A.Fake<IValueEvaluatorSpecification<object>>();
             A.CallTo(() => criteriaOneSpec.Build()).Returns(criteriaOne);
 
             var criteriaTwo = A.Fake<Func<object, ValueTask<bool>>>();
             A.CallTo(() => criteriaTwo.Invoke(A<object>._)).Returns(criteriaTwoResult);
-            var criteriaTwoSpec = A.Fake<IEvaluatorSpecification<object>>();
+            var criteriaTwoSpec = A.Fake<IValueEvaluatorSpecification<object>>();
             A.CallTo(() => criteriaTwoSpec.Build()).Returns(criteriaTwo);
 
             var spec = new AndEvaluatorSpecification<object>(criteriaOneSpec, criteriaTwoSpec);
