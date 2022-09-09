@@ -39,5 +39,23 @@ namespace Periturf
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x < 0);
         }
+
+        public static IValueEvaluatorSpecification<TInput> LessThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
+            where TValue : IComparable<TValue>
+        {
+            return new ComparatorSpecification<TInput, TValue>(left, right, x => x <= 0);
+        }
+
+        public static IValueEvaluatorSpecification<TInput> GreaterThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
+            where TValue : IComparable<TValue>
+        {
+            return new ComparatorSpecification<TInput, TValue>(left, right, x => x > 0);
+        }
+
+        public static IValueEvaluatorSpecification<TInput> GreaterThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
+            where TValue : IComparable<TValue>
+        {
+            return new ComparatorSpecification<TInput, TValue>(left, right, x => x >= 0);
+        }
     }
 }
