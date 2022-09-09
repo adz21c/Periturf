@@ -28,7 +28,7 @@ namespace Periturf.Tests.Values
     class ConstantValueProviderTests
     {
         [Test]
-        public void Given_Value_When_Invoke_Then_ValueReturned()
+        public async Task Given_Value_When_Invoke_Then_ValueReturned()
         {
             const int value = 56;
 
@@ -36,7 +36,7 @@ namespace Periturf.Tests.Values
 
             Assert.That(provider, Is.Not.Null);
 
-            var result = provider(new object());
+            var result = await provider(new object());
 
             Assert.That(result, Is.EqualTo(value));
         }

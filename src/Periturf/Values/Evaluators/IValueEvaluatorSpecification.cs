@@ -24,12 +24,8 @@ namespace Periturf.Values.Evaluators
     /// 
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
-    public interface IValueEvaluatorSpecification<TInput>
+    public interface IValueEvaluatorSpecification<TInput> : IValueProviderSpecification<TInput, bool>
     {
-        /// <summary>
-        /// Builds a Func that given <typeparamref name="TInput"/> evaluates a condition.
-        /// </summary>
-        /// <returns></returns>
-        Func<TInput, ValueTask<bool>> Build();
+
     }
 }

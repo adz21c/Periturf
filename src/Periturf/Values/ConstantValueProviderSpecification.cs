@@ -33,9 +33,9 @@ namespace Periturf.Values
             _value = value;
         }
 
-        public Func<TInput, TResult> Build()
+        public Func<TInput, ValueTask<TResult>> Build()
         {
-            return i => _value;
+            return i => new ValueTask<TResult>(_value);
         }
     }
 }

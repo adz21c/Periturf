@@ -33,9 +33,10 @@ namespace Periturf.Values
             _expression = expression;
         }
 
-        public Func<TInput, TResult> Build()
+        public Func<TInput, ValueTask<TResult>> Build()
         {
-            return _expression.Compile();
+            var inner = _expression.Compile();
+            return i => new ValueTask<TResult>(inner(i));
         }
     }
 }

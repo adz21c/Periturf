@@ -16,6 +16,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace Periturf.Values
 {
@@ -30,6 +31,6 @@ namespace Periturf.Values
         /// Builds a <see cref="Func{TInput, TResult}"/> that given <typeparamref name="TInput"/> provides a result of <typeparamref name="TResult"/>.
         /// </summary>
         /// <returns></returns>
-        Func<TInput, TResult> Build();
+        Func<TInput, ValueTask<TResult>> Build();
     }
 }

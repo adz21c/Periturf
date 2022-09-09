@@ -28,7 +28,7 @@ namespace Periturf.Tests.Values
     class ExpressionValueProviderTests
     {
         [Test]
-        public void Given_Expression_When_Invoke_Then_ExpressionEvaluated()
+        public async Task Given_Expression_When_Invoke_Then_ExpressionEvaluated()
         {
             var testModel = new TestModel { SomeProperty = 127 };
 
@@ -36,7 +36,7 @@ namespace Periturf.Tests.Values
 
             Assert.That(provider, Is.Not.Null);
 
-            var result = provider(testModel);
+            var result = await provider(testModel);
 
             Assert.That(result, Is.EqualTo(testModel.SomeProperty));
         }
