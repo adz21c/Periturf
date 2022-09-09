@@ -31,7 +31,13 @@ namespace Periturf
         public static IValueEvaluatorSpecification<TInput> EqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
-            return new ComparatorSpecification<TInput, TValue>(left, right);
+            return new ComparatorSpecification<TInput, TValue>(left, right, x => x == 0);
+        }
+
+        public static IValueEvaluatorSpecification<TInput> LessThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
+            where TValue : IComparable<TValue>
+        {
+            return new ComparatorSpecification<TInput, TValue>(left, right, x => x < 0);
         }
     }
 }

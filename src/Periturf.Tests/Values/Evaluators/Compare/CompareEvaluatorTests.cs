@@ -32,7 +32,7 @@ namespace Periturf.Tests.Values.Evaluators.Compare
         [TestCase(1, 1, true)]
         [TestCase(1, 2, false)]
         [TestCase(2, 1, false)]
-        public async Task Given_Criterias_When_And_Then_Result(int leftVal, int rightVal, bool sutResult)
+        public async Task Given_Values_When_EqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
         {
             var left = A.Fake<Func<object, ValueTask<int>>>();
             A.CallTo(() => left.Invoke(A<object>._)).Returns(leftVal);
@@ -50,7 +50,30 @@ namespace Periturf.Tests.Values.Evaluators.Compare
             var result = await sut(new object());
 
             Assert.That(result, Is.EqualTo(sutResult));
+        }
 
+        [TestCase(1, 0, false)]
+        [TestCase(1, 1, false)]
+        [TestCase(1, 2, true)]
+        [TestCase(2, 1, false)]
+        public async Task Given_Values_When_LessThan_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            var left = A.Fake<Func<object, ValueTask<int>>>();
+            A.CallTo(() => left.Invoke(A<object>._)).Returns(leftVal);
+            var leftSpec = A.Fake<IValueProviderSpecification<object, int>>();
+            A.CallTo(() => leftSpec.Build()).Returns(left);
+
+            var right = A.Fake<Func<object, ValueTask<int>>>();
+            A.CallTo(() => right.Invoke(A<object>._)).Returns(rightVal);
+            var rightSpec = A.Fake<IValueProviderSpecification<object, int>>();
+            A.CallTo(() => rightSpec.Build()).Returns(right);
+
+            var spec = leftSpec.LessThan(rightSpec);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
         }
     }
 }

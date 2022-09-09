@@ -28,11 +28,13 @@ namespace Periturf.Values.Evaluators.Compare
     {
         private readonly IValueProviderSpecification<TInput, TValue> _left;
         private readonly IValueProviderSpecification<TInput, TValue> _right;
+        private readonly Func<int, bool> _compareResult;
 
-        public ComparatorSpecification(IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
+        public ComparatorSpecification(IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right, Func<int, bool> compareResult)
         {
             _left = left;
             _right = right;
+            _compareResult = compareResult;
         }
 
         public Func<TInput, ValueTask<bool>> Build()
@@ -46,7 +48,7 @@ namespace Periturf.Values.Evaluators.Compare
                 var left = await leftProvider(i);
                 var right = await rightProvider(i);
 
-                return comparer.Compare(left, right) == 0;
+                return _compareResult(comparer.Compare(left, right));
             };
         }
     }
