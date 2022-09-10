@@ -52,8 +52,23 @@ namespace Periturf.Tests.Values.Evaluators.Compare
         {
             A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
             A.CallTo(() => _right.Invoke(A<object>._)).Returns(rightVal);
-            
+
             var spec = _leftSpec.EqualTo(_rightSpec);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
+        }
+
+        [TestCase(1, 0, false)]
+        [TestCase(1, 1, true)]
+        [TestCase(1, 2, false)]
+        public async Task Given_ValueAndConstant_When_EqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
+
+            var spec = _leftSpec.EqualTo(rightVal);
             var sut = spec.Build();
 
             var result = await sut(new object());
@@ -78,6 +93,21 @@ namespace Periturf.Tests.Values.Evaluators.Compare
         }
 
         [TestCase(1, 0, false)]
+        [TestCase(1, 1, false)]
+        [TestCase(1, 2, true)]
+        public async Task Given_ValueAndConstant_When_LessThan_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
+
+            var spec = _leftSpec.LessThan(rightVal);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
+        }
+
+        [TestCase(1, 0, false)]
         [TestCase(1, 1, true)]
         [TestCase(1, 2, true)]
         public async Task Given_Values_When_LessThanOrEqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
@@ -86,6 +116,21 @@ namespace Periturf.Tests.Values.Evaluators.Compare
             A.CallTo(() => _right.Invoke(A<object>._)).Returns(rightVal);
 
             var spec = _leftSpec.LessThanOrEqualTo(_rightSpec);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
+        }
+
+        [TestCase(1, 0, false)]
+        [TestCase(1, 1, true)]
+        [TestCase(1, 2, true)]
+        public async Task Given_ValueAndConstant_When_LessThanOrEqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
+
+            var spec = _leftSpec.LessThanOrEqualTo(rightVal);
             var sut = spec.Build();
 
             var result = await sut(new object());
@@ -110,6 +155,21 @@ namespace Periturf.Tests.Values.Evaluators.Compare
         }
 
         [TestCase(1, 0, true)]
+        [TestCase(1, 1, false)]
+        [TestCase(1, 2, false)]
+        public async Task Given_ValueAndConstant_When_GreaterThan_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
+
+            var spec = _leftSpec.GreaterThan(rightVal);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
+        }
+
+        [TestCase(1, 0, true)]
         [TestCase(1, 1, true)]
         [TestCase(1, 2, false)]
         public async Task Given_Values_When_GreaterThanOrEqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
@@ -118,6 +178,21 @@ namespace Periturf.Tests.Values.Evaluators.Compare
             A.CallTo(() => _right.Invoke(A<object>._)).Returns(rightVal);
 
             var spec = _leftSpec.GreaterThanOrEqualTo(_rightSpec);
+            var sut = spec.Build();
+
+            var result = await sut(new object());
+
+            Assert.That(result, Is.EqualTo(sutResult));
+        }
+
+        [TestCase(1, 0, true)]
+        [TestCase(1, 1, true)]
+        [TestCase(1, 2, false)]
+        public async Task Given_ValueAndConstant_When_GreaterThanOrEqualTo_Then_Result(int leftVal, int rightVal, bool sutResult)
+        {
+            A.CallTo(() => _left.Invoke(A<object>._)).Returns(leftVal);
+
+            var spec = _leftSpec.GreaterThanOrEqualTo(rightVal);
             var sut = spec.Build();
 
             var result = await sut(new object());

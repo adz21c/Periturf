@@ -34,10 +34,22 @@ namespace Periturf
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x == 0);
         }
 
+        public static IValueEvaluatorSpecification<TInput> EqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
+            where TValue : IComparable<TValue>
+        {
+            return left.EqualTo(new ConstantValueProviderSpecification<TInput, TValue>(right));
+        }
+
         public static IValueEvaluatorSpecification<TInput> LessThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x < 0);
+        }
+
+        public static IValueEvaluatorSpecification<TInput> LessThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
+            where TValue : IComparable<TValue>
+        {
+            return left.LessThan(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
 
         public static IValueEvaluatorSpecification<TInput> LessThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
@@ -46,16 +58,34 @@ namespace Periturf
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x <= 0);
         }
 
+        public static IValueEvaluatorSpecification<TInput> LessThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
+            where TValue : IComparable<TValue>
+        {
+            return left.LessThanOrEqualTo(new ConstantValueProviderSpecification<TInput, TValue>(right));
+        }
+
         public static IValueEvaluatorSpecification<TInput> GreaterThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x > 0);
         }
 
+        public static IValueEvaluatorSpecification<TInput> GreaterThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
+            where TValue : IComparable<TValue>
+        {
+            return left.GreaterThan(new ConstantValueProviderSpecification<TInput, TValue>(right));
+        }
+
         public static IValueEvaluatorSpecification<TInput> GreaterThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x >= 0);
+        }
+
+        public static IValueEvaluatorSpecification<TInput> GreaterThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
+            where TValue : IComparable<TValue>
+        {
+            return left.GreaterThanOrEqualTo(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
     }
 }
