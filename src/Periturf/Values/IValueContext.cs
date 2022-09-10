@@ -15,38 +15,18 @@
 //  
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using FakeItEasy;
-using NUnit.Framework;
-using Periturf.Values;
 
-namespace Periturf.Tests.Values
+namespace Periturf.Values
 {
-    class ConstantValueProviderTests
-    {
-        [Test]
-        public async Task Given_Value_When_Invoke_Then_ValueReturned()
-        {
-            const int value = 56;
-
-            var context = A.Fake<IValueContext<object>>();
-
-            var provider = context.Constant(value).Build();
-
-            Assert.That(provider, Is.Not.Null);
-
-            var result = await provider(new object());
-
-            Assert.That(result, Is.EqualTo(value));
-        }
-
-        class TestModel
-        {
-            public int SomeProperty { get; set; }
-        }
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TContext"></typeparam>
+    public interface IValueContext<TContext>
+    { }
 }

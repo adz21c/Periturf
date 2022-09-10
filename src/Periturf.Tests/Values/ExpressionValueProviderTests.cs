@@ -20,19 +20,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Values;
 
 namespace Periturf.Tests.Values
 {
-    class ExpressionValueProviderTests
+    public class ExpressionValueProviderTests
     {
         [Test]
         public async Task Given_Expression_When_Invoke_Then_ExpressionEvaluated()
         {
             var testModel = new TestModel { SomeProperty = 127 };
 
-            var provider = new ExpressionValueProviderSpecification<TestModel, int>(x => x.SomeProperty).Build();
+            var context = A.Fake<IValueContext<TestModel>>();
+
+            var provider = context.Value(x => x.SomeProperty).Build();
 
             Assert.That(provider, Is.Not.Null);
 
@@ -41,7 +44,7 @@ namespace Periturf.Tests.Values
             Assert.That(result, Is.EqualTo(testModel.SomeProperty));
         }
 
-        class TestModel
+        public class TestModel
         {
             public int SomeProperty { get; set; }
         }
