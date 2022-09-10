@@ -16,72 +16,151 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Periturf.Values;
 using Periturf.Values.Evaluators;
 using Periturf.Values.Evaluators.Compare;
 
 namespace Periturf
 {
-    internal static class CompareExtensions
+    /// <summary>
+    /// 
+    /// </summary>
+    public static class CompareExtensions
     {
+        /// <summary>
+        /// Equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> EqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x == 0);
         }
 
+        /// <summary>
+        /// Equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> EqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
             where TValue : IComparable<TValue>
         {
             return left.EqualTo(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
 
+        /// <summary>
+        /// Less than comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> LessThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x < 0);
         }
 
+        /// <summary>
+        /// Less than comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> LessThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
             where TValue : IComparable<TValue>
         {
             return left.LessThan(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
 
+        /// <summary>
+        /// Less than or equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> LessThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x <= 0);
         }
 
+        /// <summary>
+        /// Less than or equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> LessThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
             where TValue : IComparable<TValue>
         {
             return left.LessThanOrEqualTo(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
 
+        /// <summary>
+        /// Greater than comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> GreaterThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x > 0);
         }
 
+        /// <summary>
+        /// Greater than comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> GreaterThan<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
             where TValue : IComparable<TValue>
         {
             return left.GreaterThan(new ConstantValueProviderSpecification<TInput, TValue>(right));
         }
 
+        /// <summary>
+        /// Greater than or equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> GreaterThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, IValueProviderSpecification<TInput, TValue> right)
             where TValue : IComparable<TValue>
         {
             return new ComparatorSpecification<TInput, TValue>(left, right, x => x >= 0);
         }
 
+        /// <summary>
+        /// Greater than or equality comparison
+        /// </summary>
+        /// <typeparam name="TInput"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static IValueEvaluatorSpecification<TInput> GreaterThanOrEqualTo<TInput, TValue>(this IValueProviderSpecification<TInput, TValue> left, TValue right)
             where TValue : IComparable<TValue>
         {
