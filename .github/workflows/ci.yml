@@ -7,7 +7,6 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/ci.yml'
-
   pull_request:
 
 env:
