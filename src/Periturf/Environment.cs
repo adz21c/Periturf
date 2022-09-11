@@ -1,18 +1,20 @@
-﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿//
+//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   
+//   Licensed under the Apache License, Version 2.0 (the "License")
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//   
+//       http://www.apache.org/licenses/LICENSE-2.0
+//  
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,17 +32,17 @@ namespace Periturf
     /// <summary>
     /// The environment which manages the assignment and removal of configuration to components.
     /// </summary>
-    public class Environment
+    public partial class Environment
     {
         private readonly List<IHost> _hosts = new List<IHost>();
         private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
         private readonly EventHandlerFactory _eventHandlerFactory;
-        private TimeSpan _defaultExpectationTimeout = TimeSpan.FromMilliseconds(5000);
-        private bool _defaultExpectationShortCircuit = false;
+        private readonly TimeSpan _defaultVerifyInactivityTimeout;
 
-        private Environment()
+        private Environment(TimeSpan defaultVerifyInactivityTimeout)
         {
             _eventHandlerFactory = new EventHandlerFactory(this);
+            _defaultVerifyInactivityTimeout = defaultVerifyInactivityTimeout;
         }
 
         /// <summary>
@@ -77,7 +79,7 @@ namespace Periturf
                 var hostDetails = startingHosts
                     .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Exception.InnerExceptions.First()))
+                        x.Exception?.InnerExceptions?.ToArray() ?? Array.Empty<Exception>()))
                     .ToArray();
 
                 throw new EnvironmentStartException(hostDetails);
@@ -118,7 +120,7 @@ namespace Periturf
                 var hostDetails = stoppingHosts
                     .Where(x => x.IsFaulted)
                     .Select(x => new HostExceptionDetails(
-                        x.Exception.InnerExceptions.First()))
+                        x.Exception?.InnerExceptions?.ToArray() ?? Array.Empty<Exception>()))
                     .ToArray();
 
                 throw new EnvironmentStopException(hostDetails);
@@ -138,8 +140,8 @@ namespace Periturf
             var spec = new EnvironmentSpecification();
             config?.Invoke(spec);
             var hosts = spec.Build();
-
-            var env = new Environment();
+            
+            var env = new Environment(spec.VerifyInactivityTimeout);
             env._hosts.AddRange(hosts);
             foreach (var component in env._hosts.SelectMany(x => x.Components))
                 env._components.Add(component.Key, component.Value);
@@ -203,92 +205,18 @@ namespace Periturf
 
         #endregion
 
-        #region Verify
-
         /// <summary>
         /// Defines a verifier to establish if expectations are met.
         /// </summary>
         /// <param name="builder">The builder.</param>
-        /// <param name="ct">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<IVerifier> VerifyAsync(Action<IVerificationContext> builder, CancellationToken ct = default)
+        public IVerifier Verify(Action<IVerificationContext> builder)
         {
-            var context = new VerificationContext(this);
+            var context = new VerificationContext(new ComponentLocator(_components), _defaultVerifyInactivityTimeout);
             builder(context);
 
-            return await context.BuildAsync(ct);
+            return context.Build();
         }
-
-        class VerificationContext : IVerificationContext
-        {
-            private readonly List<(IComponentConditionSpecification ComponentSpec, ExpectationSpecification ExpectationSpec)> _specs = new List<(IComponentConditionSpecification, ExpectationSpecification)>();
-            private readonly Environment _env;
-            private TimeSpan? _expectationTimeout;
-            private bool? _shortCircuit;
-
-            public VerificationContext(Environment env)
-            {
-                _env = env;
-            }
-
-            public void Expect(IComponentConditionSpecification conditionSpecification, Action<IExpectationConfigurator> config)
-            {
-                var expecationSpec = new ExpectationSpecification();
-                config(expecationSpec);
-
-                _specs.Add(
-                    (
-                        conditionSpecification ?? throw new ArgumentNullException(nameof(conditionSpecification)),
-                        expecationSpec
-                    ));
-            }
-
-            public TComponentConditionBuilder GetComponentConditionBuilder<TComponentConditionBuilder>(string componentName) where TComponentConditionBuilder : IComponentConditionBuilder
-            {
-                if (!_env._components.TryGetValue(componentName, out var component))
-                    throw new ComponentLocationFailedException(componentName);
-
-                return component.CreateConditionBuilder<TComponentConditionBuilder>();
-            }
-
-            public void Timeout(TimeSpan timeout)
-            {
-                if (timeout <= TimeSpan.Zero)
-                    throw new ArgumentOutOfRangeException(nameof(timeout));
-
-                _expectationTimeout = timeout;
-            }
-
-            public void ShortCircuit(bool? shortCircuit)
-            {
-                _shortCircuit = shortCircuit;
-            }
-
-            public async Task<Verifier> BuildAsync(CancellationToken ct)
-            {
-                // use the longest defined timeout
-                var verifierTimeout = _specs
-                    .Select(x => x.ExpectationSpec.Timeout ?? TimeSpan.Zero)
-                    .Concat(new[] { _expectationTimeout ?? _env._defaultExpectationTimeout })
-                    .Max();
-
-                var timespanFactory = new ConditionInstanceTimeSpanFactory(DateTime.Now);
-
-                var expectations = _specs.Select(async x =>
-                {
-                    var componentConditionEvaluator = await x.ComponentSpec.BuildAsync(timespanFactory, ct);
-                    return x.ExpectationSpec.Build(verifierTimeout, componentConditionEvaluator, x.ComponentSpec.Description);
-                }).ToList();
-
-                await Task.WhenAll(expectations);
-
-                return new Verifier(
-                    expectations.Select(x => x.Result).ToList(),
-                    _shortCircuit ?? _env._defaultExpectationShortCircuit);
-            }
-        }
-
-        #endregion
 
         #region Client
 

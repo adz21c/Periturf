@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{823AA835-4391-4868-B529-0E33A326F4E8}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
+		.editorconfig = .editorconfig
 		CodeCoverage.runsettings = CodeCoverage.runsettings
 		Directory.Build.props = Directory.Build.props
 		..\GitVersion.yml = ..\GitVersion.yml
@@ -14,15 +14,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf", "Periturf\Periturf.csproj", "{76AE39E2-BBFC-4A7B-A819-66D2B2A03AD1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.IdSvr4", "Periturf.IdSvr4\Periturf.IdSvr4.csproj", "{79E372D7-C63D-4C26-8764-D0448449FDE1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests", "Periturf.Tests\Periturf.Tests.csproj", "{B160C033-ADFD-4DB3-AB7B-206713A939D0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Tests.Integration", "Periturf.Tests.Integration\Periturf.Tests.Integration.csproj", "{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Hosting", "Periturf.Hosting\Periturf.Hosting.csproj", "{36440711-34FA-4DDE-A769-6570320F7C57}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Periturf.Web", "Periturf.Web\Periturf.Web.csproj", "{62852042-5E71-4BF0-933F-6BAD4F2FB13A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github", "Github", "{F33B2AB7-2EA3-4457-B7C4-72D2599A2F59}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{65C61B7A-3AAD-4361-90C1-8E9E7E38CBCC}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,29 +35,20 @@ Global
 		{76AE39E2-BBFC-4A7B-A819-66D2B2A03AD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76AE39E2-BBFC-4A7B-A819-66D2B2A03AD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76AE39E2-BBFC-4A7B-A819-66D2B2A03AD1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79E372D7-C63D-4C26-8764-D0448449FDE1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B160C033-ADFD-4DB3-AB7B-206713A939D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA7DDFDF-1726-456A-9C93-15E3E9CB3359}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36440711-34FA-4DDE-A769-6570320F7C57}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62852042-5E71-4BF0-933F-6BAD4F2FB13A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{65C61B7A-3AAD-4361-90C1-8E9E7E38CBCC} = {F33B2AB7-2EA3-4457-B7C4-72D2599A2F59}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {62C145DE-DB56-4345-9F6A-56A241165541}

@@ -1,18 +1,20 @@
-﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿//
+//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   
+//   Licensed under the Apache License, Version 2.0 (the "License")
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//   
+//       http://www.apache.org/licenses/LICENSE-2.0
+//  
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  
+//
+
 using NUnit.Framework;
 using System;
 using System.IO;
@@ -44,7 +46,7 @@ namespace Periturf.Tests
         public void Given_HostErrors_When_Ctor_Then_ExceptionCreated()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
 
             // Act
             var sut = new EnvironmentStartException(hostDetails);
@@ -80,7 +82,7 @@ namespace Periturf.Tests
         {
             // Arrange
             const string message = "My Custom Error Message";
-            var hostDetails = new[] { new HostExceptionDetails(new Exception()) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
 
             // Act
             var sut = new EnvironmentStartException(message, hostDetails);
@@ -96,7 +98,7 @@ namespace Periturf.Tests
         public void Given_AnException_When_SeriaizedAndDeserialized_Then_DataMatchesTheOriginal()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails(new Exception("MyMessage")) };
+            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception("MyMessage") }) };
             var originalException = new EnvironmentStartException(hostDetails);
 
             var buffer = new byte[4096];
@@ -105,8 +107,10 @@ namespace Periturf.Tests
             var formatter = new BinaryFormatter();
 
             // Act
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
             formatter.Serialize(ms, originalException);
             var deserializedException = (EnvironmentStartException)formatter.Deserialize(ms2);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
 
             // Assert
             Assert.That(deserializedException.Details, Is.Not.Null);
@@ -114,8 +118,8 @@ namespace Periturf.Tests
 
             var orignalHostExceptionDetails = originalException.Details.Single();
             var deserializedHostExceptionDetails = deserializedException.Details.Single();
-            Assert.That(deserializedHostExceptionDetails.Exception, Is.Not.Null);
-            Assert.That(deserializedHostExceptionDetails.Exception.Message, Is.EqualTo(orignalHostExceptionDetails.Exception.Message));
+            Assert.That(deserializedHostExceptionDetails.Exceptions, Is.Not.Empty);
+            Assert.That(deserializedHostExceptionDetails.Exceptions.First().Message, Is.EqualTo(orignalHostExceptionDetails.Exceptions.First().Message));
 
             Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
         }

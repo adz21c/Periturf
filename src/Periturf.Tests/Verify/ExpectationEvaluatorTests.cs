@@ -1,219 +1,149 @@
-﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿//
+//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   
+//   Licensed under the Apache License, Version 2.0 (the "License")
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//   
+//       http://www.apache.org/licenses/LICENSE-2.0
+//  
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  
+//
+
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Verify;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf.Tests.Verify
 {
     [TestFixture]
     class ExpectationEvaluatorTests
     {
-        private MockComponentEvaluator _componentEvaluator;
-        private IExpectationCriteriaEvaluator _criteriaEvaluator;
-        private IExpectationCriteriaEvaluatorFactory _criteriaFactory;
+        private readonly ConditionIdentifier _condition1 = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
+        private readonly ConditionIdentifier _condition2 = new ConditionIdentifier(A.Dummy<string>(), A.Dummy<string>(), Guid.NewGuid());
         private ExpectationEvaluator _sut;
 
         [SetUp]
         public void SetUp()
         {
-            _componentEvaluator = new MockComponentEvaluator(TimeSpan.FromMilliseconds(50), 1);
-
-            _criteriaEvaluator = A.Fake<IExpectationCriteriaEvaluator>();
-            A.CallTo(() => _criteriaEvaluator.Met).Returns(true);
-
-            _criteriaFactory = A.Fake<IExpectationCriteriaEvaluatorFactory>();
-            A.CallTo(() => _criteriaFactory.CreateInstance()).Returns(_criteriaEvaluator);
-
             _sut = new ExpectationEvaluator(
-                TimeSpan.FromMilliseconds(100),
-                _componentEvaluator,
-                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
-                _criteriaFactory);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            _componentEvaluator = null;
-            _criteriaEvaluator = null;
-            _criteriaFactory = null;
-            _sut = null;
+                new List<ExpectationConstraintEvaluator> { new ExpectationConstraintEvaluator(_condition1) },
+                null);
         }
 
         [Test]
-        public async Task Given_Evaluator_When_Evaluate_Then_ResultAndDisposeDependencies()
+        public void Given_MatchingInputsAndNoTimeConstraints_When_Evaluate_Then_Met()
         {
-            var result = await _sut.EvaluateAsync();
+            var feedInstance = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
+
+            var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
             Assert.That(result.Met, Is.True);
-            Assert.That(result.Completed, Is.True);
-
-            TestDependenciesCleanUp();
         }
 
         [Test]
-        public async Task Given_Evaluator_When_CancelToken_Then_ResultIsInconclusive()
+        public void Given_NotMatchingInputsAndNoTimeConstraints_When_Evaluate_Then_InComplete()
         {
-            // Prepare for evaluator to take longer than cancelling
-            _sut = new ExpectationEvaluator(
-                TimeSpan.FromMilliseconds(1000),  // Cancel second
-                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
-                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
-                _criteriaFactory);
+            var feedInstance = new FeedConditionInstance(
+                _condition2,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2"));
 
-            // Go
-            var tokenSource = new CancellationTokenSource();
-            var evaluateTask = Task.Run(async () => await _sut.EvaluateAsync(tokenSource.Token));
-
-            // Cancel first
-            await Task.Delay(250);
-            tokenSource.Cancel();
-
-            Assert.ThrowsAsync<TaskCanceledException>(() => evaluateTask);
-        }
-
-        [Test]
-        public async Task Given_Evaluator_When_Timeout_Then_ResultCompleted()
-        {
-            // Prepare for evaluator to take longer than cancelling
-            _sut = new ExpectationEvaluator(
-                TimeSpan.FromMilliseconds(100),  // Cancel first
-                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), null),
-                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
-                _criteriaFactory);
-
-            // Go
-            var tokenSource = new CancellationTokenSource();
-            var evaluateTask = Task.Run(async () => await _sut.EvaluateAsync(tokenSource.Token));
-
-            // Cancel second
-            await Task.Delay(300);
-            tokenSource.Cancel();
-
-            var result = await evaluateTask;
+            var result = _sut.Evaluate(feedInstance);
 
             Assert.That(result, Is.Not.Null);
-            Assert.True(result.Completed);
-            Assert.That(result.Met, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
+        }
+
+
+        [Test]
+        public void Given_TimeAndNoTimeConstraints_When_Evaluate_Then_Ignored()
+        {
+            var result = _sut.Evaluate(TimeSpan.FromMilliseconds(100));
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.False);
+            Assert.That(result.Met, Is.Null);
+        }
+
+
+        [Test]
+        public void Given_NoTimeConstraints_When_Timeout_Then_NotMet()
+        {
+            var result = _sut.Timeout();
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IsCompleted, Is.True);
+            Assert.That(result.Met, Is.False);
         }
 
         [Test]
-        public async Task Given_AlreadyEvaluating_When_Evaluate_Then_Throws()
+        public void Given_NotMatchFollowedByMatch_When_Evaluate_Then_Met()
         {
-            // For an await with a timeout evaluator
-            _sut = new ExpectationEvaluator(
-                TimeSpan.FromMilliseconds(500),
-                new MockComponentEvaluator(TimeSpan.FromMilliseconds(1000), 5),
-                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
-                _criteriaFactory);
+            var feedInstance = new FeedConditionInstance(
+                _condition2,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2"));
 
-            var evaluatorTask = _sut.EvaluateAsync();
-            Assert.ThrowsAsync<InvalidOperationException>(() => _sut.EvaluateAsync());
-            await evaluatorTask;    // Allow to finish
+            var result = _sut.Evaluate(feedInstance);
+
+            Assume.That(result, Is.Not.Null);
+            Assume.That(result.IsCompleted, Is.False);
+            Assume.That(result.Met, Is.Null);
+
+            var feedInstance2 = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
+
+            var result2 = _sut.Evaluate(feedInstance2);
+
+            Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
+            Assert.That(result2.Met, Is.True);
         }
 
         [Test]
-        public async Task Given_AlreadyEvaluated_When_Evaluate_Then_SameResult()
+        public void Given_Completed_When_Evaluate_Then_SameResult()
         {
-            var firstResult = await _sut.EvaluateAsync();
-            var secondResult = await _sut.EvaluateAsync();
+            var feedInstance = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID1"));
 
-            Assert.That(firstResult, Is.Not.Null);
-            Assert.That(secondResult, Is.Not.Null);
-            Assert.That(secondResult, Is.SameAs(firstResult));
-        }
+            var result = _sut.Evaluate(feedInstance);
 
-        [Test]
-        public async Task Given_AlreadyEvaluated_When_Dispose_Then_DependenciesNotDisposedTwice()
-        {
-            var result = await _sut.EvaluateAsync();
+            Assume.That(result, Is.Not.Null);
+            Assume.That(result.IsCompleted, Is.True);
+            Assume.That(result.Met, Is.True);
 
-            Assume.That(result != null);
-            Assume.That(result.Completed);
-            Assume.That(result.Met == true);
+            var feedInstance2 = new FeedConditionInstance(
+                _condition1,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID2"));
 
-            TestDependenciesCleanUp();
-            _componentEvaluator.ResetCalls();
+            var result2 = _sut.Evaluate(feedInstance2);
 
-            await _sut.DisposeAsync();
+            Assert.That(result2, Is.Not.Null);
+            Assert.That(result2.IsCompleted, Is.True);
+            Assert.That(result2.Met, Is.True);
 
-            Assert.That(_componentEvaluator.DisposeCalled, Is.False);
-        }
+            var feedInstance3 = new FeedConditionInstance(
+                _condition2,
+                new ConditionInstance(TimeSpan.FromMilliseconds(100), "ID3"));
 
-        [Test]
-        [SuppressMessage("Blocker Code Smell", "S2699:Tests should include assertions", Justification = "Assertions in shared method")]
-        public async Task Given_Evaluator_When_Dispose_Then_DisposeInternals()
-        {
-            await _sut.DisposeAsync();
-            TestDependenciesCleanUp();
-        }
+            var result3 = _sut.Evaluate(feedInstance3);
 
-        [Test]
-        public async Task Given_AlreadyDisposed_When_Dispose_Then_Nothing()
-        {
-            await _sut.DisposeAsync();
-            TestDependenciesCleanUp();
-
-            _componentEvaluator.ResetCalls();
-            await _sut.DisposeAsync();
-
-            Assert.That(_componentEvaluator.DisposeCalled, Is.False);
-        }
-
-        [Test]
-        public async Task Given_Disposed_When_Evaluate_Then_Throw()
-        {
-            await _sut.DisposeAsync();
-            Assert.ThrowsAsync<ObjectDisposedException>(() => _sut.EvaluateAsync());
-        }
-
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
-        public async Task Given_CriteriaMetEarly_When_Evaluate_Then_StopCheckingInstances(int incompleteCount)
-        {
-            var results = new List<bool>();
-            results.AddRange(Enumerable.Repeat(false, incompleteCount));
-            results.Add(true);
-
-            A.CallTo(() => _criteriaEvaluator.Evaluate(A<ConditionInstance>._)).ReturnsNextFromSequence(results.ToArray());
-
-            _componentEvaluator = new MockComponentEvaluator(TimeSpan.FromMilliseconds(10), 5);
-            _sut = new ExpectationEvaluator(
-                TimeSpan.FromMilliseconds(1000),
-                _componentEvaluator,
-                new List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>>(),
-                _criteriaFactory);
-
-            await _sut.EvaluateAsync();
-
-            Assert.That(_componentEvaluator.InstanceCount, Is.EqualTo(incompleteCount + 1));
-        }
-
-        private void TestDependenciesCleanUp()
-        {
-            Assert.That(_componentEvaluator.DisposeCalled, Is.True);
+            Assert.That(result3, Is.Not.Null);
+            Assert.That(result3.IsCompleted, Is.True);
+            Assert.That(result3.Met, Is.True);
         }
     }
 }

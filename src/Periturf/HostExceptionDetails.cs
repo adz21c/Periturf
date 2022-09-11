@@ -1,18 +1,20 @@
-﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿//
+//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   
+//   Licensed under the Apache License, Version 2.0 (the "License")
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//   
+//       http://www.apache.org/licenses/LICENSE-2.0
+//  
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  
+//
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -36,19 +38,18 @@ namespace Periturf
         /// <summary>
         /// Initializes a new instance of the <see cref="HostExceptionDetails"/> class.
         /// </summary>
-        /// <param name="hostName">Name of the host.</param>
-        /// <param name="exception">The exception.</param>
-        public HostExceptionDetails(Exception exception)
+        /// <param name="exceptions">The exception.</param>
+        public HostExceptionDetails(Exception[] exceptions)
         {
-            Exception = exception;
+            Exceptions = exceptions;
         }
 
         /// <summary>
-        /// Gets the exception.
+        /// Gets the exceptions.
         /// </summary>
         /// <value>
-        /// The exception.
+        /// The exceptions.
         /// </value>
-        public Exception Exception { get; }
+        public Exception[] Exceptions { get; }
     }
 }

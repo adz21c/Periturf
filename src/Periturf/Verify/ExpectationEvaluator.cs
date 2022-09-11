@@ -1,126 +1,119 @@
-﻿/*
- *     Copyright 2019 Adam Burton (adz21c@gmail.com)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿//
+//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   
+//   Licensed under the Apache License, Version 2.0 (the "License")
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//   
+//       http://www.apache.org/licenses/LICENSE-2.0
+//  
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+//  
+//
+
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Periturf.Verify
 {
-    class ExpectationEvaluator : IAsyncDisposable
+    class ExpectationEvaluator : IExpectationEvaluator
     {
-        private readonly IComponentConditionEvaluator _componentConditionEvaluator;
-        private readonly IReadOnlyList<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> _filters;
-        private readonly IExpectationCriteriaEvaluatorFactory _criteria;
-
-        private ExpectationResult? _result;
-
-        private bool _evaluating;
-        private bool _dependenciesDisposed;
-        private bool _disposed;
+        private readonly List<ExpectationConstraintEvaluator> _constraints;
+        private readonly IExpectationEvaluator? _next;
+        private bool _evaluated = false;
+        private ExpectationResult? _completedResult;
 
         public ExpectationEvaluator(
-            TimeSpan timeout,
-            IComponentConditionEvaluator componentConditionEvaluator,
-            List<Func<IAsyncEnumerable<ConditionInstance>, IAsyncEnumerable<ConditionInstance>>> filters,
-            IExpectationCriteriaEvaluatorFactory criteria,
-            string description = "")
+            List<ExpectationConstraintEvaluator> constraints,
+            IExpectationEvaluator? next)
         {
-            Timeout = timeout;
-            _componentConditionEvaluator = componentConditionEvaluator;
-            _filters = filters;
-            _criteria = criteria;
-            Description = description;
+            _constraints = constraints;
+            _next = next;
         }
 
-        public string Description { get; }
-
-        public TimeSpan Timeout { get; }
-
-        public async Task<ExpectationResult> EvaluateAsync(CancellationToken ct = default)
+        public TimeSpan? NextTimer
         {
-            if (_disposed)
-                throw new ObjectDisposedException(typeof(ExpectationEvaluator).FullName);
-
-            if (_result != null)
-                return _result;
-
-            if (_evaluating)
-                throw new InvalidOperationException("Already evaluating");
-            
-            _evaluating = true;
-
-            // Build condition instance filter
-            var conditions = _componentConditionEvaluator.GetInstancesAsync();
-            foreach (var filter in _filters)
-                conditions = filter(conditions);
-
-            // Prepare cancellation
-            using (var expectationTimeout = new CancellationTokenSource(Timeout))
-            using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct, expectationTimeout.Token))
+            get
             {
-                // Start evaluating
-                var criteriaEvaluator = _criteria.CreateInstance();
-                try
-                {
-                    await foreach (var instance in conditions.WithCancellation(cancellationTokenSource.Token))
-                    {
-                        var done = criteriaEvaluator.Evaluate(instance);
-                        if (done)
-                            break;
-                    }
-                }
-                catch (TaskCanceledException) when (expectationTimeout.IsCancellationRequested)
-                {
-                    // if cancelled by expectation timeout then act as if the stream finished
-                    return await CompleteExpectationAsync(criteriaEvaluator);
-                }
-                finally
-                {
-                    _evaluating = false;
-                }
+                if (_evaluated)
+                    return _next?.NextTimer;
 
-                return await CompleteExpectationAsync(criteriaEvaluator);
+                var nextTimeout = _constraints
+                    .Where(x => !x.Completed)
+                    .Where(x => x.TimeConstraintEnd.HasValue)
+                    .Select(x => x.TimeConstraintEnd)
+                    .OrderBy(x => x)
+                    .FirstOrDefault();
+
+                return nextTimeout;
             }
         }
 
-        public async ValueTask DisposeAsync()
+        public ExpectationResult Evaluate(FeedConditionInstance instance)
         {
-            if (_disposed)
-                return;
+            if (_completedResult != null)
+                return _completedResult;
 
-            await DisposeDependenciesAsync();
-            _disposed = true;
+            // If we have another set of constraints then defer to the next set
+            if (_evaluated)
+            {
+                Debug.Assert(_next != null, "_next != null");
+                var nextResult = _next.Evaluate(instance);
+                if (nextResult.IsCompleted)
+                    _completedResult = nextResult;
+
+                return nextResult;
+            }
+
+            foreach (var constraint in _constraints.Where(x => !x.Completed))
+                constraint.Evaluate(instance);
+
+            return TryComplete();
         }
 
-        private async Task<ExpectationResult> CompleteExpectationAsync(IExpectationCriteriaEvaluator criteriaEvaluator)
+        public ExpectationResult Evaluate(TimeSpan timer)
         {
-            await DisposeDependenciesAsync();
-            return _result = new ExpectationResult(
-                criteriaEvaluator.Met,
-                Description);
+            if (_constraints.Any(x => x.TimeConstraintEnd.HasValue))
+            {
+                foreach (var constraint in _constraints.Where(x => x.TimeConstraintEnd.HasValue))
+                    constraint.Evaluate(timer);
+            }
+
+            return TryComplete();
         }
 
-        private async ValueTask DisposeDependenciesAsync()
+        public ExpectationResult Timeout()
         {
-            if (_dependenciesDisposed)
-                return;
+            if (_completedResult != null)
+                return _completedResult;
 
-            await _componentConditionEvaluator.DisposeAsync();
-            _dependenciesDisposed = true;
+            foreach (var constraint in _constraints.Where(x => !x.Completed))
+                constraint.Timeout();
+
+            return TryComplete();
+        }
+
+        private ExpectationResult TryComplete()
+        {
+            if (!_constraints.All(x => x.Completed))
+                return new ExpectationResult(false, null);
+
+            _evaluated = true;
+
+            if (_constraints.Any(x => x.Met == false))
+                return _completedResult = new ExpectationResult(true, false);
+
+            if (_next == null)
+                return _completedResult = new ExpectationResult(true, true);
+            
+            // it continues in the next expectation
+            return new ExpectationResult(false, null);
         }
     }
 }

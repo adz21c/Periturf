@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net60</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -13,7 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
+    <AdditionalFiles Include="..\.sonarlint\adz21c_periturf\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="6.0.0" />
   </ItemGroup>
 
 </Project>
