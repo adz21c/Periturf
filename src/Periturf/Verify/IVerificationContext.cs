@@ -1,5 +1,5 @@
 ﻿//
-//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   Copyright 2023 Adam Burton (adz21c@gmail.com)
 //   
 //   Licensed under the Apache License, Version 2.0 (the "License")
 //   you may not use this file except in compliance with the License.
@@ -16,33 +16,16 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Periturf.Events;
 
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// Context within which the verification will be defined.
-    /// </summary>
     public interface IVerificationContext
     {
-        /// <summary>
-        /// Override the inactivity timeout.
-        /// </summary>
-        /// <value>
-        /// The inactivity timeout.
-        /// </value>
-        TimeSpan InactivityTimeout { get; set; }
-
-        /// <summary>
-        /// Register a condition for verification.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        /// <returns>An identifier for the condition.</returns>
-        ConditionIdentifier Condition(Func<IConditionConfigurator, IConditionSpecification> config);
-
-        /// <summary>
-        /// Defines the expectation.
-        /// </summary>
-        /// <param name="config">The configuration.</param>
-        void Expect(Action<IExpectationConfigurator> config);
+        void Event(Action<IEventConfigurator> config);
     }
 }

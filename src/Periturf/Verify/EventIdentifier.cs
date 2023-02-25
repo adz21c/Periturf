@@ -1,5 +1,5 @@
-//
-//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+﻿//
+//   Copyright 2023 Adam Burton (adz21c@gmail.com)
 //   
 //   Licensed under the Apache License, Version 2.0 (the "License")
 //   you may not use this file except in compliance with the License.
@@ -16,21 +16,33 @@
 //
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf.Verify
 {
     /// <summary>
-    /// Evaluates if a condition has happened since creation of the instance.
+    /// Identifier for a verification condition.
     /// </summary>
-    public interface IVerifier
+    [ExcludeFromCodeCoverage]
+    public sealed record EventIdentifier
     {
+        internal EventIdentifier(string componentName, Guid id)
+        {
+            ComponentName = componentName;
+            Id = id;
+        }
+
+        /// <summary>Gets the name of the component.</summary>
+        /// <value>The name of the component.</value>
+        public string ComponentName { get; }
+
         /// <summary>
-        /// Verifies if expectations have been met.
+        /// Gets the identifier.
         /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns></returns>
-        Task<VerificationResult> VerifyAsync(CancellationToken ct = default);
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public Guid Id { get; }
     }
 }

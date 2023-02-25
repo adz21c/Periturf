@@ -1,5 +1,5 @@
 ﻿//
-//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   Copyright 2023 Adam Burton (adz21c@gmail.com)
 //   
 //   Licensed under the Apache License, Version 2.0 (the "License")
 //   you may not use this file except in compliance with the License.
@@ -15,16 +15,21 @@
 //  
 //
 
-using System;
+using System.Collections.Generic;
+using Periturf.Events;
 
 namespace Periturf.Verify
 {
-    interface IExpectationEvaluator
+    /// <summary>
+    /// Configures a condition.
+    /// </summary>
+    public interface IEventConfigurator
     {
-        TimeSpan? NextTimer { get; }
-
-        ExpectationResult Evaluate(FeedConditionInstance instance);
-        ExpectationResult Evaluate(TimeSpan timer);
-        ExpectationResult Timeout();
+        /// <summary>
+        /// Retrieves a component's condition builder.
+        /// </summary>
+        /// <param name="componentName">Name of the component.</param>
+        /// <returns></returns>
+        TBuilder GetEventBuilder<TBuilder>(string componentName) where TBuilder : IEventBuilder;
     }
 }

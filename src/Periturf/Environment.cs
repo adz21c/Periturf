@@ -205,19 +205,6 @@ namespace Periturf
 
         #endregion
 
-        /// <summary>
-        /// Defines a verifier to establish if expectations are met.
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        /// <returns></returns>
-        public IVerifier Verify(Action<IVerificationContext> builder)
-        {
-            var context = new VerificationContext(new ComponentLocator(_components), _defaultVerifyInactivityTimeout);
-            builder(context);
-
-            return context.Build();
-        }
-
         #region Client
 
         /// <summary>
@@ -292,6 +279,41 @@ namespace Periturf
                 return _env.CreateComponentClient(componentName);
             }
         }
+
+        #endregion
+
+        #region Verify
+
+        public void Verify(Action<IVerificationContext> config)
+        {
+            var context = new VerificationContext(_components);
+            config(context);
+        }
+
+        private class VerificationContext : IVerificationContext, IEventConfigurator
+        {
+            private readonly Dictionary<string, IComponent> _components;
+
+            public VerificationContext(Dictionary<string, IComponent> components)
+            {
+                _components = components;
+            }
+
+            public void Event(Action<IEventConfigurator> config)
+            {
+                config(this);
+            }
+
+            TBuilder IEventConfigurator.GetEventBuilder<TBuilder>(string componentName)
+            {
+                if (_components.TryGetValue(componentName, out var component))
+                    return (TBuilder)component.CreateEventBuilder();
+                
+                throw new ComponentLocationFailedException(componentName);
+            }
+        }
+
+
 
         #endregion
     }

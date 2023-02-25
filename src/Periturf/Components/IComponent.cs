@@ -29,12 +29,6 @@ namespace Periturf.Components
     public interface IComponent
     {
         /// <summary>
-        /// Creates a component specific condition builder.
-        /// </summary>
-        /// <returns></returns>
-        IConditionBuilder CreateConditionBuilder();
-
-        /// <summary>
         /// Creates a component configuration specification.
         /// </summary>
         /// <typeparam name="TSpecification">The type of the specification.</typeparam>
@@ -48,5 +42,7 @@ namespace Periturf.Components
         /// </summary>
         /// <returns></returns>
         IComponentClient CreateClient();
+        
+        IEventBuilder CreateEventBuilder();
     }
 }

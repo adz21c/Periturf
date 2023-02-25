@@ -1,5 +1,5 @@
 ﻿//
-//   Copyright 2021 Adam Burton (adz21c@gmail.com)
+//   Copyright 2023 Adam Burton (adz21c@gmail.com)
 //   
 //   Licensed under the Apache License, Version 2.0 (the "License")
 //   you may not use this file except in compliance with the License.
@@ -15,12 +15,15 @@
 //  
 //
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace Periturf.Verify
 {
-    /// <summary>
-    /// Base interface for component condition buiders (currently a placeholder)
-    /// </summary>
-    public interface IConditionBuilder
+    public interface IEventBuilder
     {
     }
 }

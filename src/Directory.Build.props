@@ -13,7 +13,7 @@
   <PropertyGroup Condition=" '$(IsTestProject)' != 'true' ">
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
     <WarningsAsErrors>CS8604;NU1605;CS1591;CS8618;CS8625</WarningsAsErrors>
   </PropertyGroup>
 
