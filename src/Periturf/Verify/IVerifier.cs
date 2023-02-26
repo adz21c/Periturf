@@ -19,13 +19,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Periturf.Events;
 
 namespace Periturf.Verify
 {
-    public interface IVerificationContext
+    public interface IVerifier
     {
-        void Event(Func<IEventConfigurator, IEventSpecification> config);
+        Task StartAsync(CancellationToken ct = default);
     }
 }

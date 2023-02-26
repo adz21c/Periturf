@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using NUnit.Framework;
 using Periturf.Components;
+using Periturf.Events;
 using Periturf.Setup;
 using Periturf.Verify;
 
@@ -51,13 +52,18 @@ namespace Periturf.Tests.Verify
         [Test]
         public void Given_Component_When_GetEventBuilder_Then_BuilderRetrieved()
         {
+            var eventSpec = A.Dummy<IEventSpecification>();
             var eventBuilder = A.Dummy<IEventBuilder>();
             A.CallTo(() => _component.CreateEventBuilder()).Returns(eventBuilder);
 
             IEventBuilder foundEventBuilder = null;
             _environment.Verify(c =>
             {
-                c.Event(e => foundEventBuilder = e.GetEventBuilder<IEventBuilder>(nameof(_component)));
+                c.Event(e =>
+                {
+                    foundEventBuilder = e.GetEventBuilder<IEventBuilder>(nameof(_component));
+                    return eventSpec;
+                });
             });
 
             Assert.That(foundEventBuilder, Is.Not.Null.And.SameAs(eventBuilder));
@@ -67,9 +73,48 @@ namespace Periturf.Tests.Verify
         [Test]
         public void Given_Component_When_GetEventBuilderWithInvalidName_Then_Throws()
         {
+            var eventSpec = A.Dummy<IEventSpecification>();
             Assert.That(
-                () => _environment.Verify(c => c.Event(e => e.GetEventBuilder<IEventBuilder>("Bob"))),
+                () => _environment.Verify(c => c.Event(e =>
+                {
+                    e.GetEventBuilder<IEventBuilder>("Bob");
+                    return eventSpec;
+                })),
                 Throws.TypeOf<ComponentLocationFailedException>());
+        }
+
+        [Test]
+        public async Task Given_Events_When_VerifierNotStarted_Then_SpecNotBuilt()
+        {
+            var eventSpec = A.Fake<IEventSpecification>();
+
+            var verifier = _environment.Verify(c =>
+            {
+                c.Event(e => eventSpec);
+            });
+
+            A.CallTo(() => eventSpec.BuildAsync(A<CancellationToken>._)).MustNotHaveHappened();
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task Given_Events_When_VerifierStart_Then_SpecBuilt(int numberOfEvents)
+        {
+            var ct = A.Dummy<CancellationToken>();
+            var eventSpecs = Enumerable.Range(1, numberOfEvents).Select(x => A.Fake<IEventSpecification>()).ToList();
+
+            var verifier = _environment.Verify(c =>
+            {
+                foreach(var spec in eventSpecs)
+                    c.Event(e => spec);
+            });
+
+            await verifier.StartAsync(ct);
+
+            // Cancellation token passed through
+            foreach (var spec in eventSpecs)
+                A.CallTo(() => spec.BuildAsync(ct)).MustHaveHappenedOnceExactly();
         }
     }
 }

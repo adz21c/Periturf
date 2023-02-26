@@ -284,24 +284,33 @@ namespace Periturf
 
         #region Verify
 
-        public void Verify(Action<IVerificationContext> config)
+        public IVerifier Verify(Action<IVerificationContext> config)
         {
             var context = new VerificationContext(_components);
             config(context);
+            return context;
         }
 
-        private class VerificationContext : IVerificationContext, IEventConfigurator
+        private class VerificationContext : IVerificationContext, IEventConfigurator, IVerifier
         {
             private readonly Dictionary<string, IComponent> _components;
+            private readonly List<IEventSpecification> _eventSpecifications = new List<IEventSpecification>();
 
             public VerificationContext(Dictionary<string, IComponent> components)
             {
                 _components = components;
             }
 
-            public void Event(Action<IEventConfigurator> config)
+            public void Event(Func<IEventConfigurator, IEventSpecification> config)
             {
-                config(this);
+                var spec = config(this);
+                _eventSpecifications.Add(spec);
+            }
+
+            public async Task StartAsync(CancellationToken ct = default)
+            {
+                foreach (var spec in _eventSpecifications)
+                    await spec.BuildAsync(ct);
             }
 
             TBuilder IEventConfigurator.GetEventBuilder<TBuilder>(string componentName)
