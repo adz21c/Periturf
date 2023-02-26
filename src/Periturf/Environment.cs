@@ -284,14 +284,14 @@ namespace Periturf
 
         #region Verify
 
-        public IVerifier Verify(Action<IVerificationContext> config)
+        public async ValueTask VerifyAsync(Action<IVerificationContext> config, CancellationToken ct = default)
         {
             var context = new VerificationContext(_components);
             config(context);
-            return context;
+            await context.BuildVerifierAsync(ct);
         }
 
-        private class VerificationContext : IVerificationContext, IEventConfigurator, IVerifier
+        private class VerificationContext : IVerificationContext, IEventConfigurator
         {
             private readonly Dictionary<string, IComponent> _components;
             private readonly List<IEventSpecification> _eventSpecifications = new List<IEventSpecification>();
@@ -307,10 +307,22 @@ namespace Periturf
                 _eventSpecifications.Add(spec);
             }
 
-            public async Task StartAsync(CancellationToken ct = default)
+            public async Task BuildVerifierAsync(CancellationToken ct)
             {
-                foreach (var spec in _eventSpecifications)
-                    await spec.BuildAsync(ct);
+                using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                var eventTasks = _eventSpecifications.Select(x => x.BuildAsync(cancellationTokenSource.Token)).ToList();
+                try
+                {
+                    await Task.WhenAll(eventTasks);
+                }
+                catch
+                {
+                    var ex = new AggregateException(
+                        eventTasks.Where(x => x.IsFaulted).Select(x => x.Exception).SelectMany(x => x.InnerExceptions));
+                    cancellationTokenSource.Cancel();
+                    await Task.WhenAll(eventTasks.Where(x => x.IsCompletedSuccessfully).Select(x => x.Result.DisposeAsync().AsTask()));
+                    throw ex;
+                }
             }
 
             TBuilder IEventConfigurator.GetEventBuilder<TBuilder>(string componentName)

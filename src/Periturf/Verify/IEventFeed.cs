@@ -16,16 +16,10 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
-    public interface IEventSpecification
+    public interface IEventFeed : IAsyncDisposable
     {
-        Task<IEventFeed> BuildAsync(CancellationToken ct);
     }
 }
