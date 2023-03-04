@@ -103,14 +103,14 @@ namespace Periturf.Tests.Verify
         }
 
         [Test]
-        public void Given_BuildingVerifier_When_ErrorDuringEventBuild_Then_AllEventFeedsDisposedOrCancelled()
+        public void Given_BuildingVerifier_When_ErrorDuringEventBuild_Then_AllEventFeedsDisposedOrCancelledAndThrow()
         {
             var ct = A.Dummy<CancellationToken>();
-            
+
             var completeEventFeed = A.Fake<IEventFeed>();
             var completeEventSpec = A.Fake<IEventSpecification>();
             A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
-            
+
             var incompleteEventSpec = A.Fake<IEventSpecification>();
             A.CallTo(() => incompleteEventSpec.BuildAsync(A<CancellationToken>._)).Invokes((CancellationToken ct) => Task.Delay(150, ct));
 
@@ -129,6 +129,134 @@ namespace Periturf.Tests.Verify
                 A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappened());
             A.CallTo(() => incompleteEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => errorEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened();
+        }
+
+        [Test]
+        public async Task Given_BuildingVerifier_When_OperationCancelled_Then_AllEventFeedsDisposedOrCancelledAndThrow()
+        {
+            var completeEventFeed = A.Dummy<IEventFeed>();
+            var completeEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
+
+            var incompleteEventFeed = A.Dummy<IEventFeed>();
+            var incompleteEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => incompleteEventSpec.BuildAsync(A<CancellationToken>._)).ReturnsLazily(async (CancellationToken ct) =>
+            {
+                await Task.Delay(150, ct);
+                ct.ThrowIfCancellationRequested();
+                return incompleteEventFeed;
+            });
+
+            using var ctTokenSource = new CancellationTokenSource();
+            var verifyTask = Task.Run(async () => await _environment.VerifyAsync(ctTokenSource.Token, c =>
+            {
+                c.Event(e => completeEventSpec);
+                c.Event(e => incompleteEventSpec);
+            }));
+
+            await Task.Delay(50);
+            ctTokenSource.Cancel();
+
+            Assert.That(() => verifyTask, Throws.TypeOf<OperationCanceledException>());
+
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened().Then(
+                A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappened());
+            A.CallTo(() => incompleteEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened();
+            A.CallTo(incompleteEventFeed).MustNotHaveHappened();    // Incomplete should never have finished
+        }
+
+        [Test]
+        public void Given_BuildingVerifierComplete_When_OperationCancelled_Then_AllEventFeedsDisposedThrow()
+        {
+            var completeEventFeed = A.Dummy<IEventFeed>();
+            var completeEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
+
+            var completeEventFeed2 = A.Dummy<IEventFeed>();
+            var completeEventSpec2 = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec2.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed2);
+
+            using var ctTokenSource = new CancellationTokenSource();
+            ctTokenSource.Cancel();
+
+            Assert.That(
+                () => _environment.VerifyAsync(ctTokenSource.Token, c =>
+                {
+                    c.Event(e => completeEventSpec);
+                    c.Event(e => completeEventSpec2);
+                }),
+                Throws.TypeOf<OperationCanceledException>());
+
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened().Then(
+                A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappened());
+            A.CallTo(() => completeEventSpec2.BuildAsync(A<CancellationToken>._)).MustHaveHappened().Then(
+                A.CallTo(() => completeEventFeed2.DisposeAsync()).MustHaveHappened());
+        }
+
+        [Test]
+        public async Task Given_BuiltVerifier_When_Disposed_Then_AllEventFeedsDisposed()
+        {
+            var completeEventFeed = A.Dummy<IEventFeed>();
+            var completeEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
+
+            var completeEventFeed2 = A.Dummy<IEventFeed>();
+            var completeEventSpec2 = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec2.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed2);
+
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.Event(e => completeEventSpec);
+                c.Event(e => completeEventSpec2);
+            });
+
+            await verifier.DisposeAsync();
+
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).MustHaveHappened().Then(
+                A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappened());
+            A.CallTo(() => completeEventSpec2.BuildAsync(A<CancellationToken>._)).MustHaveHappened().Then(
+                A.CallTo(() => completeEventFeed2.DisposeAsync()).MustHaveHappened());
+        }
+
+        [Test]
+        public async Task Given_DisposingVerifier_When_Dispose_Then_NoThrowAndSingleDispose()
+        {
+            var completeEventFeed = A.Dummy<IEventFeed>();
+            A.CallTo(() => completeEventFeed.DisposeAsync()).ReturnsLazily(() => new ValueTask(Task.Delay(100)));
+            var completeEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
+
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.Event(e => completeEventSpec);
+            });
+
+            var originalDispose = Task.Run(() => verifier.DisposeAsync());
+            await verifier.DisposeAsync();
+            await originalDispose;
+
+            // Only trigger dispose of children once
+            A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappenedOnceExactly();
+        }
+
+        [Test]
+        public async Task Given_DisposedVerifier_When_Dispose_Then_NoThrowAndSingleDispose()
+        {
+            var completeEventFeed = A.Dummy<IEventFeed>();
+            A.CallTo(() => completeEventFeed.DisposeAsync()).ReturnsLazily(() => new ValueTask(Task.Delay(100)));
+            var completeEventSpec = A.Fake<IEventSpecification>();
+            A.CallTo(() => completeEventSpec.BuildAsync(A<CancellationToken>._)).Returns(completeEventFeed);
+
+            var verifier = await _environment.VerifyAsync(c =>
+            {
+                c.Event(e => completeEventSpec);
+            });
+
+            await verifier.DisposeAsync();
+            await verifier.DisposeAsync();
+
+            // Only trigger dispose of children once
+            A.CallTo(() => completeEventFeed.DisposeAsync()).MustHaveHappenedOnceExactly();
         }
     }
 }

@@ -24,8 +24,7 @@ using System.Threading.Tasks;
 
 namespace Periturf.Verify
 {
-    public interface IVerifier
+    public interface IVerifier : IAsyncDisposable
     {
-        Task StartAsync(CancellationToken ct = default);
     }
 }

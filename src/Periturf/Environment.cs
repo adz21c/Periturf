@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -284,12 +285,14 @@ namespace Periturf
 
         #region Verify
 
-        public async ValueTask VerifyAsync(Action<IVerificationContext> config, CancellationToken ct = default)
+        public async ValueTask<IVerifier> VerifyAsync(CancellationToken ct, Action<IVerificationContext> config)
         {
             var context = new VerificationContext(_components);
             config(context);
-            await context.BuildVerifierAsync(ct);
+            return await context.BuildVerifierAsync(ct);
         }
+
+        public ValueTask<IVerifier> VerifyAsync(Action<IVerificationContext> config) => VerifyAsync(CancellationToken.None, config);
 
         private class VerificationContext : IVerificationContext, IEventConfigurator
         {
@@ -307,21 +310,36 @@ namespace Periturf
                 _eventSpecifications.Add(spec);
             }
 
-            public async Task BuildVerifierAsync(CancellationToken ct)
+            public async Task<IVerifier> BuildVerifierAsync(CancellationToken ct)
             {
                 using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(ct);
                 var eventTasks = _eventSpecifications.Select(x => x.BuildAsync(cancellationTokenSource.Token)).ToList();
                 try
                 {
                     await Task.WhenAll(eventTasks);
+                    ct.ThrowIfCancellationRequested();
+                    return new Verifier(eventTasks.Select(x => x.Result).ToImmutableList());
+                }
+                catch (OperationCanceledException) when (ct.IsCancellationRequested)
+                {
+                    await Rollback(eventTasks);
+                    throw new OperationCanceledException(ct);
                 }
                 catch
                 {
-                    var ex = new AggregateException(
-                        eventTasks.Where(x => x.IsFaulted).Select(x => x.Exception).SelectMany(x => x.InnerExceptions));
-                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Cancel(); // Cancel anything in progress
+                    await Rollback(eventTasks);
+                    throw new AggregateException(
+                        eventTasks
+                            .Where(x => x.IsFaulted)
+                            .Select(x => x.Exception)
+                            .SelectMany(x => x?.InnerExceptions ?? Enumerable.Empty<Exception>())
+                            .Where(x => x != null));
+                }
+
+                static async Task Rollback(List<Task<IEventFeed>> eventTasks)
+                {
                     await Task.WhenAll(eventTasks.Where(x => x.IsCompletedSuccessfully).Select(x => x.Result.DisposeAsync().AsTask()));
-                    throw ex;
                 }
             }
 
@@ -334,7 +352,32 @@ namespace Periturf
             }
         }
 
+        private class Verifier : IVerifier
+        {
+            private readonly object _initiateDisposeLock = new object();
+            private bool _disposing = false;
 
+            private IEnumerable<IEventFeed> enumerable;
+
+            public Verifier(IEnumerable<IEventFeed> enumerable)
+            {
+                this.enumerable = enumerable;
+            }
+
+            public async ValueTask DisposeAsync()
+            {
+                Task disposingTask = Task.CompletedTask;
+                lock (_initiateDisposeLock)
+                {
+                    if (_disposing) // already disposing, act as if completed
+                        return;
+
+                    _disposing = true;
+                    disposingTask = Task.WhenAll(enumerable.Select(x => x.DisposeAsync().AsTask()));
+                }
+                await disposingTask;
+            }
+        }
 
         #endregion
     }
