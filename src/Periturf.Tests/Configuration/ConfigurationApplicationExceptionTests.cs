@@ -46,7 +46,7 @@ namespace Periturf.Tests.Configuration
         public void Given_ComponentErrors_When_Ctor_Then_ExceptionCreated()
         {
             // Arrange
-            var componentDetails = new[] { new ComponentExceptionDetails("MyComponent", new Exception()) };
+            var componentDetails = new[] { new ComponentExceptionDetails { ComponentName = "MyComponent", Exception = new Exception() } };
 
             // Act
             var sut = new ConfigurationApplicationException(componentDetails);
@@ -79,7 +79,7 @@ namespace Periturf.Tests.Configuration
         {
             // Arrange
             const string message = "My Custom Error Message";
-            var componentDetails = new[] { new ComponentExceptionDetails("MyComponent", new Exception()) };
+            var componentDetails = new[] { new ComponentExceptionDetails { ComponentName = "MyComponent", Exception = new Exception() } };
 
             // Act
             var sut = new ConfigurationApplicationException(message, componentDetails);

@@ -16,40 +16,17 @@
 //
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf
 {
     /// <summary>
     /// Contains details about an error coming from a host.
     /// </summary>
-    [Serializable]
-    public class HostExceptionDetails
+    public record HostExceptionDetails
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HostExceptionDetails"/> class.
-        /// </summary>
-        [ExcludeFromCodeCoverage]
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        protected HostExceptionDetails()
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HostExceptionDetails"/> class.
-        /// </summary>
-        /// <param name="exceptions">The exception.</param>
-        public HostExceptionDetails(Exception[] exceptions)
-        {
-            Exceptions = exceptions;
-        }
-
-        /// <summary>
-        /// Gets the exceptions.
-        /// </summary>
         /// <value>
         /// The exceptions.
         /// </value>
-        public Exception[] Exceptions { get; }
+        public required Exception[] Exceptions { get; init; }
     }
 }

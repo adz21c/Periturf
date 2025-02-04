@@ -52,7 +52,7 @@ namespace Periturf.Tests.Configuration
         {
             // Arrange
             var id = Guid.NewGuid();
-            var componentDetails = new[] { new ComponentExceptionDetails("MyComponent", new Exception()) };
+            var componentDetails = new[] { new ComponentExceptionDetails { ComponentName = "MyComponent", Exception = new Exception() } };
 
             // Act
             var sut = new ConfigurationRemovalException(id, componentDetails);
@@ -91,7 +91,7 @@ namespace Periturf.Tests.Configuration
             // Arrange
             const string message = "My Custom Error Message";
             var id = Guid.NewGuid();
-            var componentDetails = new[] { new ComponentExceptionDetails("MyComponent", new Exception()) };
+            var componentDetails = new[] { new ComponentExceptionDetails { ComponentName = "MyComponent", Exception = new Exception() } };
 
             // Act
             var sut = new ConfigurationRemovalException(message, id, componentDetails);

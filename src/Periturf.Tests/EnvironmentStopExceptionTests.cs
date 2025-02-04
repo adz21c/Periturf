@@ -47,7 +47,7 @@ namespace Periturf.Tests
         public void Given_HostErrors_When_Ctor_Then_ExceptionCreated()
         {
             // Arrange
-            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
+            var hostDetails = new[] { new HostExceptionDetails { Exceptions = new[] { new Exception() } } };
 
             // Act
             var sut = new EnvironmentStopException(hostDetails);
@@ -83,7 +83,7 @@ namespace Periturf.Tests
         {
             // Arrange
             const string message = "My Custom Error Message";
-            var hostDetails = new[] { new HostExceptionDetails(new[] { new Exception() }) };
+            var hostDetails = new[] { new HostExceptionDetails { Exceptions = new[] { new Exception() } } };
 
             // Act
             var sut = new EnvironmentStopException(message, hostDetails);

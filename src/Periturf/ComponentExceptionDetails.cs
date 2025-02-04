@@ -16,50 +16,22 @@
 //
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Periturf
 {
     /// <summary>
     /// Contains details about an error coming from a component.
     /// </summary>
-    [Serializable]
-    public class ComponentExceptionDetails
+    public record ComponentExceptionDetails
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentExceptionDetails"/> class.
-        /// </summary>
-        [ExcludeFromCodeCoverage]
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        protected ComponentExceptionDetails()
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentExceptionDetails"/> class.
-        /// </summary>
-        /// <param name="componentName">Name of the component.</param>
-        /// <param name="exception">The exception.</param>
-        public ComponentExceptionDetails(string componentName, Exception exception)
-        {
-            ComponentName = componentName;
-            Exception = exception;
-        }
-
-        /// <summary>
-        /// Gets the name of the component.
-        /// </summary>
         /// <value>
         /// The name of the component.
         /// </value>
-        public string ComponentName { get; }
+        public required string ComponentName { get; init; }
 
-        /// <summary>
-        /// Gets the exception.
-        /// </summary>
         /// <value>
         /// The exception.
         /// </value>
-        public Exception Exception { get; }
+        public required Exception Exception { get; init; }
     }
 }
