@@ -59,28 +59,5 @@ namespace Periturf.Tests.Configuration
             Assert.That(sut.ComponentName, Is.EqualTo(componentName));
             Assert.That(sut.Message, Is.EqualTo(message));
         }
-
-        [Test]
-        public void Given_AnException_When_SeriaizedAndDeserialized_Then_DataMatchesTheOriginal()
-        {
-            // Arrange
-            const string componentName = "ComponentName";
-            var originalException = new ComponentLocationFailedException(componentName);
-
-            var buffer = new byte[4096];
-            var ms = new MemoryStream(buffer);
-            var ms2 = new MemoryStream(buffer);
-            var formatter = new BinaryFormatter();
-
-            // Act
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-            formatter.Serialize(ms, originalException);
-            var deserializedException = (ComponentLocationFailedException)formatter.Deserialize(ms2);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
-
-            // Assert
-            Assert.That(deserializedException.ComponentName, Is.EqualTo(originalException.ComponentName));
-            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
-        }
     }
 }

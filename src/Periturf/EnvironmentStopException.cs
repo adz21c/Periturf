@@ -16,8 +16,6 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace Periturf
 {
@@ -25,7 +23,6 @@ namespace Periturf
     /// Holds details of errors while stopping the hosts of an environment.
     /// </summary>
     /// <seealso cref="System.Exception" />
-    [Serializable]
     public class EnvironmentStopException : Exception
     {
         /// <summary>
@@ -34,7 +31,7 @@ namespace Periturf
         /// <param name="details">The details.</param>
         public EnvironmentStopException(HostExceptionDetails[]? details = null) : base("Failed to correctly stop environment")
         {
-            Details = details ?? new HostExceptionDetails[] { };
+            Details = details ?? [];
         }
 
         /// <summary>
@@ -44,19 +41,7 @@ namespace Periturf
         /// <param name="details">The details.</param>
         public EnvironmentStopException(string message, HostExceptionDetails[]? details = null) : base(message)
         {
-            Details = details ?? new HostExceptionDetails[] { };
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="EnvironmentStopException"/> class.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        protected EnvironmentStopException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            var detailsValue = info.GetValue(nameof(Details), typeof(HostExceptionDetails[])) as HostExceptionDetails[];
-            Debug.Assert(detailsValue != null);
-            Details = detailsValue;
+            Details = details ?? [];
         }
 
         /// <summary>
@@ -66,17 +51,5 @@ namespace Periturf
         /// The host error details.
         /// </value>
         public HostExceptionDetails[] Details { get; }
-
-        /// <summary>
-        /// When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> with information about the exception.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue(nameof(Details), Details, typeof(HostExceptionDetails[]));
-
-            base.GetObjectData(info, context);
-        }
     }
 }

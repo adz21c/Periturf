@@ -89,36 +89,5 @@ namespace Periturf.Tests.Configuration
             Assert.That(sut.Details, Is.EqualTo(componentDetails));
             Assert.That(sut.Message, Is.EqualTo(message));
         }
-
-        [Test]
-        public void Given_AnException_When_SeriaizedAndDeserialized_Then_DataMatchesTheOriginal()
-        {
-            // Arrange
-            var componentDetails = new[] { new ComponentExceptionDetails("MyComponent", new Exception("MyMessage")) };
-            var originalException = new ConfigurationApplicationException(componentDetails);
-
-            var buffer = new byte[4096];
-            var ms = new MemoryStream(buffer);
-            var ms2 = new MemoryStream(buffer);
-            var formatter = new BinaryFormatter();
-
-            // Act
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-            formatter.Serialize(ms, originalException);
-            var deserializedException = (ConfigurationApplicationException)formatter.Deserialize(ms2);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
-
-            // Assert
-            Assert.That(deserializedException.Details, Is.Not.Null);
-            Assert.That(deserializedException.Details, Is.Not.Empty);
-
-            var orignalComponentExceptionDetails = originalException.Details.Single();
-            var deserializedComponentExceptionDetails = deserializedException.Details.Single();
-            Assert.That(deserializedComponentExceptionDetails.ComponentName, Is.EqualTo(orignalComponentExceptionDetails.ComponentName));
-            Assert.That(deserializedComponentExceptionDetails.Exception, Is.Not.Null);
-            Assert.That(deserializedComponentExceptionDetails.Exception.Message, Is.EqualTo(orignalComponentExceptionDetails.Exception.Message));
-
-            Assert.That(deserializedException.Message, Is.EqualTo(originalException.Message));
-        }
     }
 }

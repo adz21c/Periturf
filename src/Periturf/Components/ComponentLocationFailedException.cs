@@ -25,7 +25,6 @@ namespace Periturf.Components
     /// Thrown when a component could not be found.
     /// </summary>
     /// <seealso cref="System.Exception" />
-    [Serializable]
     public class ComponentLocationFailedException : Exception
     {
         /// <summary>
@@ -48,36 +47,8 @@ namespace Periturf.Components
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EnvironmentStartException"/> class.
+        /// 
         /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        protected ComponentLocationFailedException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-
-            var componentNameValue = info.GetString(nameof(ComponentName));
-            Debug.Assert(componentNameValue != null);
-            ComponentName = componentNameValue;
-        }
-
-        /// <summary>
-        /// Gets the name of the component that couldn't be found.
-        /// </summary>
-        /// <value>
-        /// The component name.
-        /// </value>
         public string ComponentName { get; }
-
-        /// <summary>
-        /// When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> with information about the exception.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue(nameof(ComponentName), ComponentName);
-
-            base.GetObjectData(info, context);
-        }
     }
 }

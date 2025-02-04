@@ -16,8 +16,6 @@
 //
 
 using System;
-using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace Periturf.Configuration
 {
@@ -25,7 +23,6 @@ namespace Periturf.Configuration
     /// Thrown when there are errors while removing configuration from an environment.
     /// </summary>
     /// <seealso cref="System.Exception" />
-    [Serializable]
     public class ConfigurationRemovalException : Exception
     {
         /// <summary>
@@ -36,7 +33,7 @@ namespace Periturf.Configuration
         public ConfigurationRemovalException(Guid id, ComponentExceptionDetails[]? details = null) : base("There was a problem while removing configuration from environment")
         {
             Id = id;
-            Details = details ?? new ComponentExceptionDetails[] { };
+            Details = details ?? [];
         }
 
         /// <summary>
@@ -48,23 +45,7 @@ namespace Periturf.Configuration
         public ConfigurationRemovalException(string message, Guid id, ComponentExceptionDetails[]? details = null) : base(message)
         {
             Id = id;
-            Details = details ?? new ComponentExceptionDetails[] { };
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationRemovalException"/> class.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        protected ConfigurationRemovalException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-            var idValue = info.GetString(nameof(Id));
-            Debug.Assert(idValue != null);
-            Id = new Guid(idValue);
-
-            var detailsValue = info.GetValue(nameof(Details), typeof(ComponentExceptionDetails[])) as ComponentExceptionDetails[];
-            Debug.Assert(detailsValue != null);
-            Details = detailsValue;
+            Details = details ?? [];
         }
 
         /// <summary>
@@ -82,18 +63,5 @@ namespace Periturf.Configuration
         /// The component error details.
         /// </value>
         public ComponentExceptionDetails[] Details { get; }
-
-        /// <summary>
-        /// When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> with information about the exception.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> that holds the serialized object data about the exception being thrown.</param>
-        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"></see> that contains contextual information about the source or destination.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue(nameof(Id), Id);
-            info.AddValue(nameof(Details), Details, typeof(HostExceptionDetails[]));
-
-            base.GetObjectData(info, context);
-        }
     }
 }
