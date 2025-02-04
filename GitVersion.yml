@@ -1,2 +1,1 @@
-mode: Mainline
-increment: Patch
+workflow: GitHubFlow/v1
