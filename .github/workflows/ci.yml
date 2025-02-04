@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'feature/*'
     paths:
       - 'src/**'
       - '.github/workflows/ci.yml'
@@ -94,49 +95,49 @@ jobs:
           path: ${{ env.PACKAGE_PATH }}\**
           retention-days: 5
 
-  release_github:
-    name: Create Github Release
-
-    needs: [build]
-    if: ${{ success() && github.event_name == 'push' }}
-
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-         
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: packages
-          path: ${{ env.PACKAGE_PATH }}
-
-      - name: Create Git Release Tag v${{ needs.build.outputs.gitversion_fullSemVer }}
-        run: |
-          git tag v${{ needs.build.outputs.gitversion_fullSemVer }}
-          git push origin v${{ needs.build.outputs.gitversion_fullSemVer }}
-
-      - name: Create Github Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ needs.build.outputs.gitversion_informationalVersion }}
-          files: ${{ env.PACKAGE_PATH }}\*
-          tag_name: v${{ needs.build.outputs.gitversion_fullSemVer }}
-          prerelease: ${{ needs.build.outputs.gitversion_preReleaseLabel != '' }}
-
-  release_nuget:
-    name: Push Release to Nuget
-
-    needs: [build]
-    if: ${{ success() && github.event_name == 'push' }}
-
-    runs-on: windows-latest
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: packages
-          path: ${{ env.PACKAGE_PATH }}
-
-      - name: Push to NuGet
-        run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
+  #release_github:
+  #  name: Create Github Release
+  #
+  #  needs: [build]
+  #  if: ${{ success() && github.event_name == 'push' }}
+  #
+  #  runs-on: windows-latest
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v4
+  #       
+  #    - name: Download artifacts
+  #      uses: actions/download-artifact@v4
+  #      with:
+  #        name: packages
+  #        path: ${{ env.PACKAGE_PATH }}
+  #
+  #    - name: Create Git Release Tag v${{ needs.build.outputs.gitversion_fullSemVer }}
+  #      run: |
+  #        git tag v${{ needs.build.outputs.gitversion_fullSemVer }}
+  #        git push origin v${{ needs.build.outputs.gitversion_fullSemVer }}
+  #
+  #    - name: Create Github Release
+  #      uses: softprops/action-gh-release@v2
+  #      with:
+  #        name: ${{ needs.build.outputs.gitversion_informationalVersion }}
+  #        files: ${{ env.PACKAGE_PATH }}\*
+  #        tag_name: v${{ needs.build.outputs.gitversion_fullSemVer }}
+  #        prerelease: ${{ needs.build.outputs.gitversion_preReleaseLabel != '' }}
+  #
+  #release_nuget:
+  #  name: Push Release to Nuget
+  #
+  #  needs: [build]
+  #  if: ${{ success() && github.event_name == 'push' }}
+  #
+  #  runs-on: windows-latest
+  #  steps:
+  #    - name: Download artifacts
+  #      uses: actions/download-artifact@v4
+  #      with:
+  #        name: packages
+  #        path: ${{ env.PACKAGE_PATH }}
+  #
+  #    - name: Push to NuGet
+  #      run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
