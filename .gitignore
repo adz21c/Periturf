@@ -329,8 +329,11 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
-# Coverlet OpenCover output
-coverage.json
-/coverage.cobertura.xml
+# Coverage file formats
+**/*.coverage
+**/coverage.xml
+
+# Github Action artifacts
+artifacts/**/*
 
 docs/src/.vuepress/dist/
