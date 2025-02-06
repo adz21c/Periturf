@@ -1,24 +1,42 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- File name extension must be .runsettings -->
 <RunSettings>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <DataCollector friendlyName="XPlat Code Coverage">
+      <DataCollector 
+        friendlyName="Code Coverage" 
+        uri="datacollector://Microsoft/CodeCoverage/2.0" 
+        assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
         <Configuration>
-          <Format>opencover</Format>
-          <Include>[Periturf.*]*,[*]Periturf.*</Include>
-          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverage</ExcludeByAttribute>
-          <SingleHit>false</SingleHit>
-          <UseSourceLink>true</UseSourceLink>
+          <CodeCoverage>
+            <Format>coverage</Format>
+            <!-- Match assembly file paths: -->
+            <ModulePaths>
+              <Include>
+                <ModulePath>[Periturf.*]*,[*]Periturf.*</ModulePath>
+              </Include>
+            </ModulePaths>
+
+            <Attributes>
+              <Exclude>
+                <Attribute>^System\.Diagnostics\.DebuggerHiddenAttribute$</Attribute>
+                <Attribute>^System\.Diagnostics\.DebuggerNonUserCodeAttribute$</Attribute>
+                <Attribute>^System\.CodeDom\.Compiler\.GeneratedCodeAttribute$</Attribute>
+                <Attribute>^System\.CodeDom\.Compiler\.CompilerGeneratedAttribute</Attribute>
+                <Attribute>^System\.Diagnostics\.CodeAnalysis\.ExcludeFromCodeCoverageAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+
+            <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
+            <AllowLowIntegrityProcesses>True</AllowLowIntegrityProcesses>
+            <CollectFromChildProcesses>True</CollectFromChildProcesses>
+            <CollectAspDotNet>False</CollectAspDotNet>
+            <EnableStaticNativeInstrumentation>True</EnableStaticNativeInstrumentation>
+            <EnableDynamicNativeInstrumentation>True</EnableDynamicNativeInstrumentation>
+            <EnableStaticNativeInstrumentationRestore>True</EnableStaticNativeInstrumentationRestore>
+          </CodeCoverage>
         </Configuration>
       </DataCollector>
     </DataCollectors>
   </DataCollectionRunSettings>
-  <InProcDataCollectionRunSettings>
-    <InProcDataCollectors>
-      <InProcDataCollector assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletInProcDataCollector, coverlet.collector, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null"
-                           friendlyName="XPlat Code Coverage"
-                           enabled="True"
-                           codebase="coverlet.collector.dll" />
-    </InProcDataCollectors>
-  </InProcDataCollectionRunSettings>
 </RunSettings>
