@@ -11,6 +11,7 @@ on:
   pull_request:
 
 env:
+  REPORTS_PATH: ${{ github.workspace }}\artifacts\reports
   PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
 
 jobs:
@@ -80,9 +81,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
           dotnet build src -c Release -p:Version="${{ steps.gitversion.outputs.FullSemVer }}" -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
-          dotnet test .\src\Periturf.Tests --collect:"Code Coverage" --settings:.\src\CodeCoverage.runsettings --no-restore --no-build -c Release
+          dotnet dotnet-coverage collect "dotnet test .\src\Periturf.Tests --no-restore --no-build -c Release" --settings:.\src\CodeCoverage.runsettings --output "${{ env.PACKAGE_PATH }}\coverage.xml" --format Xml
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Package
