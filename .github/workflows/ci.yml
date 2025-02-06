@@ -80,14 +80,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
+        working-directory: .\src
         run: |
-          dotnet tool restore --tool-manifest src/.config/dotnet-tools.json
+          dotnet tool restore
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
-          dotnet build src -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
-          dotnet dotnet-coverage collect "dotnet test .\src\Periturf.Tests --no-restore --no-build -c Release" --settings:.\src\CodeCoverage.runsettings --output "${{ env.PACKAGE_PATH }}\coverage.xml" --format Xml
+          dotnet build -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
+          dotnet dotnet-coverage collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release" --settings:.\CodeCoverage.runsettings --output "${{ env.PACKAGE_PATH }}\coverage.xml" --format Xml
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Package
+        working-directory: .\src
         run: dotnet pack src --no-restore --no-build --include-symbols -p:SymbolPackageFormat=snupkg  -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -o "${{ env.PACKAGE_PATH }}"
 
       - name: Upload Package Artifact
