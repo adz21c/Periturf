@@ -12,8 +12,12 @@
             <!-- Match assembly file paths: -->
             <ModulePaths>
               <Include>
-                <ModulePath>[Periturf.*]*,[*]Periturf.*</ModulePath>
+                <ModulePath>.*Periturf.*\.dll$</ModulePath>
               </Include>
+              <Exclude>
+                <ModulePath>.*\\(?!Periturf)[^\\]*\.dll$</ModulePath>
+                <ModulePath>.*\\Periturf[^\\]*\.Tests\.dll$</ModulePath>
+              </Exclude>
             </ModulePaths>
 
             <Attributes>
