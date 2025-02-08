@@ -83,9 +83,18 @@ jobs:
         working-directory: .\src
         run: |
           dotnet tool restore
-          ..\.sonar\scanner\dotnet-sonarscanner begin /k:"adz21c_Periturf" /o:"adz21c-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
+          ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
+            /k:"adz21c_Periturf" `
+            /o:"adz21c-github" `
+            /v:"${{ steps.gitversion.outputs.fullSemVer }}" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.scanner.skipJreProvisioning=true 
+            /d:sonar.scanner.scanAll=false 
+            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
+          
           dotnet build -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet dotnet-coverage collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release" --settings:.\CodeCoverage.runsettings --output "${{ env.REPORTS_PATH }}\coverage.xml" --output-format Xml
+          
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Package
