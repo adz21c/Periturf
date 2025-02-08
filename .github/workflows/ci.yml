@@ -83,7 +83,7 @@ jobs:
         working-directory: .\src
         run: |
           dotnet tool restore
-          ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:project.settings=../sonar-project.properties /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
+          ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /v:"${{ steps.gitversion.outputs.fullSemVer }}" /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
           dotnet build -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet dotnet-coverage collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release" --settings:.\CodeCoverage.runsettings --output "${{ env.REPORTS_PATH }}\coverage.xml" --output-format Xml
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
