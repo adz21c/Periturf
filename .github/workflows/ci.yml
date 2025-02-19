@@ -75,7 +75,7 @@ jobs:
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
       
-      - name: Build and analyze
+      - name: Build, test, and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -83,6 +83,7 @@ jobs:
         working-directory: .\src
         run: |
           dotnet tool restore
+
           ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /k:"adz21c_Periturf" `
             /o:"adz21c-github" `
@@ -92,14 +93,29 @@ jobs:
             /d:sonar.scanner.scanAll=false `
             /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
           
-          dotnet build -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
-          dotnet dotnet-coverage collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release" --settings:.\CodeCoverage.runsettings --output "${{ env.REPORTS_PATH }}\coverage.xml" --output-format Xml
+          dotnet build `
+            -c Release `
+            -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
+            -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
+          dotnet dotnet-coverage `
+            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.REPORTS_PATH }}\TestResults.trx'" `
+            --settings:.\CodeCoverage.runsettings `
+            --output "${{ env.REPORTS_PATH }}\coverage.xml" `
+            --output-format Xml
           
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: Package
         working-directory: .\src
-        run: dotnet pack . --no-restore --no-build --include-symbols -p:SymbolPackageFormat=snupkg  -c Release -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" -o "${{ env.PACKAGE_PATH }}"
+        run: |
+          dotnet pack . `
+            --no-restore `
+            --no-build `
+            --include-symbols `
+            -p:SymbolPackageFormat=snupkg `
+            -c Release `
+            -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
+            -o "${{ env.PACKAGE_PATH }}"
 
       - name: Upload Package Artifact
         uses: actions/upload-artifact@v4
