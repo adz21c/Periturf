@@ -24,8 +24,6 @@ jobs:
     env:
       PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
       UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}\artifacts\unit-test-reports
-      CODE_COVERAGE_PATH: ${{ github.workspace }}\artifacts\unit-test-reports\${{ env.CODE_COVERAGE_FILENAME }}
-      UNIT_TEST_PATH: ${{ github.workspace }}\artifacts\unit-test-reports\${{ env.UNIT_TEST_FILENAME }}
     runs-on: windows-latest
     steps:
       - name: Setup dotnet
@@ -95,16 +93,16 @@ jobs:
             /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" `
             /d:sonar.scanner.skipJreProvisioning=true `
             /d:sonar.scanner.scanAll=false `
-            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.CODE_COVERAGE_PATH }}"
+            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}"
           
           dotnet build `
             -c Release `
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet dotnet-coverage `
-            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.UNIT_TEST_PATH }}'" `
+            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}'" `
             --settings:.\CodeCoverage.runsettings `
-            --output "${{ env.CODE_COVERAGE_PATH }}" `
+            --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
             --output-format Xml
           
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
