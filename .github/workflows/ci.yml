@@ -11,8 +11,12 @@ on:
   pull_request:
 
 env:
-  REPORTS_PATH: ${{ github.workspace }}\artifacts\reports
   PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
+  UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}\artifacts\unit-test-reports
+  CODE_COVERAGE_FILENAME: code-coverage.xml
+  CODE_COVERAGE_PATH: ${{ env.UNIT_TEST_RESULTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}
+  UNIT_TEST_FILENAME: unit-tests-report.trx
+  UNIT_TEST_PATH: ${{ env.UNIT_TEST_RESULTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}
 
 jobs:
   build:
@@ -74,37 +78,45 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      
-      - name: Build, test, and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Restore Tools
         shell: powershell
         working-directory: .\src
         run: |
           dotnet tool restore
-
+      
+      - name: Build, test, and analyze
+        shell: powershell
+        working-directory: .\src
+        run: |
           ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
-            /k:"adz21c_Periturf" `
-            /o:"adz21c-github" `
+            /k:"${{ vars.SONAR_PROJECT }}" `
+            /o:"${{ vars.SONAR_ORGANISATION }}" `
             /v:"${{ steps.gitversion.outputs.fullSemVer }}" `
-            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" `
             /d:sonar.scanner.skipJreProvisioning=true `
             /d:sonar.scanner.scanAll=false `
-            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.REPORTS_PATH }}\coverage.xml"
+            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.CODE_COVERAGE_PATH }}"
           
           dotnet build `
             -c Release `
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet dotnet-coverage `
-            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.REPORTS_PATH }}\TestResults.trx'" `
+            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.UNIT_TEST_PATH }}'" `
             --settings:.\CodeCoverage.runsettings `
-            --output "${{ env.REPORTS_PATH }}\coverage.xml" `
+            --output "${{ env.CODE_COVERAGE_PATH }}" `
             --output-format Xml
           
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
+          
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit tests reports
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}
+          retention-days: 14
+      
       - name: Package
         working-directory: .\src
         run: |
@@ -117,12 +129,12 @@ jobs:
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -o "${{ env.PACKAGE_PATH }}"
 
-      - name: Upload Package Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: packages
-          path: ${{ env.PACKAGE_PATH }}\**
-          retention-days: 5
+      # - name: Upload Package Artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: packages
+      #     path: ${{ env.PACKAGE_PATH }}\**
+      #     retention-days: 1
 
   #release_github:
   #  name: Create Github Release
