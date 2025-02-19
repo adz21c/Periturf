@@ -11,22 +11,21 @@ on:
   pull_request:
 
 env:
-  PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
-  UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}\artifacts\unit-test-reports
   CODE_COVERAGE_FILENAME: code-coverage.xml
-  CODE_COVERAGE_PATH: ${{ env.UNIT_TEST_RESULTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}
   UNIT_TEST_FILENAME: unit-tests-report.trx
-  UNIT_TEST_PATH: ${{ env.UNIT_TEST_RESULTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}
 
 jobs:
   build:
     name: Build
-    
     outputs:
       gitversion_informationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       gitversion_fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       gitversion_preReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}
-
+    env:
+      PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
+      UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}\artifacts\unit-test-reports
+      CODE_COVERAGE_PATH: ${{ github.workspace }}\artifacts\unit-test-reports\${{ env.CODE_COVERAGE_FILENAME }}
+      UNIT_TEST_PATH: ${{ github.workspace }}\artifacts\unit-test-reports\${{ env.UNIT_TEST_FILENAME }}
     runs-on: windows-latest
     steps:
       - name: Setup dotnet
