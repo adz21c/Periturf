@@ -100,7 +100,7 @@ jobs:
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           dotnet dotnet-coverage `
-            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}'" `
+            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}" `
             --settings:.\CodeCoverage.runsettings `
             --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
             --output-format Xml
@@ -111,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: unit tests reports
-          path: ${{ env.UNIT_TEST_REPORTS_PATH }}
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}\**
           retention-days: 14
       
       - name: Package
