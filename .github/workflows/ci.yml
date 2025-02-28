@@ -99,16 +99,25 @@ jobs:
             -c Release `
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
-          dotnet dotnet-coverage `
-            collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}" `
-            --settings:.\CodeCoverage.runsettings `
-            --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
-            --output-format Xml
-          $testsFailed = $LASTEXITCODE
+          $buildExitCode = $LASTEXITCODE
+
+          if ($buildExitCode -eq 0)
+          {
+            dotnet dotnet-coverage `
+              collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}" `
+              --settings:.\CodeCoverage.runsettings `
+              --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
+              --output-format Xml
+            $testExitCode = $LASTEXITCODE
+          }
           
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-          if ($testsFailed -ne 0)
+          if ($buildExitCode -ne 0)
+          {
+              throw "Build failed"
+          }
+          if ($testExitCode -ne 0)
           {
             throw "Tests failed"
           }
