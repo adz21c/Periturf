@@ -86,8 +86,6 @@ jobs:
         shell: powershell
         working-directory: .\src
         run: |
-          $ErrorActionPreference = 'Stop'
-          
           ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /k:"${{ vars.SONAR_PROJECT }}" `
             /o:"${{ vars.SONAR_ORGANISATION }}" `
@@ -96,23 +94,32 @@ jobs:
             /d:sonar.scanner.skipJreProvisioning=true `
             /d:sonar.scanner.scanAll=false `
             /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}"
+          
+          dotnet build `
+            -c Release `
+            -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
+            -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
+          $buildExitCode = $LASTEXITCODE
 
-          try
+          if ($buildExitCode -eq 0)
           {
-            dotnet build `
-              -c Release `
-              -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
-              -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}"
-            
             dotnet dotnet-coverage `
               collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}" `
               --settings:.\CodeCoverage.runsettings `
               --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
               --output-format Xml
+            $testExitCode = $LASTEXITCODE
           }
-          finally
+          
+          ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+          if ($buildExitCode -ne 0)
           {
-            ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+              throw "Build failed"
+          }
+          if ($testExitCode -ne 0)
+          {
+            throw "Tests failed"
           }
           
       - name: Upload Test Reports
