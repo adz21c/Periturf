@@ -101,7 +101,8 @@ jobs:
             -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
             -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
           $buildSuccessful = $LASTEXITCODE -eq 0
-          Write-Output "::set-output name=buildSuccessful::$buildSuccessful"
+
+          "buildSuccessful=$buildSuccessful" >> "$env:GITHUB_OUTPUT"
 
           if ($buildSuccessful)
           {
@@ -110,13 +111,14 @@ jobs:
               --settings:.\CodeCoverage.runsettings `
               --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
               --output-format Xml
-            $testSuccessful = $LASTEXITCODE -eq 0
-            Write-Output "::set-output name=testExecuted::true"
-            Write-Output "::set-output name=testSuccessful::$testSuccessful"
+            $testsSuccessful = $LASTEXITCODE -eq 0
+
+            "testsExecuted=true" >> "$env:GITHUB_OUTPUT"
+            "testsSuccessful=$testsSuccessful" >> "$env:GITHUB_OUTPUT"
           }
           else
           {
-            Write-Output "::set-output name=testExecuted::false"
+            "testExecuted=false" >> "$env:GITHUB_OUTPUT"
           }
           
           ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
@@ -125,14 +127,14 @@ jobs:
           {
               throw "Build failed"
           }
-          if (-not $testSuccessful)
+          if (-not $testsSuccessful)
           {
             throw "Tests failed"
           }
           
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
-        if: always() && steps.build.outputs.testExecuted
+        if: always() && steps.build.outputs.testsExecuted
         with:
           name: unit tests reports
           path: ${{ env.UNIT_TEST_REPORTS_PATH }}\**
