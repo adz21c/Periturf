@@ -17,14 +17,17 @@ env:
 jobs:
   build:
     name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     outputs:
       gitversion_informationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
       gitversion_fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
       gitversion_preReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}
     env:
-      PACKAGE_PATH: ${{ github.workspace }}\artifacts\packages
-      UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}\artifacts\unit-test-reports
-    runs-on: windows-latest
+      PACKAGE_PATH: ${{ github.workspace }}/artifacts/packages
+      UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}/artifacts/unit-test-reports
     steps:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v2
@@ -57,7 +60,7 @@ jobs:
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
-          path: ~\sonar\cache
+          path: ~/sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
       
@@ -65,99 +68,102 @@ jobs:
         id: cache-sonar-scanner
         uses: actions/cache@v4
         with:
-          path: .\.sonar\scanner
+          path: .sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
       
       - name: Install SonarQube Cloud scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-        shell: powershell
         run: |
-          New-Item -Path .\.sonar\scanner -ItemType Directory
-          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+          mkdir -p .sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
 
       - name: Restore Tools
-        shell: powershell
-        working-directory: .\src
+        working-directory: src
         run: |
           dotnet tool restore
       
       - name: Build, test, and analyze
         id: build
-        shell: powershell
-        working-directory: .\src
+        working-directory: src
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT: ${{ vars.SONAR_PROJECT }}
+          SONAR_ORGANISATION: ${{ vars.SONAR_ORGANISATION }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          UNIT_TEST_REPORT: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
+          COVERAGE_REPORT: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.CODE_COVERAGE_FILENAME }}
         run: |
-          ..\.sonar\scanner\dotnet-sonarscanner begin /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
-            /k:"${{ vars.SONAR_PROJECT }}" `
-            /o:"${{ vars.SONAR_ORGANISATION }}" `
-            /v:"${{ steps.gitversion.outputs.fullSemVer }}" `
-            /d:sonar.host.url="${{ vars.SONAR_HOST_URL }}" `
-            /d:sonar.scanner.skipJreProvisioning=true `
-            /d:sonar.scanner.scanAll=false `
-            /d:sonar.cs.vscoveragexml.reportsPaths="${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}"
-          
-          dotnet build `
-            -c Release `
-            -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
-            -p:InformationalVersion="${{ steps.gitversion.outputs.informationalVersion }}" 
-          $buildSuccessful = $LASTEXITCODE -eq 0
+          echo "build_outcome=skipped" >> "$GITHUB_OUTPUT"
+          echo "test_outcome=skipped" >> "$GITHUB_OUTPUT"
 
-          "buildSuccessful=$buildSuccessful" >> "$env:GITHUB_OUTPUT"
+          echo "::group::Setup Sonar Scanner"
+          ../.sonar/scanner/dotnet-sonarscanner begin /d:sonar.login="$SONAR_TOKEN" \
+            /k:"$SONAR_PROJECT" \
+            /o:"$SONAR_ORGANISATION" \
+            /v:"$fullSemVer" \
+            /d:sonar.host.url='$SONAR_HOST_URL' \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.scanner.scanAll=false \
+            /d:sonar.cs.vscoveragexml.reportsPaths="$COVERAGE_REPORT"
+          echo "::endgroup::"
 
-          if ($buildSuccessful)
-          {
-            dotnet dotnet-coverage `
-              collect "dotnet test .\Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.UNIT_TEST_FILENAME }}" `
-              --settings:.\CodeCoverage.runsettings `
-              --output "${{ env.UNIT_TEST_REPORTS_PATH }}\${{ env.CODE_COVERAGE_FILENAME }}" `
+          echo "::group::Build"
+          dotnet build \
+            -c Release \
+            -p:Version="$GitVersion_FullSemVer" \
+            -p:InformationalVersion="$GitVersion_InformationalVersion"
+          buildOutcome=$([ $? -eq 0 ] && echo 'success' || echo 'failure')
+          echo "build_outcome=$buildOutcome" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+          if [ "$buildOutcome" = 'success' ]; then
+            echo "::group::Test"
+            dotnet dotnet-coverage \
+              collect "dotnet test ./Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=$UNIT_TEST_REPORT'" \
+              --settings:'CodeCoverage.runsettings' \
+              --output "$COVERAGE_REPORT" \
               --output-format Xml
-            $testsSuccessful = $LASTEXITCODE -eq 0
+            testsOutcome=$([ $? -eq 0 ] && echo 'success' || echo 'failure')
+            echo "tests_outcome=$testsOutcome" >> "$GITHUB_OUTPUT"
+            echo "::endgroup::"
+          fi
 
-            "testsExecuted=true" >> "$env:GITHUB_OUTPUT"
-            "testsSuccessful=$testsSuccessful" >> "$env:GITHUB_OUTPUT"
-          }
-          else
-          {
-            "testExecuted=false" >> "$env:GITHUB_OUTPUT"
-          }
-          
-          ..\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          echo "::group::Sonar Scanner End"
+          ../.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+          echo "::endgroup::"
 
-          if (-not $buildSuccessful)
-          {
-              throw "Build failed"
-          }
-          if (-not $testsSuccessful)
-          {
-            throw "Tests failed"
-          }
-          
+          [ "$buildOutcome" = 'failure' ] && echo "::error::Build failed" && exit 1
+          [ "$testsOutcome" = 'failure' ] && echo "::error::Tests failed" && exit 1
+
       - name: Upload Test Reports
         uses: actions/upload-artifact@v4
-        if: always() && steps.build.outputs.testsExecuted
+        id: test-artifacts
+        if: ${{ !cancelled() && steps.build.outputs.tests_outcome != 'failure' }}
         with:
           name: unit tests reports
           path: ${{ env.UNIT_TEST_REPORTS_PATH }}\**
           retention-days: 14
       
       - name: Package
-        working-directory: .\src
+        if: ${{ !cancelled() && steps.build.outputs.build_outcome == 'success' }}
+        working-directory: src
         run: |
-          dotnet pack . `
-            --no-restore `
-            --no-build `
-            --include-symbols `
-            -p:SymbolPackageFormat=snupkg `
-            -c Release `
-            -p:Version="${{ steps.gitversion.outputs.fullSemVer }}" `
-            -o "${{ env.PACKAGE_PATH }}"
+          dotnet pack . \
+            --no-restore \
+            --no-build \
+            --include-symbols \
+            -p:SymbolPackageFormat=snupkg \
+            -c Release \
+            -p:Version="$GitVersion_FullSemVer" \
+            -o "$PACKAGE_PATH"
 
-      # - name: Upload Package Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: packages
-      #     path: ${{ env.PACKAGE_PATH }}\**
-      #     retention-days: 1
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}/**
+          retention-days: 1
 
   #release_github:
   #  name: Create Github Release
