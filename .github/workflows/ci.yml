@@ -101,8 +101,8 @@ jobs:
           ../.sonar/scanner/dotnet-sonarscanner begin /d:sonar.login="$SONAR_TOKEN" \
             /k:"$SONAR_PROJECT" \
             /o:"$SONAR_ORGANISATION" \
-            /v:"$fullSemVer" \
-            /d:sonar.host.url='$SONAR_HOST_URL' \
+            /v:"$GitVersion_FullSemVer" \
+            /d:sonar.host.url="$SONAR_HOST_URL" \
             /d:sonar.scanner.skipJreProvisioning=true \
             /d:sonar.scanner.scanAll=false \
             /d:sonar.cs.vscoveragexml.reportsPaths="$COVERAGE_REPORT"
