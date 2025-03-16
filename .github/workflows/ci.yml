@@ -95,7 +95,7 @@ jobs:
           COVERAGE_REPORT: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.CODE_COVERAGE_FILENAME }}
         run: |
           echo "build_outcome=skipped" >> "$GITHUB_OUTPUT"
-          echo "test_outcome=skipped" >> "$GITHUB_OUTPUT"
+          echo "tests_outcome=skipped" >> "$GITHUB_OUTPUT"
 
           echo "::group::Setup Sonar Scanner"
           ../.sonar/scanner/dotnet-sonarscanner begin /d:sonar.login="$SONAR_TOKEN" \
@@ -109,22 +109,30 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Build"
-          dotnet build \
+          if dotnet build \
             -c Release \
             -p:Version="$GitVersion_FullSemVer" \
-            -p:InformationalVersion="$GitVersion_InformationalVersion"
-          buildOutcome=$([ $? -eq 0 ] && echo 'success' || echo 'failure')
+            -p:InformationalVersion="$GitVersion_InformationalVersion"; 
+          then
+            buildOutcome='success'
+          else
+            buildOutcome='failure'
+          fi
           echo "build_outcome=$buildOutcome" >> "$GITHUB_OUTPUT"
           echo "::endgroup::"
 
           if [ "$buildOutcome" = 'success' ]; then
             echo "::group::Test"
-            dotnet dotnet-coverage \
-              collect "dotnet test ./Periturf.Tests --no-restore --no-build -c Release --logger 'trx;LogFileName=$UNIT_TEST_REPORT'" \
+            if dotnet dotnet-coverage \
+              collect "dotnet test ./Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=$UNIT_TEST_REPORT" \
               --settings:'CodeCoverage.runsettings' \
               --output "$COVERAGE_REPORT" \
-              --output-format Xml
-            testsOutcome=$([ $? -eq 0 ] && echo 'success' || echo 'failure')
+              --output-format Xml;
+            then
+              testsOutcome='success'
+            else
+              testsOutcome='failure'
+            fi
             echo "tests_outcome=$testsOutcome" >> "$GITHUB_OUTPUT"
             echo "::endgroup::"
           fi
