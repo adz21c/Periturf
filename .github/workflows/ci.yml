@@ -188,10 +188,12 @@ jobs:
           name: unit tests reports
           path: ${{ env.UNIT_TEST_REPORTS_PATH }}
           
-      - name: Publish Test Report
-        uses: ctrf-io/github-test-reporter@v1
+      - name: Test Report
+        uses: dorny/test-reporter@v2
         with:
-          report-path: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
+          name: Unit Tests
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
+          reporter: dotnet-trx
   
   #release_github:
   #  name: Create Github Release
