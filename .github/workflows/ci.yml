@@ -151,7 +151,7 @@ jobs:
         if: ${{ !cancelled() && steps.build.outputs.tests_outcome != 'failure' }}
         with:
           name: unit tests reports
-          path: ${{ env.UNIT_TEST_REPORTS_PATH }}\**
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}/**
           retention-days: 14
       
       - name: Package
