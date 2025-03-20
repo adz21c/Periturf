@@ -179,6 +179,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build]
     if: ${{ !cancelled() && needs.build.outputs.tests_outcome == 'success' }}
+    permissions:
+      contents: read
+      actions: read
+      checks: write
     env:
       UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}/artifacts/unit-test-reports
     steps:
