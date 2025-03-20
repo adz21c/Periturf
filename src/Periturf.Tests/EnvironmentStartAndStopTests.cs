@@ -228,11 +228,5 @@ namespace Periturf.Tests
             A.CallTo(() => failingHost.StopAsync(A<CancellationToken>._)).MustHaveHappened();
             A.CallTo(() => failingHost2.StopAsync(A<CancellationToken>._)).MustHaveHappened();
         }
-
-        [Test]
-        public void whocares()
-        {
-            Assert.Fail();
-        }
     }
 }
