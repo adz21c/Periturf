@@ -1,0 +1,7 @@
+stryker-config:
+  solution: Periturf.sln
+  configuration: Release
+  mutation-level: Complete
+  reports:
+    - html
+    - progress

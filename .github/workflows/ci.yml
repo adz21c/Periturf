@@ -206,6 +206,51 @@ jobs:
           name: Unit Tests
           path: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
           reporter: dotnet-trx
+
+  mutation_tests:
+    name: Mutation Tests
+    runs-on: ubuntu-latest
+    env:
+      STRYKER_PATH: ${{ github.workspace }}/artifacts/stryker
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Stryker
+        working-directory: src
+        run: dotnet tool restore
+
+      - name: Run Stryker
+        working-directory: src
+        env:
+          STRYKER_PATH: ${{ env.STRYKER_PATH }}
+        run: |
+          dotnet stryker \
+            --config-file stryker-config.yaml \
+            --output "$STRYKER_PATH" \
+            --reporter "markdown" \
+            --reporter "html"
+
+      - name: Upload Report to Job Summary
+        working-directory: src
+        if: ${{ !cancelled() }}
+        env:
+          STRYKER_SUMMARY_PATH: ${{ env.STRYKER_PATH }}/reports/mutation-report.md
+        run: |
+          cat $STRYKER_SUMMARY_PATH >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Mutation Test Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: mutation tests reports
+          path: ${{ env.STRYKER_PATH }}/reports/**
+          retention-days: 14
   
   #release_github:
   #  name: Create Github Release
