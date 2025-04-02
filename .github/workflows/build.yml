@@ -1,0 +1,253 @@
+name: Build
+
+on:
+  workflow_call:
+
+env:
+  CODE_COVERAGE_FILENAME: code-coverage.xml
+  UNIT_TEST_FILENAME: unit-tests-report.trx
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      gitversion_informationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}
+      gitversion_fullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}
+      gitversion_preReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}
+      tests_outcome: ${{ steps.build.outputs.tests_outcome }}
+    env:
+      PACKAGE_PATH: ${{ github.workspace }}/artifacts/packages
+      UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}/artifacts/unit-test-reports
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.1.11
+        with:
+          versionSpec: '6.0.x'
+          preferLatestVersion: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # Git version requires complete history and sonarcloud for a better relevancy of analysis
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v3.1.11
+        with:
+          useConfigFile: true
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available.
+      
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: .sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+      
+      - name: Install SonarQube Cloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .sonar/scanner
+          dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+
+      - name: Restore Tools
+        working-directory: src
+        run: |
+          dotnet tool restore
+      
+      - name: Build, test, and analyze
+        id: build
+        working-directory: src
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT: ${{ vars.SONAR_PROJECT }}
+          SONAR_ORGANISATION: ${{ vars.SONAR_ORGANISATION }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+          SONAR_ENABLED: ${{ vars.SONAR_ENABLED }}
+          UNIT_TEST_REPORT: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
+          COVERAGE_REPORT: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.CODE_COVERAGE_FILENAME }}
+        run: |
+          echo "build_outcome=skipped" >> "$GITHUB_OUTPUT"
+          echo "tests_outcome=skipped" >> "$GITHUB_OUTPUT"
+
+          if [ "$SONAR_ENABLED" == 'true' ]; then
+            echo "::group::Setup Sonar Scanner"
+            ../.sonar/scanner/dotnet-sonarscanner begin /d:sonar.login="$SONAR_TOKEN" \
+              /k:"$SONAR_PROJECT" \
+              /o:"$SONAR_ORGANISATION" \
+              /v:"$GitVersion_FullSemVer" \
+              /d:sonar.host.url="$SONAR_HOST_URL" \
+              /d:sonar.scanner.skipJreProvisioning=true \
+              /d:sonar.scanner.scanAll=false \
+              /d:sonar.cs.vscoveragexml.reportsPaths="$COVERAGE_REPORT"
+            echo "::endgroup::"
+          fi
+
+          echo "::group::Build"
+          if dotnet build \
+            -c Release \
+            -p:Version="$GitVersion_FullSemVer" \
+            -p:InformationalVersion="$GitVersion_InformationalVersion"; 
+          then
+            buildOutcome='success'
+          else
+            buildOutcome='failure'
+          fi
+          echo "build_outcome=$buildOutcome" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+          if [ "$buildOutcome" = 'success' ]; then
+            echo "::group::Test"
+            if dotnet dotnet-coverage \
+              collect "dotnet test ./Periturf.Tests --no-restore --no-build -c Release --logger trx;LogFileName=$UNIT_TEST_REPORT" \
+              --settings:'CodeCoverage.runsettings' \
+              --output "$COVERAGE_REPORT" \
+              --output-format Xml;
+            then
+              testsOutcome='success'
+            else
+              testsOutcome='failure'
+            fi
+            echo "tests_outcome=$testsOutcome" >> "$GITHUB_OUTPUT"
+            echo "::endgroup::"
+          fi
+
+          if [ "$SONAR_ENABLED" == 'true' ]; then
+            echo "::group::Sonar Scanner End"
+            ../.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+            echo "::endgroup::"
+          fi
+
+          [ "$buildOutcome" = 'failure' ] && echo "::error::Build failed" && exit 1
+          [ "$testsOutcome" = 'failure' ] && echo "::error::Tests failed" && exit 1
+          exit 0
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.build.outputs.tests_outcome != 'skipped' }}
+        with:
+          name: unit tests reports
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}/**
+          retention-days: 14
+      
+      - name: Package
+        if: ${{ !cancelled() && steps.build.outputs.build_outcome == 'success' }}
+        working-directory: src
+        run: |
+          dotnet pack . \
+            --no-restore \
+            --no-build \
+            --include-symbols \
+            -p:SymbolPackageFormat=snupkg \
+            -c Release \
+            -p:Version="$GitVersion_FullSemVer" \
+            -o "$PACKAGE_PATH"
+
+      - name: Upload Package Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}/**
+          retention-days: 1
+
+  test_report:
+    name: Test Report
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ !cancelled() && needs.build.outputs.tests_outcome != 'skipped' }}
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+    defaults:
+      run:
+        shell: bash
+    env:
+      UNIT_TEST_REPORTS_PATH: ${{ github.workspace }}/artifacts/unit-test-reports
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: unit tests reports
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}
+          
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        with:
+          name: Unit Tests
+          path: ${{ env.UNIT_TEST_REPORTS_PATH }}/${{ env.UNIT_TEST_FILENAME }}
+          reporter: dotnet-trx
+
+  mutation_tests:
+    name: Mutation Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      STRYKER_PATH: ${{ github.workspace }}/artifacts/stryker
+    steps:
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Stryker
+        working-directory: src
+        run: dotnet tool restore
+
+      - name: Run Stryker
+        working-directory: src
+        env:
+          STRYKER_PATH: ${{ env.STRYKER_PATH }}
+        run: |
+          dotnet stryker \
+            --config-file stryker-config.yaml \
+            --output "$STRYKER_PATH" \
+            --reporter "markdown" \
+            --reporter "html"
+
+      - name: Upload Report to Job Summary
+        working-directory: src
+        if: ${{ !cancelled() }}
+        env:
+          STRYKER_SUMMARY_PATH: ${{ env.STRYKER_PATH }}/reports/mutation-report.md
+        run: |
+          cat $STRYKER_SUMMARY_PATH >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Mutation Test Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: mutation tests reports
+          path: ${{ env.STRYKER_PATH }}/reports/**
+          retention-days: 14
+  
