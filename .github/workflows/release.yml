@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'src/**'
+      - '.github/workflows/ci.yml'
+
+env:
+  PACKAGE_PATH: ${{ github.workspace }}/artifacts/packages
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+
+  release_git_tag:
+    name: Create Git Tag
+    needs: 
+      - build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+          
+      - name: Create Git Release Tag v${{ needs.build.outputs.gitversion_fullSemVer }}
+        env:
+          GITVERSION_FULLSEMVER: ${{ needs.build.outputs.gitversion_fullSemVer }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag "v$GITVERSION_FULLSEMVER"
+          git push origin "v$GITVERSION_FULLSEMVER"
+  
+  release_github:
+    name: Create Github Release
+    needs:
+      - build
+      - release_git_tag
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}
+   
+      - name: Create Github Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITVERSION_FULLSEMVER: ${{ needs.build.outputs.gitversion_fullSemVer }}
+          GITVERSION_INFORMATIONALVERSION: ${{ needs.build.outputs.gitversion_informationalVersion }}
+          PACKAGE_PATH: ${{ env.PACKAGE_PATH }}
+        run: |
+          gh release create \
+            --fail-on-no-commit \
+            --verify-tag \
+            --title "$GITVERSION_INFORMATIONALVERSION" \
+            $PACKAGE_PATH/*.nupkg
+  
+  release_nuget:
+    name: Push Release to Nuget
+    needs:
+      - build
+  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: ${{ env.PACKAGE_PATH }}
+  
+      - name: Push to NuGet
+        run: dotnet nuget push "${{ env.PACKAGE_PATH }}\*" --api-key "${{ secrets.NUGET_APIKEY }}" -s "https://api.nuget.org/v3/index.json"
